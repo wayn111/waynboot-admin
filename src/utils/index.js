@@ -105,3 +105,16 @@ export function param2Obj(url) {
       '"}'
   )
 }
+
+// 添加日期范围
+export function addDateRange(params, dateRange) {
+	var search = params
+	search.startTime = ''
+	search.endTime = ''
+	if (dateRange != null && dateRange !== '') {
+		search.startTime = this.dateRange[0]
+		search.endTime = this.dateRange[1]
+	}
+	return search
+}
+
