@@ -36,7 +36,7 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true
   },
- {
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
