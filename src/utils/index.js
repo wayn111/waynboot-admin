@@ -8,6 +8,8 @@
  * @param {string} cFormat
  * @returns {string | null}
  */
+const baseURL = process.env.VUE_APP_BASE_API
+
 export function parseTime(time, cFormat) {
   if (arguments.length === 0) {
     return null
@@ -37,7 +39,7 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -97,24 +99,28 @@ export function param2Obj(url) {
   }
   return JSON.parse(
     '{"' +
-      decodeURIComponent(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"')
-        .replace(/\+/g, ' ') +
-      '"}'
+    decodeURIComponent(search)
+      .replace(/"/g, '\\"')
+      .replace(/&/g, '","')
+      .replace(/=/g, '":"')
+      .replace(/\+/g, ' ') +
+    '"}'
   )
 }
 
 // 添加日期范围
 export function addDateRange(params, dateRange) {
-	var search = params
-	search.startTime = ''
-	search.endTime = ''
-	if (dateRange != null && dateRange !== '') {
-		search.startTime = this.dateRange[0]
-		search.endTime = this.dateRange[1]
-	}
-	return search
+  var search = params
+  search.startTime = ''
+  search.endTime = ''
+  if (dateRange != null && dateRange !== '') {
+    search.startTime = this.dateRange[0]
+    search.endTime = this.dateRange[1]
+  }
+  return search
 }
 
+// 通用下载方法
+export function download(fileName) {
+  window.location.href = baseURL + '/common/download?fileName=' + encodeURI(fileName) + '&delete=' + true
+}

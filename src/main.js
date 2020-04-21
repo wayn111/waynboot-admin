@@ -13,7 +13,7 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-import { parseTime, addDateRange } from '@/utils'
+import { parseTime, addDateRange, download } from '@/utils'
 import Pagination from '@/components/Pagination'
 /**
  * If you don't want to use mock-server
@@ -31,6 +31,7 @@ if (process.env.NODE_ENV === 'production') {
 Vue.component('Pagination', Pagination)
 Vue.prototype.addDateRange = addDateRange
 Vue.prototype.parseTime = parseTime
+Vue.prototype.download = download
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })

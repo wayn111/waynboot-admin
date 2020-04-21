@@ -70,7 +70,7 @@
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" icon="el-icon-download" size="mini">导出</el-button>
+        <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
       </el-col>
     </el-row>
 
@@ -84,7 +84,13 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="角色编号" prop="roleId" width="120" />
       <el-table-column label="角色名称" prop="roleName" :show-overflow-tooltip="true" width="150" />
-      <el-table-column label="权限字符" prop="roleKey" sortable="custom" :show-overflow-tooltip="true" width="150" />
+      <el-table-column
+        label="权限字符"
+        prop="roleKey"
+        sortable="custom"
+        :show-overflow-tooltip="true"
+        width="150"
+      />
       <el-table-column
         label="显示顺序"
         sortable="custom"
@@ -98,8 +104,8 @@
             v-model="scope.row.roleStatus"
             active-color="#13ce66"
             inactive-color="#ff4949"
-            active-value="0"
-            inactive-value="1"
+            :active-value="0"
+            :inactive-value="1"
             @change="handleSwitchChange(scope.row)"
           />
         </template>
@@ -156,13 +162,13 @@
             :props="defaultProps"
           />
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item label="状态" prop="roleStatus">
           <el-radio-group v-model="form.roleStatus">
-            <el-radio label="0">启用</el-radio>
-            <el-radio label="1">禁用</el-radio>
+            <el-radio :label="0">启用</el-radio>
+            <el-radio :label="1">禁用</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注">
+        <el-form-item label="备注" prop="remark">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
@@ -181,6 +187,7 @@ import {
   updateRole,
   delRole,
   getRole,
+  exportRole,
   changeRoleStatus
 } from '@/api/system/role'
 import {
@@ -215,7 +222,7 @@ export default {
       form: {
         roleName: '',
         roleKey: '',
-        roleStatus: '0',
+        roleStatus: 0,
         roleSort: 0,
         remark: ''
       },
@@ -291,7 +298,7 @@ export default {
      * switch 状态发生变化时的回调函数
      */
     handleSwitchChange(row) {
-      const text = row.roleStatus === '0' ? '启用' : '停用'
+      const text = row.roleStatus === 0 ? '启用' : '停用'
       this.$confirm(
         '确认要 "' + text + '" "' + row.roleName + '"角色吗?',
         '警告',
@@ -308,7 +315,7 @@ export default {
           this.$message.success(text + '成功')
         })
         .catch(function() {
-          row.roleStatus = row.roleStatus === '0' ? '1' : '0'
+          row.roleStatus = row.roleStatus === 0 ? 1 : 0
         })
     },
     /**
@@ -366,10 +373,30 @@ export default {
         .catch(function(e) {})
     },
     /**
+     * 导出按钮操作
+     */
+    handleExport() {
+      const queryForm = this.addDateRange(this.queryForm, this.dateRange)
+      this.$confirm('是否确认导出所有角色数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        return exportRole(queryForm)
+      }).then(response => {
+        this.download(response.msg)
+      }).catch(function() {})
+    },
+    /**
      * 角色对话框关闭
      */
     roleDialogHandleClose() {
-      this.$refs.formRef.resetFields()
+      if (this.$refs.menuRef !== undefined) {
+        this.$refs.menuRef.setCheckedKeys([])
+      }
+      this.menuOptions = []
+      this.$refs['formRef'].resetFields()
+      this.form.roleStatus = 0
       this.roleDialogVisible = false
     },
     /**
