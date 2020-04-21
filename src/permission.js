@@ -19,7 +19,6 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
-
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
@@ -38,6 +37,7 @@ router.beforeEach(async(to, from, next) => {
           // store.dispatch('permission/generateRoutes', { roles }).then(accessRoutes => {
           // 根据roles权限生成可访问的路由表
           router.addRoutes(accessRoutes) // 动态添加可访问路由表
+          debugger
           next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
         } catch (error) {
           // remove token and go to login page to re-login

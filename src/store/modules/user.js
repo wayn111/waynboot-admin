@@ -62,9 +62,9 @@ const actions = {
         if (!user) {
           reject('Verification failed, please Login again.')
         }
-        const { userName, userImg } = user
+        const { userName, avatar } = user
         commit('SET_NAME', userName)
-        commit('SET_AVATAR', userImg)
+        commit('SET_AVATAR', avatar)
         commit('SET_ROLES', roles)
         commit('SET_PERMISSIONS', permissions)
         resolve(user)
