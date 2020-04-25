@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
+    <el-form ref="queryForm" :inline="true" :model="queryForm">
       <el-form-item label="角色名称" prop="roleName">
         <el-input
           v-model="queryForm.roleName"
@@ -142,7 +142,7 @@
       width="30%"
       :before-close="roleDialogHandleClose"
     >
-      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" placeholder="请输入角色名称" />
         </el-form-item>
@@ -206,6 +206,8 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
+      // 添加/修改对话框 title
+      title: '',
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -228,8 +230,6 @@ export default {
       },
       // 角色列表
       roleList: [],
-      // 添加/修改对话框 title
-      title: '',
       // 添加/修改对话框 是否可见
       roleDialogVisible: false,
       // 表单校验
@@ -268,7 +268,7 @@ export default {
      * 表单重置
      */
     resetQuery() {
-      this.$refs.queryFormRef.resetFields()
+      this.$refs.queryForm.resetFields()
       this.dateRange = []
       this.handleQuery()
     },
@@ -330,8 +330,8 @@ export default {
      * 添加按钮
      */
     handleAdd() {
-      this.title = '添加角色'
       this.getMenuTreeselect()
+      this.title = '添加角色'
       this.roleDialogVisible = true
     },
     /**
@@ -346,8 +346,8 @@ export default {
         map: { data }
       } = await getRole(roleId)
       this.form = data
-      this.roleDialogVisible = true
       this.title = '修改角色'
+      this.roleDialogVisible = true
     },
     /**
      * 删除按钮
@@ -395,9 +395,21 @@ export default {
         this.$refs.menuRef.setCheckedKeys([])
       }
       this.menuOptions = []
-      this.$refs['formRef'].resetFields()
-      this.form.roleStatus = 0
+      this.reset()
       this.roleDialogVisible = false
+    },
+    /**
+     * 表单重置
+     */
+    reset() {
+      this.form = {
+        roleName: '',
+        roleKey: '',
+        roleStatus: 0,
+        roleSort: 0,
+        remark: ''
+      }
+      this.$refs['form'].resetFields()
     },
     /**
      * 查询菜单树结构
@@ -416,7 +428,7 @@ export default {
      * 提交角色表单
      */
     submitForm() {
-      this.$refs.formRef.validate(valid => {
+      this.$refs.form.validate(valid => {
         if (valid) {
           if (this.form.roleId !== undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys()
@@ -458,7 +470,4 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.el-table {
-  margin-top: 10px;
-}
 </style>

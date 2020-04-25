@@ -10,10 +10,10 @@
 
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="hover">
-        <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
-          <i class="el-icon-caret-bottom" />
-        </div>
+        <span class="el-dropdown-link">
+          {{ name }}
+          <i class="el-icon-arrow-down el-icon--right" />
+        </span>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
             <el-dropdown-item>Home</el-dropdown-item>
@@ -41,7 +41,7 @@ export default {
     Hamburger
   },
   computed: {
-    ...mapGetters(['sidebar', 'avatar', 'name'])
+    ...mapGetters(['sidebar', 'name'])
   },
   methods: {
     toggleSideBar() {
@@ -52,10 +52,12 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(async() => {
-        await this.$store.dispatch('user/logout')
-        this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-      }).catch((e) => {})
+      })
+        .then(async() => {
+          await this.$store.dispatch('user/logout')
+          this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+        })
+        .catch(e => {})
     }
   }
 }
@@ -99,7 +101,7 @@ export default {
       display: inline-block;
       padding: 0 8px;
       height: 100%;
-      font-size: 18px;
+      font-size: 16px;
       color: #5a5e66;
       vertical-align: text-bottom;
 
@@ -115,25 +117,13 @@ export default {
 
     .avatar-container {
       margin-right: 30px;
-
-      .avatar-wrapper {
-        margin-top: 5px;
-        position: relative;
-
-        .user-avatar {
-          cursor: pointer;
-          width: 40px;
-          height: 40px;
-          border-radius: 10px;
-        }
-
-        .el-icon-caret-bottom {
-          cursor: pointer;
-          position: absolute;
-          right: -20px;
-          top: 25px;
-          font-size: 12px;
-        }
+      .el-dropdown-link {
+        font-size: 18px;
+        cursor: pointer;
+        color: #409eff;
+      }
+      .el-icon-arrow-down {
+        font-size: 12px;
       }
     }
   }

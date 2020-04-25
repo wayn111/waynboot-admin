@@ -124,3 +124,32 @@ export function addDateRange(params, dateRange) {
 export function download(fileName) {
   window.location.href = baseURL + '/common/download?fileName=' + encodeURI(fileName) + '&delete=' + true
 }
+
+// 通用下载模板方法
+export function downloadTemplate(fileName) {
+  window.location.href = baseURL + '/common/downloadTemplate?fileName=' + encodeURI(fileName)
+}
+
+/**
+ * 构造树型结构数据
+ * @param {*} data 数据源
+ * @param {*} id id字段 默认 'id'
+ * @param {*} parentId 父节点字段 默认 'parentId'
+ * @param {*} children 孩子节点字段 默认 'children'
+ * @param {*} rootId 根Id 默认 0
+ */
+export function buildTree(data, id, parentId, rootId) {
+  id = id || 'id'
+  parentId = parentId || 'parentId'
+  rootId = rootId || 0
+  const treeData = data.filter(item => {
+    const children = data.filter(item1 => {
+      return item[id] === item1[parentId]
+    })
+    if (children.length > 0) {
+      item.children = children
+    }
+    return item[parentId] === rootId
+  })
+  return treeData.length > 0 ? treeData : data
+}
