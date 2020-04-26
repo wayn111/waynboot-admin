@@ -48,6 +48,16 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/profile',
+    component: Layout,
+    children: [{
+      path: '/',
+      name: '个人中心',
+      component: () => import('@/views/system/user/profile'),
+      hidden: true
+    }]
+  },
+  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true

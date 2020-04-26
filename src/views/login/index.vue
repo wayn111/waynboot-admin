@@ -24,6 +24,7 @@
           type="text"
           tabindex="1"
           auto-complete="on"
+          @keyup.enter.native="handleLogin"
         />
       </el-form-item>
 

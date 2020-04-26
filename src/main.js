@@ -12,6 +12,7 @@ import store from './store'
 import router from './router'
 
 import '@/icons' // icon
+import permission from './directive/permission' // 自定义权限控制指令
 import '@/permission' // permission control
 import { parseTime, addDateRange, download, downloadTemplate, buildTree } from '@/utils'
 import Pagination from '@/components/Pagination'
@@ -39,6 +40,7 @@ Vue.prototype.buildTree = buildTree
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 Vue.use(ElementUI)
+Vue.use(permission)
 
 Vue.config.productionTip = false
 

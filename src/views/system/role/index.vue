@@ -49,10 +49,17 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+        <el-button
+          v-hasPermi="['system:role:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+        >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['system:role:update']"
           type="success"
           icon="el-icon-edit"
           size="mini"
@@ -62,6 +69,7 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['system:role:delete']"
           type="danger"
           icon="el-icon-delete"
           size="mini"
@@ -70,7 +78,13 @@
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button type="warning" icon="el-icon-download" size="mini" @click="handleExport">导出</el-button>
+        <el-button
+          v-hasPermi="['system:role:export']"
+          type="warning"
+          icon="el-icon-download"
+          size="mini"
+          @click="handleExport"
+        >导出</el-button>
       </el-col>
     </el-row>
 
@@ -117,8 +131,15 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button
+            v-hasPermi="['system:role:update']"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+          >修改</el-button>
+          <el-button
+            v-hasPermi="['system:role:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"
@@ -381,11 +402,14 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(function() {
-        return exportRole(queryForm)
-      }).then(response => {
-        this.download(response.msg)
-      }).catch(function() {})
+      })
+        .then(function() {
+          return exportRole(queryForm)
+        })
+        .then(response => {
+          this.download(response.msg)
+        })
+        .catch(function() {})
     },
     /**
      * 角色对话框关闭

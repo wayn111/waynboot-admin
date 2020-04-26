@@ -81,6 +81,7 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
+              v-hasPermi="['system:user:add']"
               type="primary"
               icon="el-icon-plus"
               size="mini"
@@ -89,6 +90,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              v-hasPermi="['system:user:update']"
               type="success"
               icon="el-icon-edit"
               size="mini"
@@ -98,6 +100,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              v-hasPermi="['system:user:delete']"
               type="danger"
               icon="el-icon-delete"
               size="mini"
@@ -107,6 +110,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              v-hasPermi="['system:user:import']"
               type="info"
               icon="el-icon-upload2"
               size="mini"
@@ -115,6 +119,7 @@
           </el-col>
           <el-col :span="1.5">
             <el-button
+              v-hasPermi="['system:user:export']"
               type="warning"
               icon="el-icon-download"
               size="mini"
@@ -170,6 +175,7 @@
           >
             <template slot-scope="scope">
               <el-button
+                v-hasPermi="['system:user:update']"
                 size="mini"
                 type="text"
                 icon="el-icon-edit"
@@ -177,12 +183,14 @@
               >修改</el-button>
               <el-button
                 v-if="scope.row.userId !== 1"
+                v-hasPermi="['system:user:delete']"
                 size="mini"
                 type="text"
                 icon="el-icon-delete"
                 @click="handleDelete(scope.row)"
               >删除</el-button>
               <el-button
+                v-hasPermi="['system:user:resetPwd']"
                 size="mini"
                 type="text"
                 icon="el-icon-key"
@@ -319,8 +327,7 @@ import {
   updateUser,
   exportUser,
   resetUserPwd,
-  changeUserStatus,
-  importTemplate
+  changeUserStatus
 } from '@/api/system/user'
 import { getToken } from '@/utils/auth'
 import { treeselect } from '@/api/system/dept'
@@ -592,7 +599,9 @@ export default {
     handleResetPwd(row) {
       this.$prompt('请输入"' + row.userName + '"的新密码', '提示', {
         confirmButtonText: '确定',
-        cancelButtonText: '取消'
+        cancelButtonText: '取消',
+        inputPattern: /\w{6,}/,
+        inputErrorMessage: '密码格式不正确'
       }).then(({ value }) => {
         resetUserPwd(row.userId, value).then(response => {
           if (response.code === 200) {

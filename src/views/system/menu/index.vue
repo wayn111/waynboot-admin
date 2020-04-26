@@ -29,7 +29,13 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button
+          v-hasPermi="['system:menu:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd()"
+        >新增</el-button>
       </el-col>
     </el-row>
 
@@ -57,9 +63,22 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button size="mini" type="text" icon="el-icon-plus" @click="handleAdd(scope.row)">新增</el-button>
           <el-button
+            v-hasPermi="['system:menu:update']"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+          >修改</el-button>
+          <el-button
+            v-hasPermi="['system:menu:add']"
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleAdd(scope.row)"
+          >新增</el-button>
+          <el-button
+            v-hasPermi="['system:menu:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"
@@ -70,7 +89,12 @@
     </el-table>
 
     <!-- 添加或修改菜单对话框 -->
-    <el-dialog :title="title" :visible.sync="menuDialogVisible" width="600px" :before-close="menuDialogHandleClose">
+    <el-dialog
+      :title="title"
+      :visible.sync="menuDialogVisible"
+      width="600px"
+      :before-close="menuDialogHandleClose"
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24">
@@ -188,7 +212,8 @@ import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import IconSelect from '@/components/IconSelect'
 export default {
   components: {
-    Treeselect, IconSelect
+    Treeselect,
+    IconSelect
   },
   data() {
     return {
@@ -234,9 +259,7 @@ export default {
         orderNum: [
           { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
         ],
-        path: [
-          { required: true, message: '路由地址不能为空', trigger: 'blur' }
-        ]
+        path: [{ required: true, message: '路由地址不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -289,7 +312,9 @@ export default {
      */
     async handleUpdate(row) {
       this.getTreeselect()
-      const { map: { data }} = await getMenu(row.menuId)
+      const {
+        map: { data }
+      } = await getMenu(row.menuId)
       this.form = data
       this.title = '修改菜单'
       this.menuDialogVisible = true
@@ -298,16 +323,23 @@ export default {
      * 删除按钮
      */
     handleDelete(row) {
-      this.$confirm('是否确认删除名称为"' + row.menuName + '"的数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return delMenu(row.menuId)
-      }).then(() => {
-        this.getList()
-        this.$message.success('删除成功')
-      }).catch(function() {})
+      this.$confirm(
+        '是否确认删除名称为"' + row.menuName + '"的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delMenu(row.menuId)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function() {})
     },
     /**
      * 菜单状态翻译
@@ -319,7 +351,9 @@ export default {
      * 查询菜单下拉树结构
      */
     async getTreeselect() {
-      const { map: { data }} = await listMenu()
+      const {
+        map: { data }
+      } = await listMenu()
       this.menuOptions = []
       const menu = { menuId: 0, menuName: '主类目', children: [] }
       menu.children = this.buildTree(data, 'menuId')
