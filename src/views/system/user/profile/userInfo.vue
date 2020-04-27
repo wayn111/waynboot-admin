@@ -28,7 +28,8 @@ import { updateUserProfile } from '@/api/system/user'
 export default {
   props: {
     user: {
-      type: Object
+      type: Object,
+      default: () => {}
     }
   },
   data() {
