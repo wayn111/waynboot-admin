@@ -32,7 +32,7 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info
           await store.dispatch('user/getInfo')
-          const accessRoutes = await store.dispatch('GenerateRoutes')
+          const accessRoutes = await store.dispatch('generateRoutes')
           // 测试 默认静态页面
           // store.dispatch('permission/generateRoutes', { roles }).then(accessRoutes => {
           // 根据roles权限生成可访问的路由表

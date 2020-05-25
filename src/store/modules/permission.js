@@ -15,7 +15,7 @@ const permission = {
   },
   actions: {
     // 生成路由
-    GenerateRoutes({ commit }) {
+    generateRoutes({ commit }) {
       return new Promise(resolve => {
         // 向后端请求路由数据
         getRouters().then(res => {
