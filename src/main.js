@@ -16,18 +16,7 @@ import permission from './directive/permission' // 自定义权限控制指令
 import '@/permission' // permission control
 import { parseTime, addDateRange, download, downloadTemplate, buildTree } from '@/utils'
 import Pagination from '@/components/Pagination'
-/**
- * If you don't want to use mock-server
- * you want to use MockJs for mock api
- * you can execute: mockXHR()
- *
- * Currently MockJs will be used in the production environment,
- * please remove it before going online ! ! !
- */
-if (process.env.NODE_ENV === 'production') {
-  const { mockXHR } = require('../mock')
-  mockXHR()
-}
+
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.prototype.addDateRange = addDateRange
