@@ -194,3 +194,38 @@ export function debounce(func, wait, immediate) {
     return result
   }
 }
+
+// 回显数据字典
+export function echoDictName(datas, value) {
+  let name = ''
+  datas.forEach(item => {
+    if (parseInt(item.value) === value) {
+      name = item.name
+    }
+  })
+  return name
+}
+
+// 表单保存后处理
+export function saveHandle(response, vm) {
+  if (response.code === 200) {
+    vm.$message.success('新增成功')
+    vm.open = false
+    vm.getList()
+    vm.reset()
+  } else {
+    vm.$message.error(response.msg)
+  }
+}
+
+// 表单更新后处理
+export function updateHandle(response, vm) {
+  if (response.code === 200) {
+    vm.$message.success('修改成功')
+    vm.open = false
+    vm.getList()
+    vm.reset()
+  } else {
+    vm.$message.error(response.msg)
+  }
+}

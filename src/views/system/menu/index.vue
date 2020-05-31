@@ -17,8 +17,12 @@
           size="small"
           style="width: 120px"
         >
-          <el-option label="启用" value="0" />
-          <el-option label="禁用" value="1" />
+          <el-option
+            v-for="dict in statusOptions"
+            :key="dict.value"
+            :label="dict.name"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -51,11 +55,11 @@
           <svg-icon :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="60" />
+      <el-table-column prop="sort" label="排序" width="60" />
       <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true" />
       <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true" />
       <el-table-column prop="path" label="组件路由" :show-overflow-tooltip="true" />
-      <el-table-column prop="menuStatus" label="状态" :formatter="statusFormatter" width="80" />
+      <el-table-column prop="menuStatus" label="状态" :formatter="statusFormat" width="80" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -91,7 +95,7 @@
     <!-- 添加或修改菜单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="menuDialogVisible"
+      :visible.sync="open"
       width="600px"
       :before-close="menuDialogHandleClose"
     >
@@ -145,8 +149,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
+            <el-form-item label="显示排序" prop="sort">
+              <el-input-number v-model="form.sort" controls-position="right" :min="0" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -183,8 +187,11 @@
           <el-col :span="12">
             <el-form-item v-if="form.menuType != 'F'" prop="menuStatus" label="菜单状态">
               <el-radio-group v-model="form.menuStatus">
-                <el-radio :label="0">启用</el-radio>
-                <el-radio :label="1">禁用</el-radio>
+                <el-radio
+                  v-for="dict in statusOptions"
+                  :key="dict.value"
+                  :label="parseInt(dict.value)"
+                >{{ dict.name }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -237,7 +244,9 @@ export default {
       // 菜单树
       menuOptions: [],
       // 是否显示弹出层
-      menuDialogVisible: false,
+      open: false,
+      // 状态数据字典
+      statusOptions: [],
       // 表单参数
       form: {
         menuId: undefined,
@@ -245,7 +254,7 @@ export default {
         menuName: undefined,
         icon: undefined,
         menuType: 'M',
-        orderNum: undefined,
+        sort: undefined,
         isFrame: '1',
         path: '',
         visible: undefined,
@@ -256,7 +265,7 @@ export default {
         menuName: [
           { required: true, message: '菜单名称不能为空', trigger: 'blur' }
         ],
-        orderNum: [
+        sort: [
           { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
         ],
         path: [{ required: true, message: '路由地址不能为空', trigger: 'blur' }]
@@ -265,6 +274,12 @@ export default {
   },
   created() {
     this.getList()
+    this.getDicts('status').then(response => {
+      const {
+        map: { data }
+      } = response
+      this.statusOptions = data
+    })
   },
   methods: {
     /**
@@ -305,7 +320,7 @@ export default {
         this.form.parentId = 0
       }
       this.title = '添加菜单'
-      this.menuDialogVisible = true
+      this.open = true
     },
     /**
      * 修改按钮
@@ -317,7 +332,7 @@ export default {
       } = await getMenu(row.menuId)
       this.form = data
       this.title = '修改菜单'
-      this.menuDialogVisible = true
+      this.open = true
     },
     /**
      * 删除按钮
@@ -344,8 +359,8 @@ export default {
     /**
      * 菜单状态翻译
      */
-    statusFormatter(row, column) {
-      return row.menuStatus === 0 ? '启用' : '禁用'
+    statusFormat(row, column) {
+      return this.echoDictName(this.statusOptions, row.menuStatus)
     },
     /**
      * 查询菜单下拉树结构
@@ -377,7 +392,7 @@ export default {
      */
     menuDialogHandleClose() {
       this.reset()
-      this.menuDialogVisible = false
+      this.open = false
     },
     /**
      * 表单重置
@@ -389,7 +404,7 @@ export default {
         menuName: undefined,
         icon: undefined,
         menuType: 'M',
-        orderNum: undefined,
+        sort: undefined,
         isFrame: '1',
         path: '',
         visible: undefined,
@@ -405,23 +420,11 @@ export default {
         if (valid) {
           if (this.form.menuId !== undefined) {
             updateMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('修改成功')
-                this.menuDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.updateHandle(response, this)
             })
           } else {
             addMenu(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('新增成功')
-                this.menuDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.saveHandle(response, this)
             })
           }
         }

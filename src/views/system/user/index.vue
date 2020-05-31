@@ -54,10 +54,14 @@
               placeholder="用户状态"
               clearable
               size="small"
-              style="width: 240px"
+              style="width: 120px"
             >
-              <el-option label="启用" value="0" />
-              <el-option label="禁用" value="1" />
+              <el-option
+                v-for="dict in statusOptions"
+                :key="dict.value"
+                :label="dict.name"
+                :value="dict.value"
+              />
             </el-select>
           </el-form-item>
           <el-form-item label="创建时间">
@@ -211,7 +215,7 @@
     </el-row>
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog :title="title" :visible.sync="userDialogVisible" width="600px" :before-close="userDialogHandleClose">
+    <el-dialog :title="title" :visible.sync="open" width="600px" :before-close="userDialogHandleClose">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
@@ -255,8 +259,11 @@
           <el-col :span="12">
             <el-form-item label="状态">
               <el-radio-group v-model="form.userStatus">
-                <el-radio :label="0">启用</el-radio>
-                <el-radio :label="1">禁用</el-radio>
+                <el-radio
+                  v-for="dict in statusOptions"
+                  :key="dict.value"
+                  :label="parseInt(dict.value)"
+                >{{ dict.name }}</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -352,7 +359,10 @@ export default {
       // 添加/修改对话框 title
       title: '',
       // 是否显示用户对话框
-      userDialogVisible: false,
+      open: false,
+      // 状态数据字典
+      statusOptions: [],
+      // 部门树搜索
       deptName: '',
       // 默认密码
       initPassword: '123456',
@@ -453,6 +463,10 @@ export default {
   created() {
     this.getTreeselect()
     this.getList()
+    this.getDicts('status').then(response => {
+      const { map: { data }} = response
+      this.statusOptions = data
+    })
   },
   methods: {
     handleQuery() {
@@ -554,16 +568,16 @@ export default {
      */
     userDialogHandleClose() {
       this.reset()
-      this.userDialogVisible = false
+      this.open = false
     },
     /** 新增按钮操作 */
     async handleAdd() {
       this.getTreeselect()
       const { map: { roles }} = await getUser()
       this.roleOptions = roles
-      this.userDialogVisible = true
       this.title = '添加用户'
       this.form.password = this.initPassword
+      this.open = true
     },
     /** 修改按钮操作 */
     async handleUpdate(row) {
@@ -575,7 +589,7 @@ export default {
       this.form.roleIds = roleIds
       this.title = '修改用户'
       this.form.password = undefined
-      this.userDialogVisible = true
+      this.open = true
     },
     /**
      * 删除按钮
@@ -632,23 +646,11 @@ export default {
         if (valid) {
           if (this.form.userId !== undefined) {
             updateUser(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('修改成功')
-                this.userDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.updateHandle(response, this)
             })
           } else {
             addUser(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('新增成功')
-                this.userDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.saveHandle(response, this)
             })
           }
         }

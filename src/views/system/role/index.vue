@@ -25,8 +25,12 @@
           size="small"
           style="width: 120px"
         >
-          <el-option label="启用" value="0" />
-          <el-option label="禁用" value="1" />
+          <el-option
+            v-for="dict in statusOptions"
+            :key="dict.value"
+            :label="dict.name"
+            :value="dict.value"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="创建时间">
@@ -108,7 +112,7 @@
       <el-table-column
         label="显示顺序"
         sortable="custom"
-        prop="roleSort"
+        prop="sort"
         :show-overflow-tooltip="true"
         width="150"
       />
@@ -159,7 +163,7 @@
 
     <el-dialog
       :title="title"
-      :visible.sync="roleDialogVisible"
+      :visible.sync="open"
       width="30%"
       :before-close="roleDialogHandleClose"
     >
@@ -170,8 +174,8 @@
         <el-form-item label="权限字符" prop="roleKey">
           <el-input v-model="form.roleKey" placeholder="请输入权限字符" />
         </el-form-item>
-        <el-form-item label="角色顺序" prop="roleSort">
-          <el-input-number v-model="form.roleSort" controls-position="right" :min="0" />
+        <el-form-item label="角色顺序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="菜单权限">
           <el-tree
@@ -185,8 +189,11 @@
         </el-form-item>
         <el-form-item label="状态" prop="roleStatus">
           <el-radio-group v-model="form.roleStatus">
-            <el-radio :label="0">启用</el-radio>
-            <el-radio :label="1">禁用</el-radio>
+            <el-radio
+              v-for="dict in statusOptions"
+              :key="dict.value"
+              :label="parseInt(dict.value)"
+            >{{ dict.name }}</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
@@ -246,13 +253,15 @@ export default {
         roleName: '',
         roleKey: '',
         roleStatus: 0,
-        roleSort: 0,
+        sort: 0,
         remark: ''
       },
       // 角色列表
       roleList: [],
       // 添加/修改对话框 是否可见
-      roleDialogVisible: false,
+      open: false,
+      // 状态数据字典
+      statusOptions: [],
       // 表单校验
       rules: {
         roleName: [
@@ -261,7 +270,7 @@ export default {
         roleKey: [
           { required: true, message: '权限字符不能为空', trigger: 'blur' }
         ],
-        roleSort: [
+        sort: [
           { required: true, message: '角色顺序不能为空', trigger: 'blur' }
         ]
       },
@@ -276,6 +285,10 @@ export default {
   },
   created() {
     this.getList()
+    this.getDicts('status').then(response => {
+      const { map: { data }} = response
+      this.statusOptions = data
+    })
   },
   methods: {
     /**
@@ -353,7 +366,7 @@ export default {
     handleAdd() {
       this.getMenuTreeselect()
       this.title = '添加角色'
-      this.roleDialogVisible = true
+      this.open = true
     },
     /**
      * 更新按钮
@@ -368,7 +381,7 @@ export default {
       } = await getRole(roleId)
       this.form = data
       this.title = '修改角色'
-      this.roleDialogVisible = true
+      this.open = true
     },
     /**
      * 删除按钮
@@ -420,7 +433,7 @@ export default {
       }
       this.menuOptions = []
       this.reset()
-      this.roleDialogVisible = false
+      this.open = false
     },
     /**
      * 表单重置
@@ -430,7 +443,7 @@ export default {
         roleName: '',
         roleKey: '',
         roleStatus: 0,
-        roleSort: 0,
+        sort: 0,
         remark: ''
       }
       this.$refs['form'].resetFields()
@@ -457,24 +470,12 @@ export default {
           if (this.form.roleId !== undefined) {
             this.form.menuIds = this.getMenuAllCheckedKeys()
             updateRole(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('修改成功')
-                this.roleDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.updateHandle(response, this)
             })
           } else {
             this.form.menuIds = this.getMenuAllCheckedKeys()
             addRole(this.form).then(response => {
-              if (response.code === 200) {
-                this.$message.success('新增成功')
-                this.roleDialogVisible = false
-                this.getList()
-              } else {
-                this.$message.error(response.msg)
-              }
+              this.saveHandle(response, this)
             })
           }
         }

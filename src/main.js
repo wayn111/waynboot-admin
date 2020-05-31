@@ -14,16 +14,21 @@ import router from './router'
 import '@/icons' // icon
 import permission from './directive/permission' // 自定义权限控制指令
 import '@/permission' // permission control
-import { parseTime, addDateRange, download, downloadTemplate, buildTree } from '@/utils'
+import { getDicts } from '@/api/system/dict/data'
+import { parseTime, addDateRange, download, downloadTemplate, buildTree, saveHandle, updateHandle, echoDictName } from '@/utils'
 import Pagination from '@/components/Pagination'
 
 // 全局组件挂载
 Vue.component('Pagination', Pagination)
 Vue.prototype.addDateRange = addDateRange
+Vue.prototype.getDicts = getDicts
 Vue.prototype.parseTime = parseTime
 Vue.prototype.download = download
 Vue.prototype.downloadTemplate = downloadTemplate
 Vue.prototype.buildTree = buildTree
+Vue.prototype.saveHandle = saveHandle
+Vue.prototype.updateHandle = updateHandle
+Vue.prototype.echoDictName = echoDictName
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
