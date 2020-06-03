@@ -58,6 +58,20 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/dict',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'type/data/:parentType(\\w+)',
+        component: (resolve) => require(['@/views/system/dict/data'], resolve),
+        props: true,
+        name: 'Data',
+        meta: { title: '字典数据', icon: '' }
+      }
+    ]
+  },
+  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
