@@ -1,11 +1,17 @@
 import request from '@/utils/request'
 
-// 查询字典数据列表
 export function listData(query) {
   return request({
     url: '/system/dict/data/list',
     method: 'get',
     params: query
+  })
+}
+
+export function selectTypeList() {
+  return request({
+    url: '/system/dict/data/selectTypeList',
+    method: 'get'
   })
 }
 
@@ -48,14 +54,5 @@ export function delData(dictCode) {
   return request({
     url: '/system/dict/data/' + dictCode,
     method: 'delete'
-  })
-}
-
-// 导出字典数据
-export function exportData(query) {
-  return request({
-    url: '/system/dict/data/export',
-    method: 'get',
-    params: query
   })
 }

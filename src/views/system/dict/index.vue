@@ -108,6 +108,7 @@
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
+      <el-table-column label="排序" align="center" prop="sort" />
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template slot-scope="scope">
@@ -150,6 +151,9 @@
         </el-form-item>
         <el-form-item label="字典类型" prop="value">
           <el-input v-model="form.value" placeholder="请输入字典类型" />
+        </el-form-item>
+        <el-form-item label="类型顺序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="状态" prop="dictStatus">
           <el-radio-group v-model="form.dictStatus">
@@ -229,6 +233,9 @@ export default {
         ],
         value: [
           { required: true, message: '字典类型不能为空', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '字典顺序不能为空', trigger: 'blur' }
         ]
       }
     }
@@ -328,6 +335,22 @@ export default {
         }
       })
     },
+    /** 导出按钮操作 */
+    handleExport() {
+      const queryForm = this.queryForm
+      this.$confirm('是否确认导出所有类型数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(function() {
+          return exportType(queryForm)
+        })
+        .then(response => {
+          this.download(response.msg)
+        })
+        .catch(function() {})
+    },
     /** 删除按钮操作 */
     handleDelete(row) {
       const dictIds = row.dictId || this.ids
@@ -346,22 +369,6 @@ export default {
         .then(() => {
           this.getList()
           this.$message.success('删除成功')
-        })
-        .catch(function() {})
-    },
-    /** 导出按钮操作 */
-    handleExport() {
-      const queryForm = this.queryForm
-      this.$confirm('是否确认导出所有类型数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(function() {
-          return exportType(queryForm)
-        })
-        .then(response => {
-          this.download(response.msg)
         })
         .catch(function() {})
     }

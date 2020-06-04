@@ -1,30 +1,40 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" :model="queryForm" :inline="true" label-width="68px">
-      <el-form-item label="数据名" prop="name">
+      <el-form-item label="标签名" prop="name">
         <el-input
           v-model="queryForm.name"
-          placeholder="请输入数据名"
+          placeholder="请输入标签名"
           clearable
           size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="数据值" prop="value">
+      <el-form-item label="标签值" prop="value">
         <el-input
           v-model="queryForm.value"
-          placeholder="请输入数据值"
+          placeholder="请输入标签值"
           clearable
           size="small"
           style="width: 240px"
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="字典名称" prop="dictType">
+        <el-select v-model="queryForm.parentType" style="width: 120px" size="small">
+          <el-option
+            v-for="item in typeOptions"
+            :key="item.dictId"
+            :label="item.name"
+            :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="dictStatus">
         <el-select
           v-model="queryForm.dictStatus"
-          placeholder="字典状态"
+          placeholder="标签状态"
           clearable
           size="small"
           style="width: 120px"
@@ -89,9 +99,10 @@
 
     <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="数据编号" width="120" align="center" prop="dictId" />
-      <el-table-column label="数据名" align="center" prop="name" :show-overflow-tooltip="true" />
-      <el-table-column label="数据值" align="center" prop="value" />
+      <el-table-column label="标签编号" width="120" align="center" prop="dictId" />
+      <el-table-column label="标签名" align="center" prop="name" :show-overflow-tooltip="true" />
+      <el-table-column label="标签值" align="center" prop="value" />
+      <el-table-column label="排序" align="center" prop="sort" />
       <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -128,13 +139,21 @@
     />
 
     <!-- 添加或修改字典对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" :before-close="dictDialogHandleClose">
+    <el-dialog
+      :title="title"
+      :visible.sync="open"
+      width="600px"
+      :before-close="dictDialogHandleClose"
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="数据名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入数据名" />
+        <el-form-item label="标签名" prop="name">
+          <el-input v-model="form.name" placeholder="请输入标签名" />
         </el-form-item>
-        <el-form-item label="数据值" prop="value">
-          <el-input v-model="form.value" placeholder="请输入数据值" />
+        <el-form-item label="标签值" prop="value">
+          <el-input v-model="form.value" placeholder="请输入标签值" />
+        </el-form-item>
+        <el-form-item label="标签顺序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="状态" prop="dictStatus">
           <el-radio-group v-model="form.dictStatus">
@@ -162,7 +181,9 @@ import {
   listData,
   getData,
   addData,
-  updateData
+  updateData,
+  selectTypeList,
+  delData
 } from '@/api/system/dict/data'
 
 export default {
@@ -193,6 +214,8 @@ export default {
       open: false,
       // 状态数据字典
       statusOptions: [],
+      // 字典类型数据
+      typeOptions: [],
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -208,7 +231,7 @@ export default {
       form: {
         name: undefined,
         value: undefined,
-        type: 1,
+        type: 2,
         dictStatus: 0,
         remark: undefined
       },
@@ -219,15 +242,26 @@ export default {
         ],
         value: [
           { required: true, message: '字典类型不能为空', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '字典顺序不能为空', trigger: 'blur' }
         ]
       }
     }
   },
   created() {
     this.queryForm.parentType = this.parentType
+    selectTypeList().then(response => {
+      const {
+        map: { typeList }
+      } = response
+      this.typeOptions = typeList
+    })
     this.getList()
     this.getDicts('status').then(response => {
-      const { map: { data }} = response
+      const {
+        map: { data }
+      } = response
       this.statusOptions = data
     })
   },
@@ -265,7 +299,7 @@ export default {
         dictId: undefined,
         name: undefined,
         value: undefined,
-        type: 1,
+        type: 2,
         dictStatus: 0,
         remark: undefined
       }
@@ -285,7 +319,7 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.title = '添加字典类型'
+      this.title = '添加字典数据'
       this.open = true
     },
     // 多选框选中数据
@@ -298,11 +332,35 @@ export default {
     handleUpdate(row) {
       const dictId = row.dictId || this.ids
       getData(dictId).then(response => {
-        const { map: { data }} = response
+        const {
+          map: { data }
+        } = response
         this.form = data
         this.open = true
-        this.title = '修改字典类型'
+        this.title = '修改字典数据'
       })
+    },
+
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      const dictIds = row.dictId || this.ids
+      this.$confirm(
+        '是否确认删除标签编号为"' + dictIds + '"的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delData(dictIds)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function() {})
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -319,27 +377,6 @@ export default {
           }
         }
       })
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const dictIds = row.dictId || this.ids
-      this.$confirm(
-        '是否确认删除字典编号为"' + dictIds + '"的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delType(dictIds)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function() {})
     }
   }
 }
