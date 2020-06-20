@@ -49,8 +49,8 @@
     >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
-      <el-table-column label="栏目名称" prop="name" width="150" />
-      <el-table-column label="栏目编码" prop="code" width="150" />
+      <el-table-column label="栏目名称" prop="name" width="200" />
+      <el-table-column label="栏目编码" prop="code" width="200" />
       <el-table-column label="备注" prop="remark" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
@@ -170,6 +170,7 @@ export default {
      */
     resetQuery() {
       this.$refs.queryForm.resetFields()
+      this.dateRange = []
       this.handleQuery()
     },
     async getList() {
