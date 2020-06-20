@@ -23,6 +23,12 @@
       </el-form-item>
     </el-form>
 
+    <el-row :gutter="10" class="mb8">
+      <el-col :span="1.5">
+        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+      </el-col>
+    </el-row>
+
     <el-table
       v-loading="loading"
       :data="channelList"
@@ -31,8 +37,9 @@
     >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
-      <el-table-column label="栏目名称" prop="name" />
+      <el-table-column label="栏目名称" prop="name" width="150" />
       <el-table-column label="栏目编码" prop="code" width="150" />
+      <el-table-column label="备注" prop="remark" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -50,13 +57,58 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 添加或修改栏目对话框 -->
+    <el-dialog
+      :title="title"
+      :visible.sync="open"
+      width="600px"
+      :before-close="channelDialogHandleClose"
+    >
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="栏目名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入栏目名称" />
+        </el-form-item>
+        <el-form-item label="栏目编码" prop="code">
+          <el-input v-model="form.code" placeholder="请输入栏目编码" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="channelDialogHandleClose">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { listChannel } from '@/api/shop/channel'
+import {
+  listChannel,
+  getChannel,
+  addChannel,
+  updateChannel,
+  delChannel
+} from '@/api/shop/channel'
 
 export default {
   data() {
+    var checkCode = (rule, value, callback) => {
+      var reg = new RegExp(/^[a-zA-Z0-9]+$/)
+
+      if (!value) {
+        return callback(new Error('栏目编码不能为空'))
+      }
+      setTimeout(() => {
+        if (!reg.test(value)) {
+          callback(new Error('请输入字母或者数字值'))
+        } else {
+          callback()
+        }
+      }, 500)
+    }
+
     return {
       // 遮罩层
       loading: true,
@@ -75,10 +127,23 @@ export default {
         deptName: undefined,
         deptStatus: undefined
       },
-      // 添加/修改参数
-      form: {},
       // 角色列表
-      channelList: []
+      channelList: [],
+      // 是否显示弹出层
+      open: false,
+      // 表单参数
+      form: {
+        name: undefined,
+        code: undefined,
+        remark: undefined
+      },
+      // 表单校验
+      rules: {
+        name: [
+          { required: true, message: '栏目名称不能为空', trigger: 'blur' }
+        ],
+        code: [{ required: true, validator: checkCode, trigger: 'blur' }]
+      }
     }
   },
   created() {
@@ -109,6 +174,82 @@ export default {
       this.ids = selection.map(item => item.roleId)
       this.single = selection.length !== 1
       this.multiple = !selection.length
+    },
+    /**
+     * 添加按钮
+     */
+    handleAdd(row) {
+      this.title = '添加栏目'
+      this.open = true
+    },
+    /**
+     * 修改按钮
+     */
+    async handleUpdate(row) {
+      const {
+        map: { data }
+      } = await getChannel(row.id)
+      this.form = data
+      this.title = '修改栏目'
+      this.open = true
+    }, /**
+     * 删除按钮
+     */
+    async handleDelete(row) {
+      const channelIds = row.id || this.ids
+      this.$confirm(
+        '是否确认删除栏目编号为 [' + channelIds + '] 的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delChannel(channelIds)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function(e) {})
+    },
+    /**
+     * 表单重置
+     */
+    reset() {
+      this.form = {
+        name: undefined,
+        code: undefined,
+        remark: undefined
+      }
+      this.$refs['form'].resetFields()
+    },
+    /**
+     * 栏目对话框关闭
+     */
+    channelDialogHandleClose() {
+      this.reset()
+      this.open = false
+    },
+    /**
+     * 提交栏目表单
+     */
+    submitForm() {
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.id !== undefined) {
+            updateChannel(this.form).then(response => {
+              this.updateHandle(response, this)
+            })
+          } else {
+            addChannel(this.form).then(response => {
+              this.saveHandle(response, this)
+            })
+          }
+        }
+      })
     }
   }
 }
