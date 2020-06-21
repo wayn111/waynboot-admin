@@ -5,7 +5,7 @@
         <el-input
           v-model="queryForm.name"
           size="small"
-          placeholder="请输入部门名称"
+          placeholder="请输入栏目名称"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -13,7 +13,7 @@
         <el-input
           v-model="queryForm.code"
           size="small"
-          placeholder="请输入部门名称"
+          placeholder="请输入栏目编码"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
