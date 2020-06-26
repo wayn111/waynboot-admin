@@ -64,18 +64,7 @@
         </template>
       </el-table-column>
       <el-table-column label="跳转链接" prop="jumpUrl" width="200" />
-      <el-table-column label="状态" width="100">
-        <template v-slot="scope">
-          <el-switch
-            v-model="scope.row.status"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-            :active-value="0"
-            :inactive-value="1"
-            @change="handleSwitchChange(scope.row)"
-          />
-        </template>
-      </el-table-column>
+      <el-table-column label="状态" width="100" :formatter="statusFormat" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -102,7 +91,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改栏目对话框 -->
+    <!-- 添加或修改banner对话框 -->
     <el-dialog
       :title="title"
       :visible.sync="open"
@@ -277,7 +266,7 @@ export default {
      * 添加按钮
      */
     handleAdd(row) {
-      this.title = '添加栏目'
+      this.title = '添加banner'
       this.open = true
     },
     /**
@@ -288,7 +277,7 @@ export default {
         map: { data }
       } = await getBanner(row.id)
       this.form = data
-      this.title = '修改栏目'
+      this.title = '修改banner'
       this.open = true
     }, /**
      * 删除按钮
@@ -320,12 +309,17 @@ export default {
       this.form = {
         name: undefined,
         code: undefined,
-        remark: undefined
+        remark: undefined,
+        status: 0
       }
       this.$refs['form'].resetFields()
     },
+    // 字典状态字典翻译
+    statusFormat(row, column) {
+      return this.echoDictName(this.statusOptions, row.status)
+    },
     /**
-     * 栏目对话框关闭
+     * banner对话框关闭
      */
     channelDialogHandleClose() {
       this.reset()
@@ -344,7 +338,7 @@ export default {
       return true
     },
     /**
-     * 提交栏目表单
+     * 提交banner表单
      */
     submitForm() {
       this.$refs['form'].validate(valid => {
