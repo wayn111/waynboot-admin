@@ -55,11 +55,11 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo().then(response => {
         if (!response) {
-          reject('用户认证失败，无法访问系统资源')
+          return reject('用户认证失败，无法访问系统资源')
         }
         const { map: { user, roles, permissions }} = response
         if (!user) {
-          reject('Verification failed, please Login again.')
+          return reject('Verification failed, please Login again.')
         }
         const { nickName, avatar } = user
         commit('SET_NAME', nickName)
