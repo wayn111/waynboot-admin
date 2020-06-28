@@ -93,19 +93,32 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入标题" />
         </el-form-item>
-        <el-form-item label="图片" prop="imgUrl">
+        <el-form-item label="图标图片" prop="iconUrl">
           <el-upload
             :headers="headers"
             :action="uploadPath"
             :show-file-list="false"
-            :on-success="uploadUrl"
+            :on-success="uploadIconUrl"
+            :before-upload="checkFileSize"
+            class="avatar-uploader"
+            accept=".jpg, .jpeg, .png"
+          >
+            <img v-if="form.iconUrl" :src="form.iconUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="分类图片" prop="picUrl">
+          <el-upload
+            :headers="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadPicUrl"
             :before-upload="checkFileSize"
             class="avatar-uploader"
             accept=".jpg, .jpeg, .png, .gif"
           >
-            <img v-if="form.imgUrl" :src="form.picUrl" class="avatar">
+            <img v-if="form.picUrl" :src="form.picUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1024kb</div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -249,8 +262,11 @@ export default {
       this.reset()
       this.open = false
     },
-    uploadUrl: function(response) {
-      this.form.imgUrl = response.map.url
+    uploadIconUrl: function(response) {
+      this.form.iconUrl = response.map.url
+    },
+    uploadPicUrl: function(response) {
+      this.form.picUrl = response.map.url
     },
     checkFileSize: function(file) {
       if (file.size > 1048576) {
