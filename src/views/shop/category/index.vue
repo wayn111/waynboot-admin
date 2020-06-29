@@ -94,6 +94,15 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入标题" />
         </el-form-item>
+        <el-form-item label="上级分类">
+          <treeselect
+            v-model="form.pid"
+            :options="categoryOptions"
+            :normalizer="normalizer"
+            :show-count="true"
+            placeholder="选择上级分类"
+          />
+        </el-form-item>
         <el-form-item label="图标图片" prop="iconUrl">
           <el-upload
             :headers="headers"
@@ -138,10 +147,16 @@ import {
   updateCategory,
   delCategory
 } from '@/api/shop/category'
+import Treeselect from '@riophae/vue-treeselect'
+// import the styles
+import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
 export default {
+  components: {
+    Treeselect
+  },
   data() {
     return {
       // 遮罩层
@@ -157,8 +172,10 @@ export default {
         id: undefined,
         name: undefined
       },
-      // 角色列表
+      // 分类列表
       categoryList: [],
+      // 分类树
+      categoryOptions: [],
       // 是否显示弹出层
       open: false,
       // 表单参数
@@ -208,6 +225,7 @@ export default {
      * 添加按钮
      */
     handleAdd(row) {
+      this.getTreeselect()
       this.title = '添加分类'
       this.open = true
     },
@@ -239,6 +257,31 @@ export default {
           this.$message.success('删除成功')
         })
         .catch(function(e) {})
+    },
+    /**
+     * 查询菜单下拉树结构
+     */
+    async getTreeselect() {
+      const {
+        map: { data }
+      } = await listCategory()
+      this.categoryOptions = []
+      const category = { id: 0, name: '主类目', children: [] }
+      category.children = this.buildTree(data, 'id', 'pid')
+      this.categoryOptions.push(category)
+    },
+    /**
+     * 转换菜单数据结构
+     */
+    normalizer(node) {
+      if (node.children && !node.children.length) {
+        delete node.children
+      }
+      return {
+        id: node.id,
+        label: node.name,
+        children: node.children
+      }
     },
     /**
      * 表单重置
