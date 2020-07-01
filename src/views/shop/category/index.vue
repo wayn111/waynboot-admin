@@ -91,8 +91,8 @@
       :before-close="categoryDialogHandleClose"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
+        <el-form-item label="标题" prop="name">
+          <el-input v-model="form.name" placeholder="请输入标题" />
         </el-form-item>
         <el-form-item label="上级分类">
           <treeselect
@@ -102,6 +102,12 @@
             :show-count="true"
             placeholder="选择上级分类"
           />
+        </el-form-item>
+        <el-form-item label="关键字" prop="keywords">
+          <el-input v-model="form.keywords" placeholder="请输入关键字" />
+        </el-form-item>
+        <el-form-item label="简介" prop="remark">
+          <el-input v-model="form.remark" placeholder="请输入简介" />
         </el-form-item>
         <el-form-item label="图标图片" prop="iconUrl">
           <el-upload
@@ -191,7 +197,9 @@ export default {
       },
       // 表单校验
       rules: {
-        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }]
+        name: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
+        iconUrl: [{ required: true, message: '图标不能为空', trigger: 'blur' }],
+        picUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }]
       },
       // 上传文件路径
       uploadPath,
@@ -233,6 +241,7 @@ export default {
      * 修改按钮
      */
     async handleUpdate(row) {
+      this.getTreeselect()
       const {
         map: { data }
       } = await getCategory(row.id)
@@ -267,7 +276,10 @@ export default {
       } = await listCategory()
       this.categoryOptions = []
       const category = { id: 0, name: '主类目', children: [] }
-      category.children = this.buildTree(data, 'id', 'pid')
+      const l1Data = data.filter(item => {
+        return item.level === 'L1'
+      })
+      category.children = this.buildTree(l1Data, 'id', 'pid')
       this.categoryOptions.push(category)
     },
     /**
@@ -332,6 +344,10 @@ export default {
               this.updateHandle(response, this)
             })
           } else {
+            // 分类pid为0时，为一级分类，默认二级
+            if (this.form.pid === 0) {
+              this.form.level = 'L1'
+            }
             addCategory(this.form).then(response => {
               this.saveHandle(response, this)
             })
