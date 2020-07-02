@@ -234,6 +234,7 @@ export default {
      */
     handleAdd(row) {
       this.getTreeselect()
+      this.form.pid = row.id
       this.title = '添加分类'
       this.open = true
     },
