@@ -110,7 +110,7 @@ export function param2Obj(url) {
 
 // 添加日期范围
 export function addDateRange(params, dateRange) {
-  var search = params
+  const search = params
   search.startTime = ''
   search.endTime = ''
   if (dateRange != null && dateRange !== '') {

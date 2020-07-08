@@ -106,8 +106,8 @@ import {
 
 export default {
   data() {
-    var checkCode = (rule, value, callback) => {
-      var reg = new RegExp(/^[a-zA-Z0-9]+$/)
+    const checkCode = (rule, value, callback) => {
+      const reg = new RegExp(/^[a-zA-Z0-9]+$/)
 
       if (!value) {
         return callback(new Error('栏目编码不能为空'))

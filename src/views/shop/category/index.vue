@@ -17,18 +17,6 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="创建时间">
-        <el-date-picker
-          v-model="dateRange"
-          size="small"
-          style="width: 240px"
-          value-format="yyyy-MM-dd"
-          type="daterange"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -169,8 +157,6 @@ export default {
       loading: true,
       // 添加/修改对话框 title
       title: '',
-      // 日期范围
-      dateRange: [],
       // 查询参数
       queryForm: {
         pageNum: 1,
@@ -225,7 +211,7 @@ export default {
     async getList() {
       const {
         map: { data }
-      } = await listCategory(this.addDateRange(this.queryForm, this.dateRange))
+      } = await listCategory(this.queryForm)
       this.categoryList = this.buildTree(data, 'id', 'pid')
       this.loading = false
     },

@@ -135,13 +135,7 @@
   </div>
 </template>
 <script>
-import {
-  listGoods,
-  getGoods,
-  addGoods,
-  updateGoods,
-  delGoods
-} from '@/api/shop/goods'
+import { listGoods } from '@/api/shop/goods'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -215,6 +209,9 @@ export default {
       this.total = total
       this.goodsList = data
       this.loading = false
+    },
+    handleAdd() {
+      this.$router.push({ path: '/shop/goods/add' })
     }
   }
 }
