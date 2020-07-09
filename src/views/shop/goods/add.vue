@@ -114,7 +114,6 @@
           <editor
             v-model="goods.detail"
             :init="editorInit"
-            api-key="pzum92vla0wtaut944pkbms9b1wbdtsdsyhpuqg4f15z940y"
           />
         </el-form-item>
       </el-form>
