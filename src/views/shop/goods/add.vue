@@ -122,13 +122,13 @@
     <el-card class="box-card">
       <h3>商品规格</h3>
       <el-row :gutter="20" type="flex" align="middle" style="padding:20px 0;">
-        <el-col :span="10">
+        <el-col :span="22">
           <el-radio-group v-model="multipleSpec" @change="specChanged">
             <el-radio-button :label="false">默认标准规格</el-radio-button>
             <el-radio-button :label="true">多规格支持</el-radio-button>
           </el-radio-group>
         </el-col>
-        <el-col v-if="multipleSpec" :span="10">
+        <el-col v-if="multipleSpec" :span="2">
           <el-button :plain="true" type="primary" @click="handleSpecificationShow">添加</el-button>
         </el-col>
       </el-row>
@@ -637,7 +637,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .el-card {
   margin-bottom: 10px;
 }
@@ -650,5 +650,9 @@ export default {
   width: 90px;
   margin-left: 10px;
   vertical-align: bottom;
+}
+.op-container {
+  display: flex;
+  justify-content: center;
 }
 </style>
