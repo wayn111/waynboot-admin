@@ -212,6 +212,9 @@ export default {
     },
     handleAdd() {
       this.$router.push({ path: '/shop/goods/add' })
+    },
+    handleUpdate(row) {
+      this.$router.push({ path: '/shop/goods/edit', query: { id: row.id }})
     }
   }
 }
