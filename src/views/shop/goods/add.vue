@@ -529,12 +529,12 @@ export default {
         this.specForm.picUrl = response.map.url
       }
     },
-    // 显示添加规格弹出层
+    // 显示规格弹出层
     handleSpecificationShow() {
       this.specForm = { specification: '', value: '', picUrl: '' }
       this.specVisiable = true
     },
-    // 添加规格
+    // 保存规格
     handleSpecificationAdd() {
       let index = this.specifications.length - 1
       for (let i = 0; i < this.specifications.length; i++) {

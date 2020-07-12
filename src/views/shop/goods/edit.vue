@@ -296,7 +296,7 @@
   </div>
 </template>
 <script>
-import { getGoods, editGoods, updateGoods } from '@/api/shop/goods'
+import { getGoods, updateGoods } from '@/api/shop/goods'
 import { listCategory } from '@/api/shop/category'
 import Editor from '@tinymce/tinymce-vue'
 import { MessageBox } from 'element-ui'
@@ -424,7 +424,6 @@ export default {
       this.goods.categoryId = value[value.length - 1]
     },
     handleCancel: function() {
-      this.$store.dispatch('tagsView/delView', this.$route)
       this.$router.push({ path: '/goods/list' })
     },
     handleEdit: function() {
@@ -434,13 +433,12 @@ export default {
         products: this.products,
         attributes: this.attributes
       }
-      editGoods(finalGoods)
+      updateGoods(finalGoods)
         .then(response => {
-          this.$notify.success({
+          this.$message.success({
             title: '成功',
             message: '编辑成功'
           })
-          this.$store.dispatch('tagsView/delView', this.$route)
           this.$router.push({ path: '/goods/list' })
         })
         .catch(response => {
