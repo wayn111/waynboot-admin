@@ -257,7 +257,7 @@ export default {
         sort: undefined,
         isFrame: '1',
         path: '',
-        visible: undefined,
+        visible: 0,
         menuStatus: 0
       },
       // 表单校验
