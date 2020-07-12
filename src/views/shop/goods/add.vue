@@ -324,10 +324,14 @@ export default {
     return {
       newKeywordVisible: false,
       newKeyword: '',
+      // 商品关键词
       keywords: [],
+      // 商品列表
       categoryList: [],
+      // el-cascader’s props
       props: { label: 'name', value: 'id', expandTrigger: 'hover' },
       // brandList: [],
+      // 商品表单参数
       goods: {
         picUrl: '',
         gallery: [],
@@ -335,11 +339,16 @@ export default {
         isNew: true,
         isOnSale: true
       },
+      // 是否显示规格弹出层
       specVisiable: false,
+      // 规格表单参数
       specForm: { specification: '', value: '', picUrl: '' },
       multipleSpec: false,
+      // 规格数组
       specifications: [{ specification: '规格', value: '标准', picUrl: '' }],
+      // 是否显示货品弹出层
       productVisiable: false,
+      // 货品表单参数
       productForm: {
         id: 0,
         specifications: [],
@@ -347,11 +356,15 @@ export default {
         number: 0,
         url: ''
       },
+      // 货品数组
       products: [
         { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
       ],
+      // 是否显示属性弹出层
       attributeVisiable: false,
+      // 属性表单参数
       attributeForm: { attribute: '', value: '' },
+      // 属性数组
       attributes: [],
       // 表单校验
       rules: {
@@ -395,22 +408,26 @@ export default {
   },
 
   methods: {
+    // 初始化
     init: function() {
       this.getCategoryList()
     },
+    // 获取商品分类
     async getCategoryList() {
       const {
         map: { data }
       } = await listCategory()
       this.categoryList = this.buildTree(data, 'id', 'pid')
     },
+    // 更改商品所属分类
     handleCategoryChange(value) {
       this.goods.categoryId = value[value.length - 1]
     },
+    // 关闭当前页面
     handleCancel: function() {
-      this.$store.dispatch('tagsView/delView', this.$route)
       this.$router.push({ path: '/shop/goods' })
     },
+    // 上架商品
     handlePublish: function() {
       const finalGoods = {
         goods: this.goods,
@@ -420,11 +437,10 @@ export default {
       }
       publishGoods(finalGoods)
         .then(response => {
-          this.$notify.success({
+          this.$message.success({
             title: '成功',
             message: '创建成功'
           })
-          this.$store.dispatch('tagsView/delView', this.$route)
           this.$router.push({ path: '/goods/list' })
         })
         .catch(response => {
@@ -434,16 +450,19 @@ export default {
           })
         })
     },
+    // 关闭添加关键字标签
     handleClose(tag) {
       this.keywords.splice(this.keywords.indexOf(tag), 1)
       this.goods.keywords = this.keywords.toString()
     },
+    // 添加关键字标签
     showInput() {
       this.newKeywordVisible = true
       this.$nextTick(_ => {
         this.$refs.newKeywordInput.$refs.input.focus()
       })
     },
+    // 保存关键字
     handleInputConfirm() {
       const newKeyword = this.newKeyword
       if (newKeyword) {
@@ -453,8 +472,11 @@ export default {
       this.newKeywordVisible = false
       this.newKeyword = ''
     },
+    // 上传商品图片
     uploadPicUrl: function(response) {
-      this.goods.picUrl = response.data.url
+      if (response.code === 200) {
+        this.goods.picUrl = response.map.url
+      }
     },
     uploadOverrun: function() {
       this.$message({
@@ -462,11 +484,13 @@ export default {
         message: '上传文件个数超出限制!最多上传5张图片!'
       })
     },
+    // 上传商品画廊
     handleGalleryUrl(response, file, fileList) {
-      if (response.errno === 0) {
-        this.goods.gallery.push(response.data.url)
+      if (response.code === 200) {
+        this.goods.gallery.push(response.map.url)
       }
     },
+    // 移除商品画廊
     handleRemove: function(file, fileList) {
       for (let i = 0; i < this.goods.gallery.length; i++) {
         // 这里存在两种情况
@@ -485,6 +509,7 @@ export default {
         }
       }
     },
+    // 更改商品规格
     specChanged: function(label) {
       if (label === false) {
         this.specifications = [
@@ -498,13 +523,18 @@ export default {
         this.products = []
       }
     },
+    // 上传规格图片
     uploadSpecPicUrl: function(response) {
-      this.specForm.picUrl = response.data.url
+      if (response.code === 200) {
+        this.specForm.picUrl = response.map.url
+      }
     },
+    // 显示添加规格弹出层
     handleSpecificationShow() {
       this.specForm = { specification: '', value: '', picUrl: '' }
       this.specVisiable = true
     },
+    // 添加规格
     handleSpecificationAdd() {
       let index = this.specifications.length - 1
       for (let i = 0; i < this.specifications.length; i++) {
@@ -526,14 +556,15 @@ export default {
 
       this.specifications.splice(index + 1, 0, this.specForm)
       this.specVisiable = false
-
       this.specToProduct()
     },
+    // 删除规格
     handleSpecificationDelete(row) {
       const index = this.specifications.indexOf(row)
       this.specifications.splice(index, 1)
       this.specToProduct()
     },
+    // 规格关联货品
     specToProduct() {
       if (this.specifications.length === 0) {
         return
@@ -605,13 +636,18 @@ export default {
 
       this.products = products
     },
+    // 显示货品弹出层
     handleProductShow(row) {
       this.productForm = Object.assign({}, row)
       this.productVisiable = true
     },
+    // 上传货品图片
     uploadProductUrl: function(response) {
-      this.productForm.url = response.data.url
+      if (response.code === 200) {
+        this.productForm.url = response.map.url
+      }
     },
+    // 保存货品
     handleProductEdit() {
       for (let i = 0; i < this.products.length; i++) {
         const v = this.products[i]
@@ -622,14 +658,17 @@ export default {
       }
       this.productVisiable = false
     },
+    // 显示属性弹出层
     handleAttributeShow() {
       this.attributeForm = {}
       this.attributeVisiable = true
     },
+    // 保存属性
     handleAttributeAdd() {
       this.attributes.unshift(this.attributeForm)
       this.attributeVisiable = false
     },
+    // 删除属性
     handleAttributeDelete(row) {
       const index = this.attributes.indexOf(row)
       this.attributes.splice(index, 1)
