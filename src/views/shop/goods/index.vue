@@ -135,7 +135,7 @@
   </div>
 </template>
 <script>
-import { listGoods } from '@/api/shop/goods'
+import { listGoods, delGoods } from '@/api/shop/goods'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -215,6 +215,27 @@ export default {
     },
     handleUpdate(row) {
       this.$router.push({ path: '/shop/goods/edit', query: { id: row.id }})
+    },
+    handleDelete(row) {
+      const goodsId = row.id
+      const goodsSn = row.goodsSn
+      this.$confirm(
+        '是否确认删除商品编号为"' + goodsSn + '"的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delGoods(goodsId)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function() {})
     }
   }
 }

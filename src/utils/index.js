@@ -229,3 +229,13 @@ export function updateHandle(response, vm) {
     vm.$message.error(response.msg)
   }
 }
+
+/**
+ * element ui表单校验失败，元素获取焦点
+ */
+export function showErrorfocus() {
+  setTimeout(() => {
+    var isError = document.getElementsByClassName('is-error')
+    isError[0].querySelector('input').focus()
+  }, 100)
+}

@@ -439,7 +439,7 @@ export default {
             title: '成功',
             message: '编辑成功'
           })
-          this.$router.push({ path: '/goods/list' })
+          this.$router.push({ path: '/shop/goods' })
         })
         .catch(response => {
           MessageBox.alert('业务错误：' + response.data.errmsg, '警告', {
@@ -468,7 +468,9 @@ export default {
       this.newKeyword = ''
     },
     uploadPicUrl: function(response) {
-      this.goods.picUrl = response.data.url
+      if (response.code === 200) {
+        this.goods.picUrl = response.map.url
+      }
     },
     uploadOverrun: function() {
       this.$message({
@@ -477,8 +479,8 @@ export default {
       })
     },
     handleGalleryUrl(response, file, fileList) {
-      if (response.errno === 0) {
-        this.goods.gallery.push(response.data.url)
+      if (response.code === 200) {
+        this.goods.gallery.push(response.map.url)
       }
     },
     handleRemove: function(file, fileList) {
@@ -487,7 +489,7 @@ export default {
         // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
         //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
         // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
-        var url
+        let url
         if (file.response === undefined) {
           url = file.url
         } else {
@@ -513,7 +515,9 @@ export default {
       }
     },
     uploadSpecPicUrl: function(response) {
-      this.specForm.picUrl = response.data.url
+      if (response.code === 200) {
+        this.specForm.picUrl = response.map.url
+      }
     },
     handleSpecificationShow(row) {
       this.specForm = Object.assign({}, row)
@@ -535,7 +539,9 @@ export default {
       this.productVisiable = true
     },
     uploadProductUrl: function(response) {
-      this.productForm.url = response.data.url
+      if (response.code === 200) {
+        this.productForm.url = response.map.url
+      }
     },
     handleProductEdit() {
       this.productForm.updateTime = ''

@@ -3,9 +3,6 @@
     <el-card class="box-card">
       <h3>商品介绍</h3>
       <el-form ref="goods" :rules="rules" :model="goods" label-width="150px">
-        <el-form-item label="商品编号" prop="goodsSn">
-          <el-input v-model="goods.goodsSn" />
-        </el-form-item>
         <el-form-item label="商品名称" prop="name">
           <el-input v-model="goods.name" />
         </el-form-item>
@@ -63,7 +60,7 @@
           </el-upload>
         </el-form-item>
 
-        <el-form-item label="商品单位">
+        <el-form-item label="商品单位" prop="unit">
           <el-input v-model="goods.unit" placeholder="件 / 个 / 盒" />
         </el-form-item>
 
@@ -86,7 +83,7 @@
           <el-button v-else class="button-new-keyword" type="primary" @click="showInput">+ 增加</el-button>
         </el-form-item>
 
-        <el-form-item label="所属分类">
+        <el-form-item label="所属分类" prop="categoryId">
           <el-cascader
             :options="categoryList"
             :props="props"
@@ -310,10 +307,9 @@
 </template>
 
 <script>
-import { publishGoods } from '@/api/shop/goods'
+import { addGoods } from '@/api/shop/goods'
 import { listCategory } from '@/api/shop/category'
 import Editor from '@tinymce/tinymce-vue'
-import { MessageBox } from 'element-ui'
 import { getToken } from '@/utils/auth'
 import { uploadPath, fileUpload } from '@/api/upload'
 
@@ -368,10 +364,9 @@ export default {
       attributes: [],
       // 表单校验
       rules: {
-        goodsSn: [
-          { required: true, message: '商品编号不能为空', trigger: 'blur' }
-        ],
-        name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }]
+        name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }],
+        unit: [{ required: true, message: '商品单位不能为空', trigger: 'blur' }],
+        categoryId: [{ required: true, message: '商品分类不能为空', trigger: 'blur' }]
       },
       // 初始化富文本编辑器
       editorInit: {
@@ -435,20 +430,26 @@ export default {
         products: this.products,
         attributes: this.attributes
       }
-      publishGoods(finalGoods)
-        .then(response => {
-          this.$message.success({
-            title: '成功',
-            message: '创建成功'
-          })
-          this.$router.push({ path: '/goods/list' })
-        })
-        .catch(response => {
-          MessageBox.alert('业务错误：' + response.data.errmsg, '警告', {
-            confirmButtonText: '确定',
-            type: 'error'
-          })
-        })
+      this.$refs['goods'].validate((valid, field) => {
+        if (valid) {
+          addGoods(finalGoods)
+            .then(response => {
+              this.$message.success({
+                title: '成功',
+                message: '创建成功'
+              })
+              this.$router.push({ path: '/shop/goods' })
+            })
+            .catch(response => {
+              this.$msgbox.alert('业务错误：' + response.data.errmsg, '警告', {
+                confirmButtonText: '确定',
+                type: 'error'
+              })
+            })
+        } else {
+          this.showErrorfocus()
+        }
+      })
     },
     // 关闭添加关键字标签
     handleClose(tag) {
