@@ -49,6 +49,7 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="关键字" prop="keywords" />
+      <el-table-column align="center" label="排序" prop="sortOrder" />
       <el-table-column align="center" min-width="100" label="简介" prop="desc" />
       <el-table-column align="center" label="级别" prop="level">
         <template slot-scope="scope">
@@ -84,9 +85,12 @@
       width="600px"
       :before-close="categoryDialogHandleClose"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px" size="mini">
         <el-form-item label="标题" prop="name">
           <el-input v-model="form.name" placeholder="请输入标题" />
+        </el-form-item>
+        <el-form-item label="分类顺序" prop="sortOrder">
+          <el-input-number v-model="form.sortOrder" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="上级分类">
           <treeselect
@@ -179,6 +183,7 @@ export default {
       // 表单参数
       form: {
         id: undefined,
+        sortOrder: undefined,
         name: '',
         keywords: '',
         level: 'L2',
@@ -191,6 +196,7 @@ export default {
       rules: {
         name: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
         iconUrl: [{ required: true, message: '图标不能为空', trigger: 'blur' }],
+        sortOrder: [{ required: true, message: '排序不能为空', trigger: 'blur' }],
         picUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }]
       },
       // 上传文件路径
@@ -297,6 +303,7 @@ export default {
     reset() {
       this.form = {
         id: undefined,
+        sortOrder: undefined,
         name: '',
         keywords: '',
         level: 'L2',

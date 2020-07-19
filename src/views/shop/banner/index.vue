@@ -64,6 +64,7 @@
         </template>
       </el-table-column>
       <el-table-column label="跳转链接" prop="jumpUrl" width="200" />
+      <el-table-column label="排序" prop="sortOrder" />
       <el-table-column label="状态" width="100" :formatter="statusFormat" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
@@ -116,6 +117,9 @@
             <i v-else class="el-icon-plus avatar-uploader-icon" />
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1024kb</div>
           </el-upload>
+        </el-form-item>
+        <el-form-item label="顺序" prop="sortOrder">
+          <el-input-number v-model="form.sortOrder" controls-position="right" :min="0" />
         </el-form-item>
         <el-form-item label="跳转链接" prop="jumpUrl">
           <el-input v-model="form.jumpUrl" placeholder="请输入跳转链接" />
@@ -182,6 +186,7 @@ export default {
       form: {
         title: undefined,
         status: 0,
+        sortOrder: undefined,
         imgUrl: undefined,
         jumpUrl: undefined
       },
@@ -189,6 +194,7 @@ export default {
       rules: {
         title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
         imgUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }],
+        sortOrder: [{ required: true, message: '排序不能为空', trigger: 'blur' }],
         jumpUrl: [
           { required: true, message: '跳转链接不能为空', trigger: 'blur' }
         ]
@@ -308,6 +314,7 @@ export default {
     reset() {
       this.form = {
         name: undefined,
+        sortOrder: undefined,
         code: undefined,
         remark: undefined,
         status: 0
