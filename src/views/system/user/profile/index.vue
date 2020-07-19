@@ -25,7 +25,7 @@
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="tree" />所属部门
-                <div v-if="user.sysDept" class="pull-right">{{ user.sysDept.deptName }}</div>
+                <div v-if="user.dept" class="pull-right">{{ user.dept.deptName }}</div>
               </li>
               <li class="list-group-item">
                 <svg-icon icon-class="peoples" />所属角色
