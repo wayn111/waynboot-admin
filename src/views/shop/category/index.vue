@@ -25,7 +25,7 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
       </el-col>
     </el-row>
 
@@ -59,7 +59,13 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button v-if="scope.row.level == 'L1'" size="mini" type="text" icon="el-icon-plus" @click="handleAdd(scope.row)">添加</el-button>
+          <el-button
+            v-if="scope.row.level == 'L1'"
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="handleAdd(scope.row)"
+          >添加</el-button>
           <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button
             size="mini"
@@ -220,6 +226,9 @@ export default {
      */
     handleAdd(row) {
       this.getTreeselect()
+      if (!row) {
+        row.id = 0
+      }
       this.form.pid = row.id
       this.title = '添加分类'
       this.open = true
@@ -345,3 +354,20 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.avatar-uploader {
+  .avatar-uploader-icon {
+    font-size: 18px;
+    color: #8c939d;
+    width: 120px;
+    height: 120px;
+    line-height: 120px;
+    text-align: center;
+  }
+  .avatar {
+    width: 120px;
+    height: 120px;
+    display: block;
+  }
+}
+</style>
