@@ -10,7 +10,7 @@
           <el-input v-model="goods.name" />
         </el-form-item>
         <el-form-item label="商品编号" prop="goodsSn">
-          <el-input v-model="goods.goodsSn" />
+          <el-input v-model="goods.goodsSn" disabled />
         </el-form-item>
         <el-form-item label="市场售价" prop="counterPrice">
           <el-input v-model="goods.counterPrice" placeholder="0.00">
@@ -299,7 +299,6 @@
 import { getGoods, updateGoods } from '@/api/shop/goods'
 import { listCategory } from '@/api/shop/category'
 import Editor from '@tinymce/tinymce-vue'
-import { MessageBox } from 'element-ui'
 import { getToken } from '@/utils/auth'
 import { uploadPath, fileUpload } from '@/api/upload'
 
@@ -424,7 +423,7 @@ export default {
       this.goods.categoryId = value[value.length - 1]
     },
     handleCancel: function() {
-      this.$router.push({ path: '/goods/list' })
+      this.$router.push({ path: '/shop/goods' })
     },
     handleEdit: function() {
       const finalGoods = {
@@ -433,20 +432,21 @@ export default {
         products: this.products,
         attributes: this.attributes
       }
-      updateGoods(finalGoods)
-        .then(response => {
-          this.$message.success({
-            title: '成功',
-            message: '编辑成功'
-          })
-          this.$router.push({ path: '/shop/goods' })
-        })
-        .catch(response => {
-          MessageBox.alert('业务错误：' + response.data.errmsg, '警告', {
-            confirmButtonText: '确定',
-            type: 'error'
-          })
-        })
+      this.$refs['goods'].validate((valid, field) => {
+        if (valid) {
+          updateGoods(finalGoods)
+            .then(response => {
+              this.$message.success({
+                title: '成功',
+                message: '编辑成功'
+              })
+              this.$router.push({ path: '/shop/goods' })
+            })
+            .catch(function(e) {})
+        } else {
+          this.showErrorfocus()
+        }
+      })
     },
     handleClose(tag) {
       this.keywords.splice(this.keywords.indexOf(tag), 1)

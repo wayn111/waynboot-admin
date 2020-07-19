@@ -9,9 +9,9 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="商品编号" prop="goodsSN">
+      <el-form-item label="商品编号" prop="goodsSn">
         <el-input
-          v-model="queryForm.goodsSN"
+          v-model="queryForm.goodsSn"
           size="small"
           placeholder="请输入商品编号"
           @keyup.enter.native="handleQuery"

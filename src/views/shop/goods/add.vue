@@ -365,7 +365,7 @@ export default {
       // 表单校验
       rules: {
         name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }],
-        unit: [{ required: true, message: '商品单位不能为空', trigger: 'blur' }],
+        // unit: [{ required: true, message: '商品单位不能为空', trigger: 'blur' }],
         categoryId: [{ required: true, message: '商品分类不能为空', trigger: 'blur' }]
       },
       // 初始化富文本编辑器
@@ -440,12 +440,7 @@ export default {
               })
               this.$router.push({ path: '/shop/goods' })
             })
-            .catch(response => {
-              this.$msgbox.alert('业务错误：' + response.data.errmsg, '警告', {
-                confirmButtonText: '确定',
-                type: 'error'
-              })
-            })
+            .catch(function(e) {})
         } else {
           this.showErrorfocus()
         }
