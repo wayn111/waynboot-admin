@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" :inline="true" :model="queryForm">
-      <el-form-item label="商品ID" prop="title">
+      <el-form-item label="商品ID" prop="id">
         <el-input
           v-model="queryForm.id"
           size="small"
