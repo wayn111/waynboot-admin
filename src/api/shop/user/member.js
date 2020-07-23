@@ -9,6 +9,15 @@ export function listMember(query) {
   })
 }
 
+// 更新会员信息
+export function updateMember(data) {
+  return request({
+    url: '/shop/member',
+    method: 'put',
+    data: data
+  })
+}
+
 // 查询会员详细
 export function getMember(memberId) {
   return request({

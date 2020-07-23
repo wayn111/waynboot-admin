@@ -90,7 +90,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-view" @click="handleView(scope.row)">查看</el-button>
+          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -102,10 +102,44 @@
       :limit.sync="queryForm.pageSize"
       @pagination="getList"
     />
+
+    <!-- 用户编辑对话框 -->
+    <el-dialog :visible.sync="open" title="用户编辑" width="600px" :before-close="memberDialogHandleClose">
+      <el-form ref="userDetail" :model="userDetail" :rules="rules" label-width="80px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="userDetail.username" :disabled="true" />
+        </el-form-item>
+        <el-form-item label="用户昵称" prop="nickname">
+          <el-input v-model="userDetail.nickname" />
+        </el-form-item>
+        <el-form-item label="用户手机" prop="mobile">
+          <el-input v-model="userDetail.mobile" />
+        </el-form-item>
+        <el-form-item label="用户性别" prop="gender">
+          <el-radio-group v-model="userDetail.gender">
+            <el-radio :label="1">男</el-radio>
+            <el-radio :label="2">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="userDetail.status">
+            <el-radio
+              v-for="dict in statusOptions"
+              :key="dict.value"
+              :label="parseInt(dict.value)"
+            >{{ dict.name }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确定</el-button>
+        <el-button @click="memberDialogHandleClose">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
-import { listMember, getMember} from '@/api/shop/user/member'
+import { listMember, getMember, updateMember } from '@/api/shop/user/member'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -138,6 +172,13 @@ export default {
       memberList: [],
       // 是否显示弹出层
       open: false,
+      // 用户编辑表单
+      userDetail: {},
+      // 表单校验
+      rules: {
+        nickname: [{ required: true, message: '昵称不能为空', trigger: 'blur' }],
+        mobile: [{ required: true, message: '手机号不能为空', trigger: 'blur' }]
+      },
       // 状态数据字典
       statusOptions: [],
       // 上传文件路径
@@ -212,8 +253,34 @@ export default {
       this.reset()
       this.open = false
     },
-    handleView() {
-
+    /**
+     * 表单重置
+     */
+    reset() {
+      this.userDetail = {}
+      this.$refs['userDetail'].resetFields()
+    },
+    /**
+     * 编辑操作
+     */
+    async handleUpdate(row) {
+      const { map: { data }} = await getMember(row.id)
+      this.userDetail = data
+      this.open = true
+    },
+    /**
+     * 提交会员表单
+     */
+    submitForm() {
+      this.$refs['userDetail'].validate(valid => {
+        if (valid) {
+          if (this.userDetail.id !== undefined) {
+            updateMember(this.userDetail).then(response => {
+              this.updateHandle(response, this)
+            })
+          }
+        }
+      })
     }
   }
 }
