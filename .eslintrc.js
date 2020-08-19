@@ -1,4 +1,3 @@
-// ESlint 检查配置
 module.exports = {
   root: true,
   parserOptions: {

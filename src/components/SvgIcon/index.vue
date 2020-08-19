@@ -23,6 +23,7 @@ export default {
   },
   computed: {
     isExternal() {
+      console.log(isExternal(this.iconClass))
       return isExternal(this.iconClass)
     },
     iconName() {
