@@ -108,10 +108,7 @@
         </el-form-item>
 
         <el-form-item label="商品详细介绍">
-          <editor
-            v-model="goods.detail"
-            :init="editorInit"
-          />
+          <editor v-model="goods.detail" :init="editorInit" />
         </el-form-item>
       </el-form>
     </el-card>
@@ -140,6 +137,17 @@
         <el-table-column property="picUrl" label="规格图片">
           <template slot-scope="scope">
             <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
+          </template>
+        </el-table-column>
+        <el-table-column property="defaultSelected" label="默认选中">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.defaultSelected"
+              :active-value="1"
+              :inactive-value="0"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            />
           </template>
         </el-table-column>
         <el-table-column
@@ -341,7 +349,14 @@ export default {
       specForm: { specification: '', value: '', picUrl: '' },
       multipleSpec: false,
       // 规格数组
-      specifications: [{ specification: '规格', value: '标准', picUrl: '' }],
+      specifications: [
+        {
+          specification: '规格',
+          value: '标准',
+          picUrl: '',
+          defaultSelected: 1
+        }
+      ],
       // 是否显示货品弹出层
       productVisiable: false,
       // 货品表单参数
@@ -364,9 +379,15 @@ export default {
       attributes: [],
       // 表单校验
       rules: {
-        name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }],
-        // unit: [{ required: true, message: '商品单位不能为空', trigger: 'blur' }],
-        categoryId: [{ required: true, message: '商品分类不能为空', trigger: 'blur' }]
+        name: [
+          { required: true, message: '商品名称不能为空', trigger: 'blur' }
+        ],
+        unit: [
+          { required: true, message: '商品单位不能为空', trigger: 'blur' }
+        ],
+        categoryId: [
+          { required: true, message: '商品分类不能为空', trigger: 'blur' }
+        ]
       },
       // 初始化富文本编辑器
       editorInit: {
@@ -384,7 +405,7 @@ export default {
           const formData = new FormData()
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
-            .then(res => {
+            .then((res) => {
               success(res.map.url)
             })
             .catch(() => {
@@ -433,7 +454,7 @@ export default {
       this.$refs['goods'].validate((valid, field) => {
         if (valid) {
           addGoods(finalGoods)
-            .then(response => {
+            .then((response) => {
               this.$message.success({
                 title: '成功',
                 message: '创建成功'
@@ -454,7 +475,7 @@ export default {
     // 添加关键字标签
     showInput() {
       this.newKeywordVisible = true
-      this.$nextTick(_ => {
+      this.$nextTick((_) => {
         this.$refs.newKeywordInput.$refs.input.focus()
       })
     },
@@ -509,7 +530,12 @@ export default {
     specChanged: function(label) {
       if (label === false) {
         this.specifications = [
-          { specification: '规格', value: '标准', picUrl: '' }
+          {
+            specification: '规格',
+            value: '标准',
+            picUrl: '',
+            defaultSelected: 1
+          }
         ]
         this.products = [
           { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
@@ -668,6 +694,30 @@ export default {
     handleAttributeDelete(row) {
       const index = this.attributes.indexOf(row)
       this.attributes.splice(index, 1)
+    },
+    /**
+     * switch 状态发生变化时的回调函数
+     */
+    handleSwitchChange(row) {
+      const text = row.defaultSelected === 0 ? '停用' : '启用'
+      this.$confirm(
+        '确认要 "' + text + '"' + row.specification + '规格吗?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          // return changeUserStatus(row.userId, row.userStatus)
+        })
+        .then(() => {
+          this.$message.success(text + '成功')
+        })
+        .catch(function() {
+          row.defaultSelected = row.defaultSelected === 0 ? 1 : 0
+        })
     }
   }
 }
