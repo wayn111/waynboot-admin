@@ -131,6 +131,17 @@
             <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
           </template>
         </el-table-column>
+        <el-table-column property="defaultSelected" label="默认选中">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.defaultSelected"
+              :active-value="true"
+              :inactive-value="false"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            />
+          </template>
+        </el-table-column>
         <el-table-column
           align="center"
           label="操作"
@@ -318,7 +329,14 @@ export default {
       goods: { gallery: [] },
       specVisiable: false,
       specForm: { specification: '', value: '', picUrl: '' },
-      specifications: [{ specification: '规格', value: '标准', picUrl: '' }],
+      specifications: [
+        {
+          specification: '规格',
+          value: '标准',
+          picUrl: '',
+          defaultSelected: true
+        }
+      ],
       productVisiable: false,
       productForm: {
         id: 0,
@@ -335,7 +353,12 @@ export default {
       attributeForm: { attribute: '', value: '' },
       attributes: [],
       rules: {
-        name: [{ required: true, message: '商品名称不能为空', trigger: 'blur' }]
+        name: [
+          { required: true, message: '商品名称不能为空', trigger: 'blur' }
+        ],
+        unit: [
+          { required: true, message: '商品单位不能为空', trigger: 'blur' }
+        ]
       },
       editorInit: {
         language: 'zh_CN',
@@ -352,7 +375,7 @@ export default {
           const formData = new FormData()
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
-            .then(res => {
+            .then((res) => {
               success(res.map.url)
             })
             .catch(() => {
@@ -387,7 +410,7 @@ export default {
         return
       }
       const goodsId = this.$route.query.id
-      getGoods(goodsId).then(response => {
+      getGoods(goodsId).then((response) => {
         this.goods = response.map.data.goods
         // 稍微调整一下前后端不一致
         // if (this.goods.brandId === 0) {
@@ -435,7 +458,7 @@ export default {
       this.$refs['goods'].validate((valid, field) => {
         if (valid) {
           updateGoods(finalGoods)
-            .then(response => {
+            .then((response) => {
               this.$message.success({
                 title: '成功',
                 message: '编辑成功'
@@ -454,7 +477,7 @@ export default {
     },
     showInput() {
       this.newKeywordVisible = true
-      this.$nextTick(_ => {
+      this.$nextTick((_) => {
         this.$refs.newKeywordInput.$refs.input.focus()
       })
     },
@@ -504,7 +527,12 @@ export default {
     specChanged: function(label) {
       if (label === false) {
         this.specifications = [
-          { specification: '规格', value: '标准', picUrl: '' }
+          {
+            specification: '规格',
+            value: '标准',
+            picUrl: '',
+            defaultSelected: true
+          }
         ]
         this.products = [
           { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }

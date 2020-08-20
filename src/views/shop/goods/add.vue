@@ -143,8 +143,8 @@
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.defaultSelected"
-              :active-value="1"
-              :inactive-value="0"
+              :active-value="true"
+              :inactive-value="false"
               active-color="#13ce66"
               inactive-color="#ff4949"
             />
@@ -354,7 +354,7 @@ export default {
           specification: '规格',
           value: '标准',
           picUrl: '',
-          defaultSelected: 1
+          defaultSelected: true
         }
       ],
       // 是否显示货品弹出层
@@ -534,7 +534,7 @@ export default {
             specification: '规格',
             value: '标准',
             picUrl: '',
-            defaultSelected: 1
+            defaultSelected: true
           }
         ]
         this.products = [
@@ -699,7 +699,7 @@ export default {
      * switch 状态发生变化时的回调函数
      */
     handleSwitchChange(row) {
-      const text = row.defaultSelected === 0 ? '停用' : '启用'
+      const text = row.defaultSelected === true ? '启用' : '停用'
       this.$confirm(
         '确认要 "' + text + '"' + row.specification + '规格吗?',
         '警告',
@@ -716,7 +716,7 @@ export default {
           this.$message.success(text + '成功')
         })
         .catch(function() {
-          row.defaultSelected = row.defaultSelected === 0 ? 1 : 0
+          row.defaultSelected = !row.defaultSelected
         })
     }
   }
