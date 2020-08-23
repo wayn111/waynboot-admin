@@ -131,17 +131,6 @@
             <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
           </template>
         </el-table-column>
-        <el-table-column property="defaultSelected" label="默认选中">
-          <template slot-scope="scope">
-            <el-switch
-              v-model="scope.row.defaultSelected"
-              :active-value="true"
-              :inactive-value="false"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-            />
-          </template>
-        </el-table-column>
         <el-table-column
           align="center"
           label="操作"
@@ -204,6 +193,17 @@
         <el-table-column property="url" label="货品图片">
           <template slot-scope="scope">
             <img v-if="scope.row.url" :src="scope.row.url" width="40">
+          </template>
+        </el-table-column>
+        <el-table-column property="defaultSelected" label="默认选中">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.defaultSelected"
+              :active-value="true"
+              :inactive-value="false"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            />
           </template>
         </el-table-column>
         <el-table-column
@@ -333,8 +333,7 @@ export default {
         {
           specification: '规格',
           value: '标准',
-          picUrl: '',
-          defaultSelected: true
+          picUrl: ''
         }
       ],
       productVisiable: false,
@@ -346,7 +345,14 @@ export default {
         url: ''
       },
       products: [
-        { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
+        {
+          id: 0,
+          specifications: ['标准'],
+          price: 0.0,
+          defaultSelected: true,
+          number: 0,
+          url: ''
+        }
       ],
       attributeVisiable: false,
       attributeAdd: true,
@@ -530,12 +536,18 @@ export default {
           {
             specification: '规格',
             value: '标准',
-            picUrl: '',
-            defaultSelected: true
+            picUrl: ''
           }
         ]
         this.products = [
-          { id: 0, specifications: ['标准'], price: 0.0, number: 0, url: '' }
+          {
+            id: 0,
+            specifications: ['标准'],
+            price: 0.0,
+            defaultSelected: true,
+            number: 0,
+            url: ''
+          }
         ]
       } else {
         this.specifications = []
