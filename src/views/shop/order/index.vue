@@ -1,23 +1,22 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" :inline="true" :model="queryForm">
-      <el-form-item label="会员ID" prop="memberId">
+      <el-form-item label="订单编号" prop="orderSn">
         <el-input
-          v-model="queryForm.memberId"
+          v-model="queryForm.orderSn"
+          size="small"
+          placeholder="请输入订单编号"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="会员ID" prop="userId">
+        <el-input
+          v-model="queryForm.userId"
           size="small"
           placeholder="请输入会员ID"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="会员名称" prop="name">
-        <el-input
-          v-model="queryForm.name"
-          size="small"
-          placeholder="请输入会员名称"
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
@@ -42,31 +41,31 @@
       </el-col>
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="addressList"
-      style="width: 100%"
-    >
-      <el-table-column label="编号" prop="id" width="120" />
-      <el-table-column label="用户ID" prop="memberId" />
-      <el-table-column label="用户名称" prop="name" />
-      <el-table-column label="手机号" prop="tel" />
-      <el-table-column label="省份" prop="province" />
-      <el-table-column label="城市" prop="city" />
-      <el-table-column label="区县" prop="county" />
-      <el-table-column label="地址详情" prop="addressDetail" />
-      <el-table-column label="城市ID" prop="areaCode" />
-      <el-table-column label="邮编" prop="postalCode" />
-      <el-table-column label="区县" prop="county" />
-      <el-table-column label="是否默认">
+    <el-table v-loading="loading" :data="orderList" style="width: 100%">
+      <el-table-column align="center" min-width="100" label="订单ID" prop="id" />
+      <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
+      <el-table-column align="center" label="用户ID" prop="userId" />
+      <el-table-column align="center" label="订单状态">
         <template slot-scope="scope">
-          <span>{{ scope.row.isDefault? '是' : '否' }}</span>
+          <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="订单金额/元">
+        <template slot-scope="scope">{{ scope.row.orderPrice | yuan }}</template>
+      </el-table-column>
+      <el-table-column align="center" label="支付金额/元">
+        <template slot-scope="scope">{{ scope.row.actualPrice | yuan }}</template>
+      </el-table-column>
+      <el-table-column align="center" label="支付时间" prop="payTime" />
+      <el-table-column align="center" label="物流单号" prop="shipSn" />
+      <el-table-column align="center" label="物流渠道" prop="shipChannel" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作">
+        <template slot-scope="scope">操作</template>
       </el-table-column>
     </el-table>
 
@@ -80,9 +79,28 @@
   </div>
 </template>
 <script>
-import { listAddress } from '@/api/shop/user/address'
+import { listOrder, delOrder, getOrder } from '@/api/shop/order'
+import { yuan } from '@/utils'
+
+const statusMap = {
+  101: '未付款',
+  102: '用户取消',
+  103: '系统取消',
+  201: '已付款',
+  202: '申请退款',
+  203: '已退款',
+  301: '已发货',
+  401: '用户收货',
+  402: '系统收货'
+}
 
 export default {
+  filters: {
+    orderStatusFilter(status) {
+      return statusMap[status]
+    },
+    yuan
+  },
   data() {
     return {
       loading: true,
@@ -94,11 +112,12 @@ export default {
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        id: undefined,
+        orderSn: undefined,
+        userId: undefined,
         name: undefined
       },
       // 角色列表
-      addressList: []
+      orderList: []
     }
   },
   created() {
@@ -121,9 +140,9 @@ export default {
         map: {
           page: { records: data, total }
         }
-      } = await listAddress(this.addDateRange(this.queryForm, this.dateRange))
+      } = await listOrder(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
-      this.addressList = data
+      this.orderList = data
       this.loading = false
     }
   }

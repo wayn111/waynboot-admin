@@ -227,6 +227,7 @@ export function saveHandle(response, vm) {
     vm.$message.error(response.msg)
   }
 }
+import { isNumber } from 'lodash'
 
 // 表单更新后处理
 export function updateHandle(response, vm) {
@@ -248,4 +249,8 @@ export function showErrorfocus() {
     var isError = document.getElementsByClassName('is-error')
     isError[0].querySelector('input').focus()
   }, 100)
+}
+
+export const yuan = value => {
+  return isNumber(value) ? `${(value).toFixed(2)}` : value
 }
