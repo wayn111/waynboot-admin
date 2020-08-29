@@ -194,7 +194,9 @@ export default {
       rules: {
         title: [{ required: true, message: '标题不能为空', trigger: 'blur' }],
         imgUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }],
-        sortOrder: [{ required: true, message: '排序不能为空', trigger: 'blur' }],
+        sortOrder: [
+          { required: true, message: '排序不能为空', trigger: 'blur' }
+        ],
         jumpUrl: [
           { required: true, message: '跳转链接不能为空', trigger: 'blur' }
         ]
@@ -207,7 +209,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getDicts('status').then(response => {
+    this.getDicts('status').then((response) => {
       const {
         map: { data }
       } = response
@@ -240,7 +242,7 @@ export default {
      * 当选择项发生变化时会触发该事件
      */
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.roleId)
+      this.ids = selection.map((item) => item.roleId)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
@@ -249,15 +251,11 @@ export default {
      */
     handleSwitchChange(row) {
       const text = row.status === 0 ? '启用' : '停用'
-      this.$confirm(
-        '确认要 "' + text + '"该banner吗?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
+      this.$confirm('确认要 "' + text + '"该banner吗?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
         .then(function() {
           return new Promise()
         })
@@ -285,7 +283,8 @@ export default {
       this.form = data
       this.title = '修改banner'
       this.open = true
-    }, /**
+    },
+    /**
      * 删除按钮
      */
     async handleDelete(row) {
@@ -348,14 +347,14 @@ export default {
      * 提交banner表单
      */
     submitForm() {
-      this.$refs['form'].validate(valid => {
+      this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateBanner(this.form).then(response => {
+            updateBanner(this.form).then((response) => {
               this.updateHandle(response, this)
             })
           } else {
-            addBanner(this.form).then(response => {
+            addBanner(this.form).then((response) => {
               this.saveHandle(response, this)
             })
           }

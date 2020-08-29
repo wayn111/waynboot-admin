@@ -65,7 +65,12 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
-        <template slot-scope="scope">操作</template>
+        <el-button size="mini" type="text" icon="el-icon-edit" @click="handleView(scope.row)">查看</el-button>
+        <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
+      </el-table-column>
+    </el-table>
+  </div>
+</template>
       </el-table-column>
     </el-table>
 
@@ -144,6 +149,30 @@ export default {
       this.total = total
       this.orderList = data
       this.loading = false
+    },
+    handleView(row) {},
+    /**
+     * 删除按钮
+     */
+    async handleDelete(row) {
+      const orderId = row.id
+      this.$confirm(
+        '是否确认删除订单编号为 [' + orderId + '] 的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delOrder(orderId)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function(e) {})
     }
   }
 }
