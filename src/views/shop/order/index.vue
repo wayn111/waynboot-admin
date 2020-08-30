@@ -99,7 +99,7 @@
   </div>
 </template>
 <script>
-import { listOrder, delOrder, getOrder } from '@/api/shop/order'
+import { listOrder, delOrder, getOrder, refundOrder } from '@/api/shop/order'
 import { yuan } from '@/utils'
 
 const statusMap = {
@@ -167,7 +167,26 @@ export default {
     },
     handleDetail(row) {},
     handleShip(row) {},
-    handleRefound(row) {},
+    handleRefound(row) {
+      const orderId = row.id
+      this.$confirm(
+        '是否确认为订单编号为 [' + orderId + '] 的订单退款?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return refundOrder(orderId)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('退款成功')
+        })
+        .catch(function(e) {})
+    },
     /**
      * 删除按钮
      */
