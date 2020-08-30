@@ -42,7 +42,7 @@
     </el-row>
 
     <el-table v-loading="loading" :data="orderList" style="width: 100%">
-      <el-table-column align="center" min-width="100" label="订单ID" prop="id" />
+      <el-table-column align="center" min-width="100" label="ID" prop="id" width="50" />
       <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
       <el-table-column align="center" label="用户ID" prop="userId" />
       <el-table-column align="center" label="订单状态">
@@ -64,13 +64,28 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作">
-        <el-button size="mini" type="text" icon="el-icon-edit" @click="handleView(scope.row)">查看</el-button>
-        <el-button size="mini" type="text" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
-      </el-table-column>
-    </el-table>
-  </div>
-</template>
+      <el-table-column align="center" label="操作" width="200">
+        <template slot-scope="scope">
+          <el-button icon="el-icon-edit" type="text" size="mini" @click="handleDetail(scope.row)">详情</el-button>
+          <el-button
+            icon="el-icon-delete"
+            type="text"
+            size="mini"
+            @click="handleDelete(scope.row)"
+          >删除</el-button>
+          <el-button
+            v-if="scope.row.orderStatus==201"
+            size="mini"
+            type="text"
+            @click="handleShip(scope.row)"
+          >发货</el-button>
+          <el-button
+            v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
+            size="mini"
+            type="text"
+            @click="handleRefund(scope.row)"
+          >退款</el-button>
+        </template>
       </el-table-column>
     </el-table>
 
@@ -150,7 +165,9 @@ export default {
       this.orderList = data
       this.loading = false
     },
-    handleView(row) {},
+    handleDetail(row) {},
+    handleShip(row) {},
+    handleRefound(row) {},
     /**
      * 删除按钮
      */
