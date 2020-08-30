@@ -167,10 +167,9 @@ export default {
     },
     handleDetail(row) {},
     handleShip(row) {},
-    handleRefound(row) {
-      const orderId = row.id
+    handleRefund(row) {
       this.$confirm(
-        '是否确认为订单编号为 [' + orderId + '] 的订单退款?',
+        '是否确认为订单编号为 [' + row.orderSn + '] 的订单退款?',
         '警告',
         {
           confirmButtonText: '确定',
@@ -179,7 +178,7 @@ export default {
         }
       )
         .then(function() {
-          return refundOrder(orderId)
+          return refundOrder(row.id)
         })
         .then(() => {
           this.getList()
