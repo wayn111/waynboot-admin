@@ -32,3 +32,10 @@ export function refundOrder(orderId) {
     method: 'post'
   })
 }
+
+export function listChannel() {
+  return request({
+    url: '/shop/order/listChannel',
+    method: 'post'
+  })
+}

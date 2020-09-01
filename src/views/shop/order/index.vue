@@ -167,7 +167,7 @@
     </el-dialog>
 
     <!-- 发货对话框 -->
-    <!-- <el-dialog :visible.sync="shipDialogVisible" title="发货">
+    <el-dialog :visible.sync="shipDialogVisible" title="发货">
       <el-form
         ref="shipForm"
         :model="shipForm"
@@ -192,13 +192,13 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="shipDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="confirmShip">确定</el-button>
+        <el-button type="primary">确定</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
   </div>
 </template>
 <script>
-import { listOrder, delOrder, getOrder, refundOrder } from '@/api/shop/order'
+import { listOrder, delOrder, getOrder, refundOrder, listChannel } from '@/api/shop/order'
 import { yuan } from '@/utils'
 
 const statusMap = {
@@ -243,6 +243,7 @@ export default {
         user: {},
         orderGoods: []
       },
+      channels: [],
       shipForm: {
         orderId: undefined,
         shipChannel: undefined,
@@ -253,8 +254,14 @@ export default {
   },
   created() {
     this.getList()
+    this.getChannel()
   },
   methods: {
+    getChannel() {
+      listChannel().then(response => {
+        this.channels = response.map.data
+      })
+    },
     handleQuery() {
       this.getList()
     },
@@ -281,7 +288,9 @@ export default {
       this.orderDetail = data
       this.orderDialogVisible = true
     },
-    handleShip(row) {},
+    handleShip(row) {
+      this.shipDialogVisible = true
+    },
     handleRefund(row) {
       this.$confirm(
         '是否确认为订单编号为 [' + row.orderSn + '] 的订单退款?',
@@ -307,7 +316,7 @@ export default {
     async handleDelete(row) {
       const orderId = row.id
       this.$confirm(
-        '是否确认删除订单编号为 [' + orderId + '] 的数据项?',
+        '是否确认删除订单编号为 [' + row.orderSn + '] 的订单吗?',
         '警告',
         {
           confirmButtonText: '确定',
