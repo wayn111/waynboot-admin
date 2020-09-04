@@ -175,6 +175,7 @@
         label-position="left"
         label-width="100px"
         style="width: 400px; margin-left:50px;"
+        :rules="shipFormRules"
       >
         <el-form-item label="快递公司" prop="shipChannel">
           <el-select v-model="shipForm.shipChannel" placeholder="请选择">
@@ -192,13 +193,20 @@
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="shipDialogVisible = false">取消</el-button>
-        <el-button type="primary">确定</el-button>
+        <el-button type="primary" @click="clickShip">确定</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 <script>
-import { listOrder, delOrder, getOrder, refundOrder, listChannel } from '@/api/shop/order'
+import {
+  listOrder,
+  delOrder,
+  getOrder,
+  refundOrder,
+  listChannel,
+  clickShip
+} from '@/api/shop/order'
 import { yuan } from '@/utils'
 
 const statusMap = {
@@ -249,6 +257,14 @@ export default {
         shipChannel: undefined,
         shipSn: undefined
       },
+      shipFormRules: {
+        shipChannel: [
+          { required: true, message: '发货渠道不能为空', trigger: 'blur' }
+        ],
+        shipSn: [
+          { required: true, message: '发货编号不能为空', trigger: 'blur' }
+        ]
+      },
       shipDialogVisible: false
     }
   },
@@ -258,7 +274,7 @@ export default {
   },
   methods: {
     getChannel() {
-      listChannel().then(response => {
+      listChannel().then((response) => {
         this.channels = response.map.data
       })
     },
@@ -284,12 +300,27 @@ export default {
       this.loading = false
     },
     async handleDetail(row) {
-      const { map: { data }} = await getOrder(row.id)
+      const {
+        map: { data }
+      } = await getOrder(row.id)
       this.orderDetail = data
       this.orderDialogVisible = true
     },
     handleShip(row) {
+      this.shipForm.orderId = row.id
       this.shipDialogVisible = true
+    },
+    clickShip(row) {
+      this.$refs['shipForm'].validate(async(valid) => {
+        if (valid) {
+          const { code, msg } = await clickShip(this.shipForm)
+          if (code === 0) {
+            this.$message.success('发货成功')
+          } else {
+            this.$message.error(msg)
+          }
+        }
+      })
     },
     handleRefund(row) {
       this.$confirm(

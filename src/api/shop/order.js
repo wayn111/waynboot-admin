@@ -33,9 +33,19 @@ export function refundOrder(orderId) {
   })
 }
 
+// 发货渠道
 export function listChannel() {
   return request({
     url: '/shop/order/listChannel',
     method: 'post'
+  })
+}
+
+// 点击发货
+export function clickShip(data) {
+  return request({
+    url: '/shop/order/ship',
+    method: 'post',
+    data
   })
 }
