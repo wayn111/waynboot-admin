@@ -307,14 +307,18 @@ export default {
       this.orderDialogVisible = true
     },
     handleShip(row) {
-      this.shipForm.orderId = row.id
+      this.shipForm = {
+        orderId: row.id,
+        shipChannel: undefined,
+        shipSn: undefined
+      }
       this.shipDialogVisible = true
     },
     clickShip(row) {
       this.$refs['shipForm'].validate(async(valid) => {
         if (valid) {
           const { code, msg } = await clickShip(this.shipForm)
-          if (code === 0) {
+          if (code === 200) {
             this.$message.success('发货成功')
           } else {
             this.$message.error(msg)
