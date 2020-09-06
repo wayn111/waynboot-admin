@@ -17,6 +17,22 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="状态" prop="orderStatus">
+        <el-select
+          v-model="queryForm.orderStatus"
+          placeholder="订单状态"
+          clearable
+          size="small"
+          style="width: 180px"
+        >
+          <el-option
+            v-for="dict in orderStatusOptions"
+            :key="dict.value"
+            :label="dict.name"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
@@ -35,11 +51,11 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <!-- <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
       </el-col>
-    </el-row>
+    </el-row> -->
 
     <el-table v-loading="loading" :data="orderList" style="width: 100%">
       <el-table-column align="center" min-width="100" label="ID" prop="id" width="50" />
@@ -235,6 +251,8 @@ export default {
       total: 0,
       // 日期范围
       dateRange: [],
+      // 订单状态数据字典
+      orderStatusOptions: [],
       // 查询参数
       queryForm: {
         pageNum: 1,
@@ -271,6 +289,11 @@ export default {
   created() {
     this.getList()
     this.getChannel()
+    this.getDicts('orderStatus').then(response => {
+      const { map: { data }} = response
+      debugger
+      this.orderStatusOptions = data
+    })
   },
   methods: {
     getChannel() {

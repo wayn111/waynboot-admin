@@ -320,6 +320,7 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.title = '添加字典数据'
+      this.form.parentType = this.queryForm.parentType
       this.open = true
     },
     // 多选框选中数据
