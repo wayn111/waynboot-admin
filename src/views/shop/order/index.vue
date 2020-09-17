@@ -291,7 +291,6 @@ export default {
     this.getChannel()
     this.getDicts('orderStatus').then(response => {
       const { map: { data }} = response
-      debugger
       this.orderStatusOptions = data
     })
   },
@@ -343,6 +342,8 @@ export default {
           const { code, msg } = await clickShip(this.shipForm)
           if (code === 200) {
             this.$message.success('发货成功')
+            this.shipDialogVisible = false
+            this.getList()
           } else {
             this.$message.error(msg)
           }
