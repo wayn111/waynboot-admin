@@ -46,8 +46,17 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
+        >搜索</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          size="mini"
+          @click="resetQuery"
+        >重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -57,32 +66,68 @@
       </el-col>
     </el-row> -->
 
-    <el-table v-loading="loading" :data="orderList" style="width: 100%">
-      <el-table-column align="center" min-width="100" label="ID" prop="id" width="50" />
-      <el-table-column align="center" min-width="100" label="订单编号" prop="orderSn" />
+    <el-table
+      v-loading="loading"
+      :data="orderList"
+      style="width: 100%"
+      @sort-change="handleSortChange"
+    >
+      <el-table-column
+        align="center"
+        min-width="100"
+        label="ID"
+        prop="id"
+        width="50"
+      />
+      <el-table-column
+        align="center"
+        min-width="100"
+        label="订单编号"
+        prop="orderSn"
+        sortable="custom"
+      />
       <el-table-column align="center" label="用户ID" prop="userId" />
       <el-table-column align="center" label="订单状态">
         <template slot-scope="scope">
           <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="订单金额/元">
-        <template slot-scope="scope">{{ scope.row.orderPrice | yuan }}</template>
+      <el-table-column align="center" label="订单金额/元" prop="orderPrice" sortable="custom">
+        <template slot-scope="scope">{{
+          scope.row.orderPrice | yuan
+        }}</template>
       </el-table-column>
-      <el-table-column align="center" label="支付金额/元">
-        <template slot-scope="scope">{{ scope.row.actualPrice | yuan }}</template>
+      <el-table-column align="center" label="支付金额/元" prop="actualPrice" sortable="custom">
+        <template slot-scope="scope">{{
+          scope.row.actualPrice | yuan
+        }}</template>
       </el-table-column>
-      <el-table-column align="center" label="支付时间" prop="payTime" />
+      <el-table-column
+        align="center"
+        label="支付时间"
+        prop="payTime"
+        sortable="custom"
+      />
       <el-table-column align="center" label="物流单号" prop="shipSn" />
       <el-table-column align="center" label="物流渠道" prop="shipChannel" />
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        sortable="custom"
+      >
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="200">
         <template slot-scope="scope">
-          <el-button icon="el-icon-edit" type="text" size="mini" @click="handleDetail(scope.row)">详情</el-button>
+          <el-button
+            icon="el-icon-edit"
+            type="text"
+            size="mini"
+            @click="handleDetail(scope.row)"
+          >详情</el-button>
           <el-button
             icon="el-icon-delete"
             type="text"
@@ -90,13 +135,13 @@
             @click="handleDelete(scope.row)"
           >删除</el-button>
           <el-button
-            v-if="scope.row.orderStatus==201"
+            v-if="scope.row.orderStatus == 201"
             size="mini"
             type="text"
             @click="handleShip(scope.row)"
           >发货</el-button>
           <el-button
-            v-if="scope.row.orderStatus==202||scope.row.orderStatus==204"
+            v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
             size="mini"
             type="text"
             @click="handleRefund(scope.row)"
@@ -120,7 +165,9 @@
             <span>{{ orderDetail.order.orderSn }}</span>
           </el-form-item>
           <el-form-item label="订单状态">
-            <el-tag>{{ orderDetail.order.orderStatus | orderStatusFilter }}</el-tag>
+            <el-tag>{{
+              orderDetail.order.orderStatus | orderStatusFilter
+            }}</el-tag>
           </el-form-item>
           <el-form-item label="订单用户">
             <span>{{ orderDetail.user.nickname }}</span>
@@ -134,10 +181,23 @@
             <span>（地址）{{ orderDetail.order.address }}</span>
           </el-form-item>
           <el-form-item label="商品信息">
-            <el-table :data="orderDetail.orderGoods" border fit highlight-current-row>
-              <el-table-column align="center" label="商品名称" prop="goodsName" />
+            <el-table
+              :data="orderDetail.orderGoods"
+              border
+              fit
+              highlight-current-row
+            >
+              <el-table-column
+                align="center"
+                label="商品名称"
+                prop="goodsName"
+              />
               <el-table-column align="center" label="商品编号" prop="goodsSn" />
-              <el-table-column align="center" label="货品规格" prop="specifications" />
+              <el-table-column
+                align="center"
+                label="货品规格"
+                prop="specifications"
+              />
               <el-table-column align="center" label="货品价格" prop="price" />
               <el-table-column align="center" label="货品数量" prop="number" />
               <el-table-column align="center" label="货品图片" prop="picUrl">
@@ -149,11 +209,12 @@
           </el-form-item>
           <el-form-item label="费用信息">
             <span>
-              (实际费用){{ orderDetail.order.actualPrice }}元 =
-              (商品总价){{ orderDetail.order.goodsPrice }}元 +
-              (快递费用){{ orderDetail.order.freightPrice }}元 -
-              (优惠减免){{ orderDetail.order.couponPrice }}元 -
-              (积分减免){{ orderDetail.order.integralPrice }}元
+              (实际费用){{ orderDetail.order.actualPrice }}元 = (商品总价){{
+                orderDetail.order.goodsPrice
+              }}元 + (快递费用){{ orderDetail.order.freightPrice }}元 -
+              (优惠减免){{ orderDetail.order.couponPrice }}元 - (积分减免){{
+                orderDetail.order.integralPrice
+              }}元
             </span>
           </el-form-item>
           <el-form-item label="支付信息">
@@ -190,7 +251,7 @@
         status-icon
         label-position="left"
         label-width="100px"
-        style="width: 400px; margin-left:50px;"
+        style="width: 400px; margin-left: 50px"
         :rules="shipFormRules"
       >
         <el-form-item label="快递公司" prop="shipChannel">
@@ -257,6 +318,8 @@ export default {
       queryForm: {
         pageNum: 1,
         pageSize: 10,
+        sortName: 'createTime',
+        sortOrder: 'desc',
         orderSn: undefined,
         userId: undefined,
         name: undefined
@@ -289,8 +352,10 @@ export default {
   created() {
     this.getList()
     this.getChannel()
-    this.getDicts('orderStatus').then(response => {
-      const { map: { data }} = response
+    this.getDicts('orderStatus').then((response) => {
+      const {
+        map: { data }
+      } = response
       this.orderStatusOptions = data
     })
   },
@@ -320,6 +385,14 @@ export default {
       this.total = total
       this.orderList = data
       this.loading = false
+    },
+    /**
+     * 后端排序
+     */
+    handleSortChange(sort) {
+      this.queryForm.sortName = sort.prop
+      this.queryForm.sortOrder = sort.order
+      this.getList()
     },
     async handleDetail(row) {
       const {
