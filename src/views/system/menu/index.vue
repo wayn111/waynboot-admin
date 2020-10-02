@@ -26,8 +26,17 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
+        >搜索</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          size="mini"
+          @click="resetQuery"
+        >重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -47,25 +56,51 @@
       v-loading="loading"
       :data="menuList"
       row-key="menuId"
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+      :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160" />
+      <el-table-column
+        prop="menuName"
+        label="菜单名称"
+        :show-overflow-tooltip="true"
+        width="160"
+      />
       <el-table-column prop="icon" label="图标" align="center" width="100">
         <template slot-scope="scope">
           <svg-icon :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
       <el-table-column prop="sort" label="排序" width="60" />
-      <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true" />
-      <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true" />
-      <el-table-column prop="path" label="组件路由" :show-overflow-tooltip="true" />
-      <el-table-column prop="menuStatus" label="状态" :formatter="statusFormat" width="80" />
+      <el-table-column
+        prop="perms"
+        label="权限标识"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        prop="component"
+        label="组件路径"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        prop="path"
+        label="组件路由"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        prop="menuStatus"
+        label="状态"
+        :formatter="statusFormat"
+        width="80"
+      />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:menu:update']"
@@ -122,7 +157,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item v-if="form.menuType != 'F'" label="菜单图标" prop="icon">
+            <el-form-item
+              v-if="form.menuType != 'F'"
+              label="菜单图标"
+              prop="icon"
+            >
               <el-popover
                 placement="bottom-start"
                 width="460"
@@ -130,15 +169,24 @@
                 @show="$refs['iconSelect'].reset()"
               >
                 <IconSelect ref="iconSelect" @selected="selected" />
-                <el-input slot="reference" v-model="form.icon" placeholder="点击选择图标" readonly>
+                <el-input
+                  slot="reference"
+                  v-model="form.icon"
+                  placeholder="点击选择图标"
+                  readonly
+                >
                   <svg-icon
                     v-if="form.icon"
                     slot="prefix"
                     :icon-class="form.icon"
                     class="el-input__icon"
-                    style="height: 32px;width: 16px;"
+                    style="height: 32px; width: 16px"
                   />
-                  <i v-else slot="prefix" class="el-icon-search el-input__icon" />
+                  <i
+                    v-else
+                    slot="prefix"
+                    class="el-icon-search el-input__icon"
+                  />
                 </el-input>
               </el-popover>
             </el-form-item>
@@ -150,11 +198,19 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="显示排序" prop="sort">
-              <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+              <el-input-number
+                v-model="form.sort"
+                controls-position="right"
+                :min="0"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" prop="isFrame" label="是否外链">
+            <el-form-item
+              v-if="form.menuType != 'F'"
+              prop="isFrame"
+              label="是否外链"
+            >
               <el-radio-group v-model="form.isFrame">
                 <el-radio label="0">是</el-radio>
                 <el-radio label="1">否</el-radio>
@@ -162,7 +218,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" prop="path" label="路由地址">
+            <el-form-item
+              v-if="form.menuType != 'F'"
+              prop="path"
+              label="路由地址"
+            >
               <el-input v-model="form.path" placeholder="请输入路由地址" />
             </el-form-item>
           </el-col>
@@ -172,12 +232,24 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'M'" prop="perms" label="权限标识">
-              <el-input v-model="form.perms" placeholder="请权限标识" maxlength="50" />
+            <el-form-item
+              v-if="form.menuType != 'M'"
+              prop="perms"
+              label="权限标识"
+            >
+              <el-input
+                v-model="form.perms"
+                placeholder="请权限标识"
+                maxlength="50"
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" prop="visible" label="显示状态">
+            <el-form-item
+              v-if="form.menuType != 'F'"
+              prop="visible"
+              label="显示状态"
+            >
               <el-radio-group v-model="form.visible">
                 <el-radio :label="0">显示</el-radio>
                 <el-radio :label="1">隐藏</el-radio>
@@ -185,7 +257,11 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item v-if="form.menuType != 'F'" prop="menuStatus" label="菜单状态">
+            <el-form-item
+              v-if="form.menuType != 'F'"
+              prop="menuStatus"
+              label="菜单状态"
+            >
               <el-radio-group v-model="form.menuStatus">
                 <el-radio
                   v-for="dict in statusOptions"
@@ -268,13 +344,15 @@ export default {
         sort: [
           { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
         ],
-        path: [{ required: true, message: '路由地址不能为空', trigger: 'blur' }]
+        path: [
+          { required: true, message: '路由地址不能为空', trigger: 'blur' }
+        ]
       }
     }
   },
   created() {
     this.getList()
-    this.getDicts('status').then(response => {
+    this.getDicts('status').then((response) => {
       const {
         map: { data }
       } = response
@@ -416,14 +494,14 @@ export default {
      * 提交角色表单
      */
     submitForm() {
-      this.$refs['form'].validate(valid => {
+      this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.menuId !== undefined) {
-            updateMenu(this.form).then(response => {
+            updateMenu(this.form).then((response) => {
               this.updateHandle(response, this)
             })
           } else {
-            addMenu(this.form).then(response => {
+            addMenu(this.form).then((response) => {
               this.saveHandle(response, this)
             })
           }
@@ -434,4 +512,10 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+::v-deep .vue-treeselect__control,
+::v-deep .vue-treeselect__placeholder,
+::v-deep .vue-treeselect__single-value {
+  height: 40px;
+  line-height: 40px;
+}
 </style>
