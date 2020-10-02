@@ -40,6 +40,10 @@ export default {
       if (meta.activeMenu) {
         return meta.activeMenu
       }
+      // 针对字典类型子数据，高亮左侧字典管理菜单
+      if (path.indexOf('/dict/type/data') >= 0) {
+        return '/system/dict/type'
+      }
       return path
     },
     showLogo() {
