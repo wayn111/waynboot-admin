@@ -254,3 +254,23 @@ export function showErrorfocus() {
 export const yuan = value => {
   return isNumber(value) ? `${(value).toFixed(2)}` : value
 }
+
+/**
+ * 使用tooltip优化长文本显示，配合<br>
+ * $("[data-toggle='tooltip']").tooltip();<br>
+ * 使用
+ * @param value
+ * @param row
+ * @param index
+ * @returns {string}
+ */
+export function toolTip(value, row, index) {
+  var nameString
+  if (value.length > 30) {
+    nameString = value.substring(0, 30) + '...'
+  } else {
+    nameString = value
+  }
+  return nameString
+  // return '<a href="#" data-toggle="tooltip" data-placement="top" title=' + value + '>' + nameString + '</a>'
+}
