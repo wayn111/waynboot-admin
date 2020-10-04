@@ -109,9 +109,16 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="是否有图" prop="hasPicture" width="100">
+      <el-table-column align="center" label="评论图片" prop="picUrls">
         <template slot-scope="scope">
-          <span>{{ scope.row.hasPicture ? '有图' : '无图' }}</span>
+          <el-image
+            v-for="(item, index) in scope.row.picUrls"
+            :key="index"
+            :src="item"
+            :preview-src-list="scope.row.picUrls"
+            :lazy="true"
+            style="width: 40px; height: 40px; margin-right: 5px"
+          />
         </template>
       </el-table-column>
       <el-table-column label="坪分" prop="star" width="190">
