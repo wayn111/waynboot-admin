@@ -19,9 +19,17 @@ export function updateComment(data) {
 }
 
 // 查询评论详细
-export function getComment(memberId) {
+export function getComment(commentId) {
   return request({
-    url: '/shop/comment/' + memberId,
+    url: '/shop/comment/' + commentId,
     method: 'get'
+  })
+}
+
+// 删除评论
+export function delComment(commentId) {
+  return request({
+    url: '/shop/comment/' + commentId,
+    method: 'delete'
   })
 }

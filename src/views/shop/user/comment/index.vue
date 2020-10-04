@@ -71,15 +71,23 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          type="primary"
-          icon="el-icon-plus"
+          v-hasPermi="['system:dict:remove']"
+          type="danger"
+          icon="el-icon-delete"
           size="mini"
-          @click="handleAdd()"
-        >新增</el-button>
+          :disabled="multiple"
+          @click="handleDelete"
+        >删除</el-button>
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="commentList" style="width: 100%">
+    <el-table
+      v-loading="loading"
+      :data="commentList"
+      style="width: 100%"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="60" />
       <el-table-column label="用户ID" prop="userId" width="80" />
       <el-table-column label="评论类型" prop="type" width="100">
@@ -126,8 +134,14 @@
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="replyComment(scope.row)"
+            @click="handleReply(scope.row)"
           >回复</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="handleDelete(scope.row)"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -165,7 +179,12 @@
   </div>
 </template>
 <script>
-import { listComment, getComment, updateComment } from '@/api/shop/user/comment'
+import {
+  listComment,
+  getComment,
+  updateComment,
+  delComment
+} from '@/api/shop/user/comment'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -211,6 +230,7 @@ export default {
       },
       // 状态数据字典
       commentTypeOptions: [],
+      starLevelOptions: [],
       // 上传文件路径
       uploadPath,
       // 上传路径header设置
@@ -254,26 +274,6 @@ export default {
       this.commentList = data
       this.loading = false
     },
-    /**
-     * switch 状态发生变化时的回调函数
-     */
-    handleSwitchChange(row) {
-      const text = row.status === 0 ? '启用' : '停用'
-      this.$confirm('确认要 "' + text + '"该会员吗?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(function() {
-          return new Promise()
-        })
-        .then(() => {
-          this.$message.success(text + '成功')
-        })
-        .catch(function() {
-          row.status = row.status === 0 ? 1 : 0
-        })
-    },
     // 字典状态字典翻译
     statusFormat(row, column) {
       return this.echoDictName(this.statusOptions, row.status)
@@ -292,10 +292,37 @@ export default {
       this.replyForm = {}
       this.$refs['replyForm'].resetFields()
     },
+    // 多选框选中数据
+    handleSelectionChange(selection) {
+      this.ids = selection.map((item) => item.id)
+      this.single = selection.length !== 1
+      this.multiple = !selection.length
+    },
+    /** 删除按钮操作 */
+    handleDelete(row) {
+      const commentIds = row.id || this.ids
+      this.$confirm(
+        '是否确认删除评论编号为"' + commentIds + '"的数据项?',
+        '警告',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+        .then(function() {
+          return delComment(commentIds)
+        })
+        .then(() => {
+          this.getList()
+          this.$message.success('删除成功')
+        })
+        .catch(function() {})
+    },
     /**
      * 编辑操作
      */
-    async replyComment(row) {
+    async handleReply(row) {
       const {
         map: { data }
       } = await getComment(row.id)
