@@ -169,13 +169,17 @@
       :before-close="replyDialogHandleClose"
     >
       <el-form
-        ref="replayRef"
+        ref="replyForm"
         :model="replyForm"
         :rules="rules"
         label-width="80px"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="replyForm.username" :disabled="true" />
+        <el-form-item label="回复内容" prop="adminContent">
+          <el-input
+            v-model="replyForm.adminContent"
+            type="textarea"
+            placeholder="请输入内容"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -224,15 +228,15 @@ export default {
       commentList: [],
       // 是否显示弹出层
       open: false,
-      // 用户编辑表单
-      replyForm: {},
+      // 管理员回复表单
+      replyForm: {
+        id: undefined,
+        adminContent: undefined
+      },
       // 表单校验
       rules: {
-        nickname: [
-          { required: true, message: '昵称不能为空', trigger: 'blur' }
-        ],
-        mobile: [
-          { required: true, message: '手机号不能为空', trigger: 'blur' }
+        adminContent: [
+          { required: true, message: '回复内容不能为空', trigger: 'blur' }
         ]
       },
       // 状态数据字典
@@ -333,7 +337,8 @@ export default {
       const {
         map: { data }
       } = await getComment(row.id)
-      this.replyForm = data
+      this.replyForm['id'] = data.id
+      this.replyForm['adminContent'] = data.adminContent
       this.open = true
     },
     /**
@@ -343,9 +348,9 @@ export default {
       this.$refs['replyForm'].validate((valid) => {
         if (valid) {
           if (this.replyForm.id !== undefined) {
-            // updateMember(this.replyForm).then(response => {
-            //   this.updateHandle(response, this)
-            // })
+            updateComment(this.replyForm).then((response) => {
+              this.updateHandle(response, this)
+            })
           }
         }
       })
