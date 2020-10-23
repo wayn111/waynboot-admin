@@ -42,3 +42,12 @@ export function delGoods(goodsId) {
     method: 'delete'
   })
 }
+
+// 同步商品到es中
+export function syncEs(data) {
+  return request({
+    url: '/shop/goods/syncEs',
+    method: 'post',
+    data: data
+  })
+}

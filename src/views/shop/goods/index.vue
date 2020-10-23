@@ -38,14 +38,34 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
+        >搜索</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          size="mini"
+          @click="resetQuery"
+        >重置</el-button>
       </el-form-item>
     </el-form>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd()"
+        >新增</el-button>
+        <el-button
+          type="success"
+          icon="el-icon-position"
+          size="mini"
+          @click="handleSyncEs()"
+        >同步es</el-button>
       </el-col>
     </el-row>
 
@@ -57,7 +77,12 @@
               <span>{{ props.row.goodsSn }}</span>
             </el-form-item>
             <el-form-item label="宣传画廊">
-              <img v-for="pic in props.row.gallery" :key="pic" :src="pic" class="gallery">
+              <img
+                v-for="pic in props.row.gallery"
+                :key="pic"
+                :src="pic"
+                class="gallery"
+              >
             </el-form-item>
             <el-form-item label="商品介绍">
               <span>{{ props.row.brief }}</span>
@@ -78,7 +103,12 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="商品ID" prop="id" />
-      <el-table-column align="center" min-width="100" label="名称" prop="name" />
+      <el-table-column
+        align="center"
+        min-width="100"
+        label="名称"
+        prop="name"
+      />
       <el-table-column align="center" property="iconUrl" label="图片">
         <template slot-scope="scope">
           <img :src="scope.row.picUrl" width="40">
@@ -93,28 +123,37 @@
       <el-table-column align="center" label="当前价格" prop="retailPrice" />
       <el-table-column align="center" label="是否新品" prop="isNew">
         <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.isNew ? 'success' : 'error' "
-          >{{ scope.row.isNew ? '新品' : '非新品' }}</el-tag>
+          <el-tag :type="scope.row.isNew ? 'success' : 'error'">{{
+            scope.row.isNew ? "新品" : "非新品"
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="是否热品" prop="isHot">
         <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.isHot ? 'success' : 'error' "
-          >{{ scope.row.isHot ? '热品' : '非热品' }}</el-tag>
+          <el-tag :type="scope.row.isHot ? 'success' : 'error'">{{
+            scope.row.isHot ? "热品" : "非热品"
+          }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="是否在售" prop="isOnSale">
         <template slot-scope="scope">
-          <el-tag
-            :type="scope.row.isOnSale ? 'success' : 'error' "
-          >{{ scope.row.isOnSale ? '在售' : '未售' }}</el-tag>
+          <el-tag :type="scope.row.isOnSale ? 'success' : 'error'">{{
+            scope.row.isOnSale ? "在售" : "未售"
+          }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+          >修改</el-button>
           <el-button
             size="mini"
             type="text"
@@ -135,7 +174,7 @@
   </div>
 </template>
 <script>
-import { listGoods, delGoods } from '@/api/shop/goods'
+import { listGoods, delGoods, syncEs } from '@/api/shop/goods'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -215,6 +254,11 @@ export default {
     },
     handleUpdate(row) {
       this.$router.push({ path: '/shop/goods/edit', query: { id: row.id }})
+    },
+    handleSyncEs() {
+      syncEs().then((res) => {
+        this.$message.success('同步完成')
+      })
     },
     handleDelete(row) {
       const goodsId = row.id
