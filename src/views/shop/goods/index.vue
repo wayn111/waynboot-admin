@@ -1,5 +1,10 @@
 <template>
-  <div class="app-container">
+  <div
+    v-loading="syncLoading"
+    element-loading-text="正在同步"
+    element-loading-spinner="el-icon-loading"
+    class="app-container"
+  >
     <el-form ref="queryForm" :inline="true" :model="queryForm">
       <el-form-item label="商品ID" prop="id">
         <el-input
@@ -183,6 +188,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      syncLoading: false,
       // 添加/修改对话框 title
       title: '',
       // 列表总数
@@ -256,7 +262,9 @@ export default {
       this.$router.push({ path: '/shop/goods/edit', query: { id: row.id }})
     },
     handleSyncEs() {
+      this.syncLoading = true
       syncEs().then((res) => {
+        this.syncLoading = false
         this.$message.success('同步完成')
       })
     },
