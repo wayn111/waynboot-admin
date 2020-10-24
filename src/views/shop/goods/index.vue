@@ -188,6 +188,7 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      // 同步遮罩层
       syncLoading: false,
       // 添加/修改对话框 title
       title: '',
