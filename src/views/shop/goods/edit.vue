@@ -71,6 +71,14 @@
           <el-input v-model="goods.unit" placeholder="件 / 个 / 盒" />
         </el-form-item>
 
+        <el-form-item label="销量">
+          <el-input
+            v-model="goods.virtualSales"
+            placeholder=""
+          ><template slot="append">{{ goods.unit }}</template>
+          </el-input>
+        </el-form-item>
+
         <el-form-item label="关键字">
           <el-tag
             v-for="tag in keywords"
@@ -87,7 +95,12 @@
             @keyup.enter.native="handleInputConfirm"
             @blur="handleInputConfirm"
           />
-          <el-button v-else class="button-new-keyword" type="primary" @click="showInput">+ 增加</el-button>
+          <el-button
+            v-else
+            class="button-new-keyword"
+            type="primary"
+            @click="showInput"
+          >+ 增加</el-button>
         </el-form-item>
 
         <el-form-item label="所属分类">
@@ -138,7 +151,11 @@
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleSpecificationShow(scope.row)">设置</el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              @click="handleSpecificationShow(scope.row)"
+            >设置</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -151,7 +168,7 @@
           status-icon
           label-position="left"
           label-width="100px"
-          style="width: 400px; margin-left:50px;"
+          style="width: 400px; margin-left: 50px"
         >
           <el-form-item label="规格名" prop="specification">
             <el-input v-model="specForm.specification" disabled />
@@ -168,14 +185,21 @@
               class="avatar-uploader"
               accept=".jpg, .jpeg, .png, .gif"
             >
-              <img v-if="specForm.picUrl" :src="specForm.picUrl" class="avatar">
+              <img
+                v-if="specForm.picUrl"
+                :src="specForm.picUrl"
+                class="avatar"
+              >
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="specVisiable = false">取消</el-button>
-          <el-button type="primary" @click="handleSpecificationEdit">确定</el-button>
+          <el-button
+            type="primary"
+            @click="handleSpecificationEdit"
+          >确定</el-button>
         </div>
       </el-dialog>
     </el-card>
@@ -185,7 +209,9 @@
       <el-table :data="products">
         <el-table-column property="value" label="货品规格">
           <template slot-scope="scope">
-            <el-tag v-for="tag in scope.row.specifications" :key="tag">{{ tag }}</el-tag>
+            <el-tag v-for="tag in scope.row.specifications" :key="tag">{{
+              tag
+            }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column property="price" label="货品售价" />
@@ -213,7 +239,11 @@
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleProductShow(scope.row)">设置</el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              @click="handleProductShow(scope.row)"
+            >设置</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -225,10 +255,12 @@
           status-icon
           label-position="left"
           label-width="100px"
-          style="width: 400px; margin-left:50px;"
+          style="width: 400px; margin-left: 50px"
         >
           <el-form-item label="货品规格列" prop="specifications">
-            <el-tag v-for="tag in productForm.specifications" :key="tag">{{ tag }}</el-tag>
+            <el-tag v-for="tag in productForm.specifications" :key="tag">{{
+              tag
+            }}</el-tag>
           </el-form-item>
           <el-form-item label="货品售价" prop="price">
             <el-input v-model="productForm.price" />
@@ -245,7 +277,11 @@
               class="avatar-uploader"
               accept=".jpg, .jpeg, .png, .gif"
             >
-              <img v-if="productForm.url" :src="productForm.url" class="avatar">
+              <img
+                v-if="productForm.url"
+                :src="productForm.url"
+                class="avatar"
+              >
               <i v-else class="el-icon-plus avatar-uploader-icon" />
             </el-upload>
           </el-form-item>
@@ -270,20 +306,31 @@
           class-name="small-padding fixed-width"
         >
           <template slot-scope="scope">
-            <el-button type="primary" size="mini" @click="handleAttributeShow(scope.row)">设置</el-button>
-            <el-button type="danger" size="mini" @click="handleAttributeDelete(scope.row)">删除</el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              @click="handleAttributeShow(scope.row)"
+            >设置</el-button>
+            <el-button
+              type="danger"
+              size="mini"
+              @click="handleAttributeDelete(scope.row)"
+            >删除</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="attributeVisiable" :title="attributeAdd ? '添加商品参数' : '编辑商品参数'">
+      <el-dialog
+        :visible.sync="attributeVisiable"
+        :title="attributeAdd ? '添加商品参数' : '编辑商品参数'"
+      >
         <el-form
           ref="attributeForm"
           :model="attributeForm"
           status-icon
           label-position="left"
           label-width="100px"
-          style="width: 400px; margin-left:50px;"
+          style="width: 400px; margin-left: 50px"
         >
           <el-form-item label="商品参数名称" prop="attribute">
             <el-input v-model="attributeForm.attribute" />
@@ -294,8 +341,16 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button @click="attributeVisiable = false">取消</el-button>
-          <el-button v-if="attributeAdd" type="primary" @click="handleAttributeAdd">确定</el-button>
-          <el-button v-else type="primary" @click="handleAttributeEdit">确定</el-button>
+          <el-button
+            v-if="attributeAdd"
+            type="primary"
+            @click="handleAttributeAdd"
+          >确定</el-button>
+          <el-button
+            v-else
+            type="primary"
+            @click="handleAttributeEdit"
+          >确定</el-button>
         </div>
       </el-dialog>
     </el-card>

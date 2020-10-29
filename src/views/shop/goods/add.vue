@@ -64,6 +64,14 @@
           <el-input v-model="goods.unit" placeholder="件 / 个 / 盒" />
         </el-form-item>
 
+        <el-form-item label="销量">
+          <el-input
+            v-model="goods.virtualSales"
+            placeholder=""
+          ><template slot="append">{{ goods.unit }}</template>
+          </el-input>
+        </el-form-item>
+
         <el-form-item label="关键字">
           <el-tag
             v-for="tag in keywords"
