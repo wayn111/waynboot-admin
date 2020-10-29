@@ -267,6 +267,8 @@ export default {
       syncEs().then((res) => {
         this.syncLoading = false
         this.$message.success('同步完成')
+      }).finally(() => {
+        this.syncLoading = false
       })
     },
     handleDelete(row) {
