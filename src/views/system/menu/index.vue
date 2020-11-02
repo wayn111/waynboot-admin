@@ -82,7 +82,7 @@
       />
       <el-table-column
         prop="path"
-        label="组件路由"
+        label="路由地址"
         :show-overflow-tooltip="true"
       />
       <el-table-column
