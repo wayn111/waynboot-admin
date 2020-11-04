@@ -221,7 +221,6 @@ export default {
      * 表单重置
      */
     resetQuery() {
-      debugger
       this.$refs.queryForm.resetFields()
       this.dateRange = []
       this.handleQuery()
