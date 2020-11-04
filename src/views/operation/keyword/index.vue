@@ -90,7 +90,7 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="关键字" prop="id" width="200" />
+      <el-table-column label="关键字" prop="keyword" width="200" />
       <el-table-column label="默认关键字" prop="isDefault">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.Default" type="success">是</el-tag>
