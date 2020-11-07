@@ -17,14 +17,8 @@
           size="small"
           style="width: 120px"
         >
-          <el-option
-            label="是"
-            :value="true"
-          />
-          <el-option
-            label="否"
-            :value="false"
-          />
+          <el-option label="是" :value="true" />
+          <el-option label="否" :value="false" />
         </el-select>
       </el-form-item>
       <el-form-item label="是否热门" prop="isHot">
@@ -35,14 +29,8 @@
           size="small"
           style="width: 120px"
         >
-          <el-option
-            label="是"
-            :value="true"
-          />
-          <el-option
-            label="否"
-            :value="false"
-          />
+          <el-option label="是" :value="true" />
+          <el-option label="否" :value="false" />
         </el-select>
       </el-form-item>
       <el-form-item label="创建时间">
@@ -78,8 +66,26 @@
           type="primary"
           icon="el-icon-plus"
           size="mini"
-          @click="handleAdd()"
+          @click="handleAdd"
         >新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="success"
+          icon="el-icon-edit"
+          size="mini"
+          :disabled="single"
+          @click="handleUpdate"
+        >修改</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="danger"
+          icon="el-icon-delete"
+          size="mini"
+          :disabled="multiple"
+          @click="handleDelete"
+        >删除</el-button>
       </el-col>
     </el-row>
 
@@ -90,10 +96,11 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="ID" prop="id" width="50" />
       <el-table-column label="关键字" prop="keyword" width="200" />
       <el-table-column label="默认关键字" prop="isDefault">
         <template slot-scope="scope">
-          <el-tag v-if="scope.row.Default" type="success">是</el-tag>
+          <el-tag v-if="scope.row.isDefault" type="success">是</el-tag>
           <el-tag v-else type="danger">否</el-tag>
         </template>
       </el-table-column>
@@ -147,9 +154,48 @@
       :before-close="channelDialogHandleClose"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="关键字" prop="keyword">
-          <el-input v-model="form.keyword" placeholder="请输入关键字" />
-        </el-form-item>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="关键字" prop="keyword">
+              <el-input v-model="form.keyword" placeholder="请输入关键字" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="默认搜索" prop="isDefault">
+              <el-select
+                v-model="form.isDefault"
+                placeholder="默认搜索"
+                clearable
+                size="small"
+              >
+                <el-option label="是" :value="true" />
+                <el-option label="否" :value="false" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="热门推荐" prop="isHot">
+              <el-select
+                v-model="form.isHot"
+                placeholder="热门推荐"
+                clearable
+                size="small"
+              >
+                <el-option label="是" :value="true" />
+                <el-option label="否" :value="false" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示排序" prop="sort">
+              <el-input-number
+                v-model="form.sortOrder"
+                controls-position="right"
+                :min="0"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -200,12 +246,19 @@ export default {
       form: {
         keyword: undefined,
         isHot: undefined,
-        isDefault: undefined
+        isDefault: undefined,
+        sortOrder: 0
       },
       // 表单校验
       rules: {
         keyword: [
           { required: true, message: '栏目名称不能为空', trigger: 'blur' }
+        ],
+        isHot: [
+          { required: true, message: '请选择是否热门', trigger: 'blur' }
+        ],
+        isDefault: [
+          { required: true, message: '请选择是否默认', trigger: 'blur' }
         ]
       }
     }
@@ -239,7 +292,7 @@ export default {
      * 当选择项发生变化时会触发该事件
      */
     handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.roleId)
+      this.ids = selection.map((item) => item.id)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
@@ -254,9 +307,10 @@ export default {
      * 修改按钮
      */
     async handleUpdate(row) {
+      const keywordId = row.id || this.ids
       const {
         map: { data }
-      } = await getKeyword(row.id)
+      } = await getKeyword(keywordId)
       this.form = data
       this.title = '修改栏目'
       this.open = true
@@ -264,9 +318,9 @@ export default {
      * 删除按钮
      */
     async handleDelete(row) {
-      const channelIds = row.id || this.ids
+      const keywordId = row.id || this.ids
       this.$confirm(
-        '是否确认删除栏目编号为 [' + channelIds + '] 的数据项?',
+        '是否确认删除ID为 [' + keywordId + '] 的数据项?',
         '警告',
         {
           confirmButtonText: '确定',
@@ -275,7 +329,7 @@ export default {
         }
       )
         .then(function() {
-          return delKeyword(channelIds)
+          return delKeyword(keywordId)
         })
         .then(() => {
           this.getList()
@@ -288,9 +342,10 @@ export default {
      */
     reset() {
       this.form = {
-        name: undefined,
-        code: undefined,
-        remark: undefined
+        keyword: undefined,
+        isHot: undefined,
+        isDefault: undefined,
+        sortOrder: 0
       }
       this.$refs['form'].resetFields()
     },
