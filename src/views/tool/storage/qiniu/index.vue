@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <el-form ref="queryForm" :inline="true" :model="queryForm">
-      <el-form-item label="文件名" prop="title">
+      <el-form-item label="文件名" prop="name">
         <el-input
           v-model="queryForm.name"
           size="small"
@@ -81,29 +81,35 @@
       style="width: 100%"
       @selection-change="handleSelectionChange"
     >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="name" :show-overflow-tooltip="true" label="文件名">
+      <el-table-column
+        prop="name"
+        :show-overflow-tooltip="true"
+        align="center"
+        label="文件名"
+        width="330"
+      >
         <template slot-scope="scope">
           <a
             href="JavaScript:"
             class="el-link el-link--primary"
             target="_blank"
             type="primary"
-            @click="download(scope.row.id)"
+            @click="download(scope.row.contentId)"
           >{{ scope.row.name }}</a>
         </template>
       </el-table-column>
       <el-table-column
         :show-overflow-tooltip="true"
         prop="suffix"
+        align="center"
         label="文件类型"
       />
-      <el-table-column prop="bucket" label="空间名称" />
-      <el-table-column prop="size" label="文件大小" />
-      <el-table-column prop="type" label="空间类型" />
-      <el-table-column prop="updateTime" label="创建日期">
+      <el-table-column prop="bucket" align="center" label="空间名称" />
+      <el-table-column prop="size" align="center" label="文件大小" />
+      <el-table-column prop="type" align="center" label="空间类型" />
+      <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime) }}</span>
+          <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -118,7 +124,7 @@
   </div>
 </template>
 <script>
-import { list, del } from '@/api/tool/qiniu'
+import { list, del, download } from '@/api/tool/qiniu'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/tool/qiniu'
 
@@ -161,7 +167,20 @@ export default {
       // 上传文件路径
       uploadPath,
       // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() }
+      headers: { Authorization: 'Bearer ' + getToken() },
+      // 下载链接
+      url: ''
+    }
+  },
+  watch: {
+    url(newVal, oldVal) {
+      if (newVal && this.newWin) {
+        this.newWin.sessionStorage.clear()
+        this.newWin.location.href = newVal
+        // 重定向后把url和newWin重置
+        this.url = ''
+        this.newWin = null
+      }
     }
   },
   created() {
@@ -243,10 +262,22 @@ export default {
     handleBeforeRemove(file, fileList) {
       for (let i = 0; i < this.files.length; i++) {
         if (this.files[i].uid === file.uid) {
-          del([this.files[i].id]).then(res => {})
+          del([this.files[i].id]).then((res) => {})
           return true
         }
       }
+    },
+    // 下载文件
+    download(id) {
+      // 先打开一个空的新窗口，再请求
+      this.newWin = window.open()
+      download(id)
+        .then((res) => {
+          this.url = res.map.url
+        })
+        .catch((err) => {
+          console.log(err.response.data.message)
+        })
     },
     doSubmit() {
       this.open = false

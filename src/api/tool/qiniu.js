@@ -32,3 +32,10 @@ export function del(data) {
     method: 'delete'
   })
 }
+
+export function download(contentId) {
+  return request({
+    url: 'tool/qiniu/download/' + contentId,
+    method: 'get'
+  })
+}
