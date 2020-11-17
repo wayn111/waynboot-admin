@@ -44,7 +44,7 @@
         />
       </el-form-item>
       <el-form-item label="存储区域">
-        <el-select v-model="form.zone" placeholder="请选择存储区域">
+        <el-select v-model="form.region" placeholder="请选择存储区域">
           <el-option
             v-for="item in zones"
             :key="item"
@@ -54,8 +54,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="空间类型" prop="type">
-        <el-radio v-model="form.type" label="公开">公开</el-radio>
-        <el-radio v-model="form.type" label="私有">私有</el-radio>
+        <el-radio v-model="form.type" :label="0">公开</el-radio>
+        <el-radio v-model="form.type" :label="1">私有</el-radio>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
@@ -105,7 +105,7 @@ export default {
   methods: {
     init() {
       get().then((res) => {
-        this.form = res
+        this.form = res.map.data
       })
     },
     doSubmit() {
@@ -114,18 +114,13 @@ export default {
           this.loading = true
           update(this.form)
             .then((res) => {
-              this.$notify({
-                title: '修改成功',
-                type: 'success',
-                duration: 2500
-              })
-              this.$parent.list
+              this.$message.success('修改成功')
               this.loading = false
               this.dialog = false
             })
             .catch((err) => {
               this.loading = false
-              console.log(err.response.data.message)
+              console.log(err.map.msg)
             })
         } else {
           return false

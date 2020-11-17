@@ -165,6 +165,7 @@
       :title="title"
       :visible.sync="open"
       width="30%"
+      :close-on-click-modal="false"
       :before-close="roleDialogHandleClose"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">

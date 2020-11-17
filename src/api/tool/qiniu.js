@@ -12,23 +12,29 @@ export function list(query) {
 
 export function get() {
   return request({
-    url: 'tool/qiniu',
+    url: 'tool/qiniu/config',
+    method: 'get'
+  })
+}
+
+export function syncQiniu() {
+  return request({
+    url: 'tool/qiniu/syncQiniu',
     method: 'get'
   })
 }
 
 export function update(data) {
   return request({
-    url: 'tool/qiniu',
+    url: 'tool/qiniu/config',
     data,
     method: 'put'
   })
 }
 
-export function del(data) {
+export function del(contentId) {
   return request({
-    url: 'tool/qiniu',
-    data,
+    url: 'tool/qiniu/' + contentId,
     method: 'delete'
   })
 }

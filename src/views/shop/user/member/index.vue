@@ -104,7 +104,13 @@
     />
 
     <!-- 用户编辑对话框 -->
-    <el-dialog :visible.sync="open" title="用户编辑" width="600px" :before-close="memberDialogHandleClose">
+    <el-dialog
+      :visible.sync="open"
+      title="用户编辑"
+      width="600px"
+      :close-on-click-modal="false"
+      :before-close="memberDialogHandleClose"
+    >
       <el-form ref="userDetail" :model="userDetail" :rules="rules" label-width="80px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="userDetail.username" :disabled="true" />

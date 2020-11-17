@@ -158,7 +158,12 @@
       @pagination="getList"
     />
     <!-- 订单详情对话框 -->
-    <el-dialog :visible.sync="orderDialogVisible" title="订单详情" width="800">
+    <el-dialog
+      :visible.sync="orderDialogVisible"
+      title="订单详情"
+      :close-on-click-modal="false"
+      width="800"
+    >
       <section ref="print">
         <el-form :data="orderDetail" label-position="left">
           <el-form-item label="订单编号">

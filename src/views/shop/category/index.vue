@@ -83,6 +83,7 @@
       :title="title"
       :visible.sync="open"
       width="600px"
+      :close-on-click-modal="false"
       :before-close="categoryDialogHandleClose"
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px" size="mini">

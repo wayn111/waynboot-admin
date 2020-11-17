@@ -1,6 +1,11 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :model="queryForm" :inline="true" label-width="68px">
+    <el-form
+      ref="queryForm"
+      :model="queryForm"
+      :inline="true"
+      label-width="68px"
+    >
       <el-form-item label="字典名称" prop="name">
         <el-input
           v-model="queryForm.name"
@@ -50,8 +55,17 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-search"
+          size="mini"
+          @click="handleQuery"
+        >搜索</el-button>
+        <el-button
+          icon="el-icon-refresh"
+          size="mini"
+          @click="resetQuery"
+        >重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -96,26 +110,66 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+    <el-table
+      v-loading="loading"
+      :data="typeList"
+      @selection-change="handleSelectionChange"
+    >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="字典编号" width="120" align="center" prop="dictId" />
-      <el-table-column label="字典名称" align="center" prop="name" :show-overflow-tooltip="true" />
-      <el-table-column label="字典类型" align="center" :show-overflow-tooltip="true">
+      <el-table-column
+        label="字典编号"
+        width="120"
+        align="center"
+        prop="dictId"
+      />
+      <el-table-column
+        label="字典名称"
+        align="center"
+        prop="name"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        label="字典类型"
+        align="center"
+        :show-overflow-tooltip="true"
+      >
         <template slot-scope="scope">
-          <router-link :to="'/dict/type/data/' + scope.row.value" class="link-type">
+          <router-link
+            :to="'/dict/type/data/' + scope.row.value"
+            class="link-type"
+          >
             <span>{{ scope.row.value }}</span>
           </router-link>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
+      <el-table-column
+        label="状态"
+        align="center"
+        prop="status"
+        :formatter="statusFormat"
+      />
       <el-table-column label="排序" align="center" prop="sort" />
-      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column
+        label="备注"
+        align="center"
+        prop="remark"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        width="180"
+      >
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="操作"
+        align="center"
+        class-name="small-padding fixed-width"
+      >
         <template slot-scope="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"
@@ -136,7 +190,7 @@
     </el-table>
 
     <pagination
-      v-show="total>0"
+      v-show="total > 0"
       :total="total"
       :page.sync="queryForm.pageNum"
       :limit.sync="queryForm.pageSize"
@@ -144,7 +198,13 @@
     />
 
     <!-- 添加或修改字典对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="600px" :before-close="dictDialogHandleClose">
+    <el-dialog
+      :title="title"
+      :visible.sync="open"
+      width="600px"
+      :close-on-click-modal="false"
+      :before-close="dictDialogHandleClose"
+    >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="字典名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入字典名称" />
@@ -153,7 +213,11 @@
           <el-input v-model="form.value" placeholder="请输入字典类型" />
         </el-form-item>
         <el-form-item label="类型顺序" prop="sort">
-          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+          <el-input-number
+            v-model="form.sort"
+            controls-position="right"
+            :min="0"
+          />
         </el-form-item>
         <el-form-item label="状态" prop="dictStatus">
           <el-radio-group v-model="form.dictStatus">
@@ -165,7 +229,11 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+          <el-input
+            v-model="form.remark"
+            type="textarea"
+            placeholder="请输入内容"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -242,8 +310,10 @@ export default {
   },
   created() {
     this.getList()
-    this.getDicts('status').then(response => {
-      const { map: { data }} = response
+    this.getDicts('status').then((response) => {
+      const {
+        map: { data }
+      } = response
       this.statusOptions = data
     })
   },
@@ -252,7 +322,7 @@ export default {
     getList() {
       this.loading = true
       listType(this.addDateRange(this.queryForm, this.dateRange)).then(
-        response => {
+        (response) => {
           const {
             map: {
               page: { records: data, total }
@@ -305,15 +375,17 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId)
+      this.ids = selection.map((item) => item.dictId)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       const dictId = row.dictId || this.ids
-      getType(dictId).then(response => {
-        const { map: { data }} = response
+      getType(dictId).then((response) => {
+        const {
+          map: { data }
+        } = response
         this.form = data
         this.open = true
         this.title = '修改字典类型'
@@ -321,14 +393,14 @@ export default {
     },
     /** 提交按钮 */
     submitForm: function() {
-      this.$refs['form'].validate(valid => {
+      this.$refs['form'].validate((valid) => {
         if (valid) {
           if (this.form.dictId !== undefined) {
-            updateType(this.form).then(response => {
+            updateType(this.form).then((response) => {
               this.updateHandle(response, this)
             })
           } else {
-            addType(this.form).then(response => {
+            addType(this.form).then((response) => {
               this.saveHandle(response, this)
             })
           }
@@ -346,7 +418,7 @@ export default {
         .then(function() {
           return exportType(queryForm)
         })
-        .then(response => {
+        .then((response) => {
           this.download(response.msg)
         })
         .catch(function() {})

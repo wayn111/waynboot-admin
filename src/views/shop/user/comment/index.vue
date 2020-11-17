@@ -166,6 +166,7 @@
       :visible.sync="open"
       title="回复"
       width="600px"
+      :close-on-click-modal="false"
       :before-close="replyDialogHandleClose"
     >
       <el-form
