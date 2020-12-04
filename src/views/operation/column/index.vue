@@ -147,8 +147,6 @@
       title="栏目配置"
       :visible.sync="configOpen"
       width="60%"
-      :close-on-click-modal="false"
-      :before-close="configOpen = false"
     >
       <el-table v-loading="goodsLoading" :data="goodsList" style="width: 100%">
         <el-table-column align="center" label="商品ID" prop="id" />
