@@ -42,3 +42,30 @@ export function delColumn(columnId) {
     method: 'delete'
   })
 }
+
+// 新增栏目商品
+export function addColumnGooods(data) {
+  return request({
+    url: '/shop/column/goods',
+    method: 'post',
+    data: data
+  })
+}
+
+// 查询已添加商品列表
+export function bindGoodsList(query) {
+  return request({
+    url: '/shop/column/bindGoodsList',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询未添加商品列表
+export function unBindGoodsList(query) {
+  return request({
+    url: '/shop/column/unBindGoodsList',
+    method: 'get',
+    params: query
+  })
+}
