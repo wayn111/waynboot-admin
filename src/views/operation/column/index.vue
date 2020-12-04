@@ -65,6 +65,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
       <el-table-column label="栏目名称" prop="name" />
+      <el-table-column label="排序" prop="sortOrder" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>

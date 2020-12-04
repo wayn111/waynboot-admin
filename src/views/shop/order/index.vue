@@ -86,7 +86,7 @@
         prop="orderSn"
         sortable="custom"
       />
-      <el-table-column align="center" label="用户ID" prop="userId" />
+      <el-table-column align="center" label="用户ID" prop="userId" width="100" />
       <el-table-column align="center" label="订单状态">
         <template slot-scope="scope">
           <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
@@ -120,32 +120,35 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="200">
+      <el-table-column align="center" label="操作" width="250">
         <template slot-scope="scope">
           <el-button
-            icon="el-icon-edit"
-            type="text"
             size="mini"
             @click="handleDetail(scope.row)"
           >详情</el-button>
-          <el-button
-            icon="el-icon-delete"
-            type="text"
-            size="mini"
-            @click="handleDelete(scope.row)"
-          >删除</el-button>
-          <el-button
-            v-if="scope.row.orderStatus == 201"
-            size="mini"
-            type="text"
-            @click="handleShip(scope.row)"
-          >发货</el-button>
-          <el-button
-            v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
-            size="mini"
-            type="text"
-            @click="handleRefund(scope.row)"
-          >退款</el-button>
+          <el-popover
+            placement="top"
+            trigger="click"
+          >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.row)"
+            >删除</el-button>
+            <el-button
+              v-if="scope.row.orderStatus == 201"
+              size="mini"
+              type="primary"
+              @click="handleShip(scope.row)"
+            >发货</el-button>
+            <el-button
+              v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
+              size="mini"
+              type="warning"
+              @click="handleRefund(scope.row)"
+            >退款</el-button>
+            <el-button slot="reference" class="more_btn" size="mini">更多</el-button>
+          </el-popover>
         </template>
       </el-table-column>
     </el-table>
@@ -473,3 +476,8 @@ export default {
   }
 }
 </script>
+<style lang="scss" scoped>
+.more_btn{
+  margin-left: 10px;
+}
+</style>
