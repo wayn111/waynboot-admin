@@ -157,195 +157,7 @@
       top="1vh"
       width="60vw"
     >
-      <el-form ref="goodsQueryForm" :inline="true" :model="goodsQueryForm">
-        <el-form-item label="商品编号" prop="goodsSn">
-          <el-input
-            v-model="goodsQueryForm.goodsSn"
-            size="small"
-            placeholder="请输入商品编号"
-            @keyup.enter.native="goodsHandleQuery"
-          />
-        </el-form-item>
-        <el-form-item label="商品名称" prop="name">
-          <el-input
-            v-model="goodsQueryForm.name"
-            size="small"
-            placeholder="请输入商品名称"
-            @keyup.enter.native="goodsHandleQuery"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            size="mini"
-            @click="goodsHandleQuery"
-          >搜索</el-button>
-          <el-button
-            icon="el-icon-refresh"
-            size="mini"
-            @click="goodsResetQuery"
-          >重置</el-button>
-        </el-form-item>
-      </el-form>
-      <el-tabs
-        v-model="activeTab"
-        tab-position="left"
-        type="border-card"
-        @tab-click="tabClick"
-      >
-        <el-tab-pane label="已添加" name="bind">
-          <el-table
-            v-loading="goodsLoading"
-            :data="bindGoodsList"
-            border
-            style="width: 100%"
-            max-height="580px"
-          >
-            <el-table-column align="center" label="商品编号" prop="goodsSn" />
-            <el-table-column
-              align="center"
-              min-width="150"
-              label="名称"
-              prop="name"
-              show-overflow-tooltip
-            />
-            <el-table-column align="center" property="iconUrl" label="图片">
-              <template slot-scope="scope">
-                <img :src="scope.row.picUrl" width="30">
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="center"
-              label="市场售价"
-              prop="counterPrice"
-            />
-            <el-table-column
-              align="center"
-              label="当前价格"
-              prop="retailPrice"
-            />
-            <el-table-column align="center" label="是否新品" prop="isNew">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isNew ? 'success' : 'error'">{{
-                  scope.row.isNew ? '新品' : '非新品'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" label="是否热品" prop="isHot">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isHot ? 'success' : 'error'">{{
-                  scope.row.isHot ? '热品' : '非热品'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" label="是否在售" prop="isOnSale">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isOnSale ? 'success' : 'error'">{{
-                  scope.row.isOnSale ? '在售' : '未售'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              align="center"
-              class-name="small-padding fixed-width"
-            >
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="columGodosRemove(scope.row)"
-                >删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <pagination
-            v-show="goodsTotal"
-            :total="goodsTotal"
-            :page.sync="goodsQueryForm.pageNum"
-            :limit.sync="goodsQueryForm.pageSize"
-            @pagination="getUnBindGoodsList"
-          />
-        </el-tab-pane>
-        <el-tab-pane label="未添加" name="unBind">
-          <el-table
-            v-loading="goodsLoading"
-            :data="unBindGoodsList"
-            border
-            style="width: 100%"
-            max-height="580px"
-          >
-            <el-table-column align="center" label="商品编号" prop="goodsSn" />
-            <el-table-column
-              align="center"
-              min-width="150"
-              label="名称"
-              prop="name"
-              show-overflow-tooltip
-            />
-            <el-table-column align="center" property="iconUrl" label="图片">
-              <template slot-scope="scope">
-                <img :src="scope.row.picUrl" width="30">
-              </template>
-            </el-table-column>
-            <el-table-column
-              align="center"
-              label="市场售价"
-              prop="counterPrice"
-            />
-            <el-table-column
-              align="center"
-              label="当前价格"
-              prop="retailPrice"
-            />
-            <el-table-column align="center" label="是否新品" prop="isNew">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isNew ? 'success' : 'error'">{{
-                  scope.row.isNew ? '新品' : '非新品'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" label="是否热品" prop="isHot">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isHot ? 'success' : 'error'">{{
-                  scope.row.isHot ? '热品' : '非热品'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column align="center" label="是否在售" prop="isOnSale">
-              <template slot-scope="scope">
-                <el-tag :type="scope.row.isOnSale ? 'success' : 'error'">{{
-                  scope.row.isOnSale ? '在售' : '未售'
-                }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="操作"
-              align="center"
-              class-name="small-padding fixed-width"
-            >
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  type="primary"
-                  @click="columGodosAdd(scope.row)"
-                >添加</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <pagination
-            v-show="goodsTotal"
-            :total="goodsTotal"
-            :page.sync="goodsQueryForm.pageNum"
-            :limit.sync="goodsQueryForm.pageSize"
-            @pagination="getUnBindGoodsList"
-          />
-        </el-tab-pane>
-      </el-tabs>
-
+      <goods-config :column-id="columnId" />
       <span slot="footer" class="dialog-footer">
         <el-button @click="goodsOpen = false">关 闭</el-button>
       </span>
@@ -358,22 +170,16 @@ import {
   getColumn,
   addColumn,
   updateColumn,
-  delColumn,
-  addColumnGooods,
-  removeColumnGooods,
-  bindGoodsList,
-  unBindGoodsList
+  delColumn
 } from '@/api/shop/column'
+import GoodsConfig from './goodsConfig.vue'
 
 export default {
+  components: { GoodsConfig },
   data: function() {
     return {
       // 遮罩层
       loading: true,
-      // 商品配置弹窗遮罩层
-      goodsLoading: true,
-      // 商品配置选中tab
-      activeTab: 'bind',
       // 选中数组
       ids: [],
       // 商品配置栏目ID
@@ -386,7 +192,6 @@ export default {
       title: '',
       // 列表总数
       total: 0,
-      goodsTotal: 0,
       // 日期范围
       dateRange: [],
       // 查询参数
@@ -395,19 +200,8 @@ export default {
         pageSize: 10,
         name: undefined
       },
-      // 商品配置查询参数
-      goodsQueryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        goodsSn: undefined,
-        name: undefined
-      },
       // 栏目列表
       columnList: [],
-      // 绑定商品列表
-      bindGoodsList: [],
-      // 未绑定商品列表
-      unBindGoodsList: [],
       // 是否显示弹出层
       open: false,
       // 商品配置弹出层
@@ -422,9 +216,7 @@ export default {
       // 表单校验
       rules: {
         name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        sort: [
-          { required: true, message: '排序不能为空', trigger: 'blur' }
-        ]
+        sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -449,20 +241,6 @@ export default {
       this.dateRange = []
       this.handleQuery()
     },
-    goodsHandleQuery() {
-      if (this.activeTab === 'bind') {
-        this.getBindGoodsList()
-      } else {
-        this.getUnBindGoodsList()
-      }
-    },
-    /**
-     * 商品配置表单重置
-     */
-    goodsResetQuery() {
-      this.$refs.goodsQueryForm.resetFields()
-      this.goodsHandleQuery()
-    },
     async getList() {
       const {
         map: {
@@ -480,32 +258,6 @@ export default {
       this.queryForm.sortName = sort.prop
       this.queryForm.sortOrder = sort.order
       this.getList()
-    },
-    async getBindGoodsList() {
-      this.goodsQueryForm.columnId = this.columnId
-      const {
-        map: {
-          page: { records: data, total }
-        }
-      } = await bindGoodsList(
-        this.addDateRange(this.goodsQueryForm, this.dateRange)
-      )
-      this.goodsTotal = total
-      this.bindGoodsList = data
-      this.goodsLoading = false
-    },
-    async getUnBindGoodsList() {
-      this.goodsQueryForm.columnId = this.columnId
-      const {
-        map: {
-          page: { records: data, total }
-        }
-      } = await unBindGoodsList(
-        this.addDateRange(this.goodsQueryForm, this.dateRange)
-      )
-      this.goodsTotal = total
-      this.unBindGoodsList = data
-      this.goodsLoading = false
     },
     /**
      * 当选择项发生变化时会触发该事件
@@ -527,10 +279,6 @@ export default {
      */
     handleGoodsConfig(row) {
       this.columnId = row.id
-      this.activeTab = 'bind'
-      this.goodsLoading = true
-      this.goodsTotal = 0
-      this.getBindGoodsList()
       this.goodsOpen = true
     },
     /**
@@ -605,45 +353,6 @@ export default {
           }
         }
       })
-    },
-    /**
-     * 已添加/未添加tab切换
-     */
-    tabClick(val) {
-      this.goodsLoading = true
-      this.goodsTotal = 0
-      this.$refs.goodsQueryForm.resetFields()
-      if (val.index === '0') {
-        this.getBindGoodsList()
-      } else {
-        this.getUnBindGoodsList()
-      }
-    },
-    /**
-     * 栏目商品添加
-     */
-    columGodosAdd(row) {
-      const goodsId = row.id
-      const columnId = this.columnId
-      addColumnGooods({ goodsId, columnId })
-        .then((res) => {
-          this.$message.success('添加成功')
-          this.getUnBindGoodsList()
-        })
-        .catch((e) => {})
-    },
-    /**
-     * 栏目商品删除
-     */
-    columGodosRemove(row) {
-      const goodsId = row.id
-      const columnId = this.columnId
-      removeColumnGooods({ goodsId, columnId })
-        .then((res) => {
-          this.$message.success('删除成功')
-          this.getBindGoodsList()
-        })
-        .catch((e) => {})
     }
   }
 }
