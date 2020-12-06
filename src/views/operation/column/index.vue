@@ -69,13 +69,20 @@
       v-loading="loading"
       :data="columnList"
       style="width: 100%"
+      @sort-change="handleSortChange"
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
       <el-table-column label="栏目名称" prop="name" />
-      <el-table-column label="排序" prop="sortOrder" />
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="关联商品数" prop="goodsNum" />
+      <el-table-column label="排序" prop="sort" sortable="custom" />
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        sortable="custom"
+      >
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -90,7 +97,7 @@
             size="mini"
             type="text"
             icon="el-icon-s-unfold"
-            @click="handleConfig(scope.row)"
+            @click="handleGoodsConfig(scope.row)"
           >配置</el-button>
           <el-button
             size="mini"
@@ -128,9 +135,9 @@
         <el-form-item label="栏目名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入栏目名称" />
         </el-form-item>
-        <el-form-item label="栏目顺序" prop="sortOrder">
+        <el-form-item label="栏目顺序" prop="sort">
           <el-input-number
-            v-model="form.sortOrder"
+            v-model="form.sort"
             controls-position="right"
             :min="0"
           />
@@ -142,7 +149,7 @@
       </span>
     </el-dialog>
 
-    <!-- 栏目配置商品弹窗 -->
+    <!-- 商品配置弹窗 -->
     <el-dialog
       title="商品配置"
       :close-on-click-modal="false"
@@ -150,48 +157,51 @@
       top="1vh"
       width="60vw"
     >
-      <el-tabs v-model="activeTab" tab-position="left" type="border-card" @tab-click="tabClick">
-        <el-tab-pane label="已添加" name="bind">用户管理</el-tab-pane>
-        <el-tab-pane label="未添加" name="unBind">
-          <el-form ref="goodsQueryForm" :inline="true" :model="goodsQueryForm">
-            <el-form-item label="商品编号" prop="goodsSn">
-              <el-input
-                v-model="goodsQueryForm.goodsSn"
-                size="small"
-                placeholder="请输入商品编号"
-                @keyup.enter.native="goodsHandleQuery"
-              />
-            </el-form-item>
-            <el-form-item label="商品名称" prop="name">
-              <el-input
-                v-model="goodsQueryForm.name"
-                size="small"
-                placeholder="请输入商品名称"
-                @keyup.enter.native="goodsHandleQuery"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button
-                type="primary"
-                icon="el-icon-search"
-                size="mini"
-                @click="goodsHandleQuery"
-              >搜索</el-button>
-              <el-button
-                icon="el-icon-refresh"
-                size="mini"
-                @click="goodsResetQuery"
-              >重置</el-button>
-            </el-form-item>
-          </el-form>
+      <el-form ref="goodsQueryForm" :inline="true" :model="goodsQueryForm">
+        <el-form-item label="商品编号" prop="goodsSn">
+          <el-input
+            v-model="goodsQueryForm.goodsSn"
+            size="small"
+            placeholder="请输入商品编号"
+            @keyup.enter.native="goodsHandleQuery"
+          />
+        </el-form-item>
+        <el-form-item label="商品名称" prop="name">
+          <el-input
+            v-model="goodsQueryForm.name"
+            size="small"
+            placeholder="请输入商品名称"
+            @keyup.enter.native="goodsHandleQuery"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            size="mini"
+            @click="goodsHandleQuery"
+          >搜索</el-button>
+          <el-button
+            icon="el-icon-refresh"
+            size="mini"
+            @click="goodsResetQuery"
+          >重置</el-button>
+        </el-form-item>
+      </el-form>
+      <el-tabs
+        v-model="activeTab"
+        tab-position="left"
+        type="border-card"
+        @tab-click="tabClick"
+      >
+        <el-tab-pane label="已添加" name="bind">
           <el-table
             v-loading="goodsLoading"
-            :data="goodsList"
+            :data="bindGoodsList"
             border
             style="width: 100%"
             max-height="580px"
           >
-            <el-table-column type="selection" width="55" />
             <el-table-column align="center" label="商品编号" prop="goodsSn" />
             <el-table-column
               align="center"
@@ -244,8 +254,82 @@
               <template slot-scope="scope">
                 <el-button
                   size="mini"
-                  type="text"
-                  icon="el-icon-plus"
+                  type="danger"
+                  @click="columGodosRemove(scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <pagination
+            v-show="goodsTotal"
+            :total="goodsTotal"
+            :page.sync="goodsQueryForm.pageNum"
+            :limit.sync="goodsQueryForm.pageSize"
+            @pagination="getUnBindGoodsList"
+          />
+        </el-tab-pane>
+        <el-tab-pane label="未添加" name="unBind">
+          <el-table
+            v-loading="goodsLoading"
+            :data="unBindGoodsList"
+            border
+            style="width: 100%"
+            max-height="580px"
+          >
+            <el-table-column align="center" label="商品编号" prop="goodsSn" />
+            <el-table-column
+              align="center"
+              min-width="150"
+              label="名称"
+              prop="name"
+              show-overflow-tooltip
+            />
+            <el-table-column align="center" property="iconUrl" label="图片">
+              <template slot-scope="scope">
+                <img :src="scope.row.picUrl" width="30">
+              </template>
+            </el-table-column>
+            <el-table-column
+              align="center"
+              label="市场售价"
+              prop="counterPrice"
+            />
+            <el-table-column
+              align="center"
+              label="当前价格"
+              prop="retailPrice"
+            />
+            <el-table-column align="center" label="是否新品" prop="isNew">
+              <template slot-scope="scope">
+                <el-tag :type="scope.row.isNew ? 'success' : 'error'">{{
+                  scope.row.isNew ? '新品' : '非新品'
+                }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="是否热品" prop="isHot">
+              <template slot-scope="scope">
+                <el-tag :type="scope.row.isHot ? 'success' : 'error'">{{
+                  scope.row.isHot ? '热品' : '非热品'
+                }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="是否在售" prop="isOnSale">
+              <template slot-scope="scope">
+                <el-tag :type="scope.row.isOnSale ? 'success' : 'error'">{{
+                  scope.row.isOnSale ? '在售' : '未售'
+                }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column
+              label="操作"
+              align="center"
+              class-name="small-padding fixed-width"
+            >
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="primary"
                   @click="columGodosAdd(scope.row)"
                 >添加</el-button>
               </template>
@@ -276,6 +360,7 @@ import {
   updateColumn,
   delColumn,
   addColumnGooods,
+  removeColumnGooods,
   bindGoodsList,
   unBindGoodsList
 } from '@/api/shop/column'
@@ -285,10 +370,13 @@ export default {
     return {
       // 遮罩层
       loading: true,
+      // 商品配置弹窗遮罩层
       goodsLoading: true,
+      // 商品配置选中tab
       activeTab: 'bind',
       // 选中数组
       ids: [],
+      // 商品配置栏目ID
       columnId: undefined,
       // 非单个禁用
       single: true,
@@ -307,31 +395,34 @@ export default {
         pageSize: 10,
         name: undefined
       },
-      // 查询参数
+      // 商品配置查询参数
       goodsQueryForm: {
         pageNum: 1,
         pageSize: 10,
         goodsSn: undefined,
         name: undefined
       },
-      // 角色列表
+      // 栏目列表
       columnList: [],
-      goodsList: [],
+      // 绑定商品列表
+      bindGoodsList: [],
+      // 未绑定商品列表
+      unBindGoodsList: [],
       // 是否显示弹出层
       open: false,
-      // 栏目商品配置弹出层
+      // 商品配置弹出层
       goodsOpen: false,
       // 状态数据字典
       statusOptions: [],
       // 表单参数
       form: {
         name: undefined,
-        sortOrder: 0
+        sort: 0
       },
       // 表单校验
       rules: {
         name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        sortOrder: [
+        sort: [
           { required: true, message: '排序不能为空', trigger: 'blur' }
         ]
       }
@@ -359,7 +450,11 @@ export default {
       this.handleQuery()
     },
     goodsHandleQuery() {
-      this.getUnBindGoodsList()
+      if (this.activeTab === 'bind') {
+        this.getBindGoodsList()
+      } else {
+        this.getUnBindGoodsList()
+      }
     },
     /**
      * 商品配置表单重置
@@ -378,6 +473,27 @@ export default {
       this.columnList = data
       this.loading = false
     },
+    /**
+     * 后端排序
+     */
+    handleSortChange(sort) {
+      this.queryForm.sortName = sort.prop
+      this.queryForm.sortOrder = sort.order
+      this.getList()
+    },
+    async getBindGoodsList() {
+      this.goodsQueryForm.columnId = this.columnId
+      const {
+        map: {
+          page: { records: data, total }
+        }
+      } = await bindGoodsList(
+        this.addDateRange(this.goodsQueryForm, this.dateRange)
+      )
+      this.goodsTotal = total
+      this.bindGoodsList = data
+      this.goodsLoading = false
+    },
     async getUnBindGoodsList() {
       this.goodsQueryForm.columnId = this.columnId
       const {
@@ -388,7 +504,7 @@ export default {
         this.addDateRange(this.goodsQueryForm, this.dateRange)
       )
       this.goodsTotal = total
-      this.goodsList = data
+      this.unBindGoodsList = data
       this.goodsLoading = false
     },
     /**
@@ -409,9 +525,12 @@ export default {
     /**
      * 配置商品按钮
      */
-    handleConfig(row) {
+    handleGoodsConfig(row) {
       this.columnId = row.id
       this.activeTab = 'bind'
+      this.goodsLoading = true
+      this.goodsTotal = 0
+      this.getBindGoodsList()
       this.goodsOpen = true
     },
     /**
@@ -462,7 +581,7 @@ export default {
     reset() {
       this.form = {
         name: undefined,
-        sortOrder: undefined,
+        sort: undefined,
         code: undefined,
         remark: undefined,
         status: 0
@@ -487,14 +606,16 @@ export default {
         }
       })
     },
+    /**
+     * 已添加/未添加tab切换
+     */
     tabClick(val) {
       this.goodsLoading = true
-      this.goodsList = []
       this.goodsTotal = 0
+      this.$refs.goodsQueryForm.resetFields()
       if (val.index === '0') {
-        console.log()
+        this.getBindGoodsList()
       } else {
-        this.$refs.goodsQueryForm.resetFields()
         this.getUnBindGoodsList()
       }
     },
@@ -508,6 +629,19 @@ export default {
         .then((res) => {
           this.$message.success('添加成功')
           this.getUnBindGoodsList()
+        })
+        .catch((e) => {})
+    },
+    /**
+     * 栏目商品删除
+     */
+    columGodosRemove(row) {
+      const goodsId = row.id
+      const columnId = this.columnId
+      removeColumnGooods({ goodsId, columnId })
+        .then((res) => {
+          this.$message.success('删除成功')
+          this.getBindGoodsList()
         })
         .catch((e) => {})
     }

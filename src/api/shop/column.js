@@ -52,6 +52,15 @@ export function addColumnGooods(data) {
   })
 }
 
+// 删除蓝米商品
+export function removeColumnGooods(data) {
+  return request({
+    url: '/shop/column/goods',
+    method: 'delete',
+    data: data
+  })
+}
+
 // 查询已添加商品列表
 export function bindGoodsList(query) {
   return request({

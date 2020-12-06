@@ -202,7 +202,7 @@ export default {
       form: {
         title: undefined,
         status: 0,
-        sortOrder: undefined,
+        sort: undefined,
         imgUrl: undefined,
         jumpUrl: undefined
       },

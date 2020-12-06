@@ -327,7 +327,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         sortName: 'createTime',
-        sortOrder: 'desc',
+        sort: 'desc',
         orderSn: undefined,
         userId: undefined,
         name: undefined

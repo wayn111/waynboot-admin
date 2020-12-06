@@ -110,7 +110,7 @@
           <el-tag v-else type="danger">否</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="排序" prop="sortOrder" />
+      <el-table-column label="排序" prop="sort" />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -190,7 +190,7 @@
           <el-col :span="12">
             <el-form-item label="显示排序" prop="sort">
               <el-input-number
-                v-model="form.sortOrder"
+                v-model="form.sort"
                 controls-position="right"
                 :min="0"
               />
@@ -248,7 +248,7 @@ export default {
         keyword: undefined,
         isHot: undefined,
         isDefault: undefined,
-        sortOrder: 0
+        sort: 0
       },
       // 表单校验
       rules: {
@@ -346,7 +346,7 @@ export default {
         keyword: undefined,
         isHot: undefined,
         isDefault: undefined,
-        sortOrder: 0
+        sort: 0
       }
       this.$refs['form'].resetFields()
     },
