@@ -146,7 +146,7 @@
                   v-for="item in jumpTypeOptions"
                   :key="item.value"
                   :label="item.name"
-                  :value="item.value"
+                  :value="parseInt(item.value)"
                 />
               </el-select>
             </el-form-item>
@@ -215,7 +215,7 @@
             :min="0"
           />
         </el-form-item>
-        <el-form-item label="状态" prop="roleStatus">
+        <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in statusOptions"
@@ -226,8 +226,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="columnDialogHandleClose">取 消</el-button>
         <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="columnDialogHandleClose">取 消</el-button>
       </span>
     </el-dialog>
 
@@ -355,9 +355,9 @@ export default {
       this.jumpColumn = false
       this.jumpCategory = false
       this.jumpUrl = false
-      if (parseInt(val) === 0) {
+      if (val === 0) {
         this.jumpColumn = true
-      } else if (parseInt(val) === 1) {
+      } else if (val === 1) {
         this.jumpCategory = true
       } else {
         this.jumpUrl = true
