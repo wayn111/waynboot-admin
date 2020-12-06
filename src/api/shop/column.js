@@ -1,9 +1,18 @@
 import request from '@/utils/request'
 
-// 查询栏目列表
+// 查询栏目分页列表
 export function listColumn(query) {
   return request({
     url: '/shop/column/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 查询栏目列表
+export function listAllColumn(query) {
+  return request({
+    url: '/shop/column/listAll',
     method: 'get',
     params: query
   })
