@@ -73,8 +73,25 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="编号" prop="id" width="120" />
+      <el-table-column label="编号" prop="id" width="100" />
       <el-table-column label="金刚位名称" prop="name" />
+      <el-table-column label="图标" prop="iconUrl">
+        <template slot-scope="scope">
+          <img v-if="scope.row.iconUrl" :src="scope.row.iconUrl" width="50">
+        </template>
+      </el-table-column>
+      <el-table-column label="图片" prop="picUrl">
+        <template slot-scope="scope">
+          <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="50">
+        </template>
+      </el-table-column>
+      <el-table-column label="跳转类型" prop="jumpType">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.jumpType == 0">栏目</el-tag>
+          <el-tag v-else-if="scope.row.jumpType == 1" type="success">类目</el-tag>
+          <el-tag v-else type="warning">链接</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="排序" prop="sort" sortable="custom" />
       <el-table-column
         label="创建时间"
@@ -92,12 +109,6 @@
         class-name="small-padding fixed-width"
       >
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-s-unfold"
-            @click="handleGoodsConfig(scope.row)"
-          >配置</el-button>
           <el-button
             size="mini"
             type="text"
@@ -176,6 +187,7 @@
               prop="valueId"
             >
               <el-cascader
+                v-model="form.valueId"
                 :options="categoryList"
                 :props="props"
                 clearable
@@ -183,7 +195,7 @@
               />
             </el-form-item>
             <el-form-item v-if="jumpUrl" label="链接地址" prop="valueUrl">
-              <el-input placeholder="请输入链接地址" />
+              <el-input v-model="form.valueUrl" placeholder="请输入链接地址" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -435,13 +447,6 @@ export default {
     handleAdd(row) {
       this.title = '添加金刚位'
       this.open = true
-    },
-    /**
-     * 配置商品按钮
-     */
-    handleGoodsConfig(row) {
-      // this.columnId = row.id
-      this.goodsOpen = true
     },
     /**
      * 修改按钮

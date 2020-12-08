@@ -105,7 +105,7 @@
           :total="goodsTotal"
           :page.sync="goodsQueryForm.pageNum"
           :limit.sync="goodsQueryForm.pageSize"
-          @pagination="getUnBindGoodsList"
+          @pagination="getBindGoodsList"
         />
       </el-tab-pane>
       <el-tab-pane label="未添加" name="unBind">
