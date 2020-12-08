@@ -159,7 +159,7 @@
             >
               <el-select
                 v-model="form.valueId"
-                placeholder="请输入关键词"
+                placeholder="请选择栏目"
                 :loading="loading"
               >
                 <el-option
@@ -174,7 +174,14 @@
               v-else-if="jumpCategory"
               label="选择分类"
               prop="valueId"
-            />
+            >
+              <el-cascader
+                :options="categoryList"
+                :props="props"
+                clearable
+                @change="handleCategoryChange"
+              />
+            </el-form-item>
             <el-form-item v-if="jumpUrl" label="链接地址" prop="valueUrl">
               <el-input placeholder="请输入链接地址" />
             </el-form-item>
@@ -253,9 +260,8 @@ import {
   updateDiamond,
   delDiamond
 } from '@/api/shop/diamond'
-import {
-  listAllColumn
-} from '@/api/shop/column'
+import { listAllColumn } from '@/api/shop/column'
+import { listCategory } from '@/api/shop/category'
 import { getToken } from '@/utils/auth'
 import { uploadPath } from '@/api/upload'
 
@@ -285,6 +291,10 @@ export default {
       },
       // 金刚位列表
       diamondList: [],
+      // 商品分类
+      categoryList: [],
+      // el-cascader’s props
+      props: { label: 'name', value: 'id', expandTrigger: 'hover' },
       // 是否显示弹出层
       open: false,
       // 商品配置弹出层
@@ -298,6 +308,8 @@ export default {
         name: undefined,
         iconUrl: '',
         jumpType: undefined,
+        valueId: undefined,
+        valueUrl: undefined,
         picUrl: '',
         status: 0,
         sort: 0
@@ -338,6 +350,7 @@ export default {
     listAllColumn().then(res => {
       this.columnList = res.map.data
     }).catch(e => {})
+    this.getCategoryList()
   },
   methods: {
     handleQuery() {
@@ -372,6 +385,18 @@ export default {
       this.total = total
       this.diamondList = data
       this.loading = false
+    },
+    // 获取商品分类
+    async getCategoryList() {
+      const {
+        map: { data }
+      } = await listCategory()
+      this.categoryList = this.buildTree(data, 'id', 'pid')
+      console.log(this.categoryList)
+    },
+    // 更改商品所属分类
+    handleCategoryChange(value) {
+      this.form.valueId = value[value.length - 1]
     },
     uploadIconUrl: function(response) {
       this.form.iconUrl = response.map.url
@@ -427,6 +452,7 @@ export default {
         map: { data }
       } = await getDiamond(columnId)
       this.form = data
+      this.selectChange(data.jumpType)
       this.title = '修改金刚位'
       this.open = true
     },
