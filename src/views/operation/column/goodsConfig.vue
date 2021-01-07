@@ -297,6 +297,7 @@ export default {
      * 栏目商品添加
      */
     columGodosAdd(row) {
+      this.goodsLoading = true
       const goodsId = row.id
       const columnId = this.columnId
       addColumnGooods({ goodsId, columnId })
@@ -304,12 +305,15 @@ export default {
           this.$message.success('添加成功')
           this.getUnBindGoodsList()
         })
-        .catch((e) => {})
+        .finally(() => {
+          this.goodsLoading = false
+        })
     },
     /**
      * 栏目商品删除
      */
     columGodosRemove(row) {
+      this.goodsLoading = true
       const goodsId = row.id
       const columnId = this.columnId
       removeColumnGooods({ goodsId, columnId })
@@ -317,7 +321,9 @@ export default {
           this.$message.success('删除成功')
           this.getBindGoodsList()
         })
-        .catch((e) => {})
+        .finally(() => {
+          this.goodsLoading = false
+        })
     }
   }
 }
