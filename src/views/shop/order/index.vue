@@ -68,6 +68,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="orderList"
       style="width: 100%"
       @sort-change="handleSortChange"
@@ -190,8 +191,8 @@
           </el-form-item>
           <el-form-item label="商品信息">
             <el-table
-              :data="orderDetail.orderGoods"
               border
+              :data="orderDetail.orderGoods"
               fit
               highlight-current-row
             >

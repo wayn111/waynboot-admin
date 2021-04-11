@@ -74,7 +74,12 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="goodsList" style="width: 100%">
+    <el-table
+      v-loading="loading"
+      border
+      :data="goodsList"
+      style="width: 100%"
+    >
       <el-table-column type="expand">
         <template slot-scope="props">
           <el-form label-position="left" class="table-expand">
@@ -129,21 +134,21 @@
       <el-table-column align="center" label="是否新品" prop="isNew">
         <template slot-scope="scope">
           <el-tag :type="scope.row.isNew ? 'success' : 'error'">{{
-            scope.row.isNew ? "新品" : "非新品"
+            scope.row.isNew ? '新品' : '非新品'
           }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="是否热品" prop="isHot">
         <template slot-scope="scope">
           <el-tag :type="scope.row.isHot ? 'success' : 'error'">{{
-            scope.row.isHot ? "热品" : "非热品"
+            scope.row.isHot ? '热品' : '非热品'
           }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="是否在售" prop="isOnSale">
         <template slot-scope="scope">
           <el-tag :type="scope.row.isOnSale ? 'success' : 'error'">{{
-            scope.row.isOnSale ? "在售" : "未售"
+            scope.row.isOnSale ? '在售' : '未售'
           }}</el-tag>
         </template>
       </el-table-column>

@@ -44,6 +44,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="addressList"
       style="width: 100%"
     >

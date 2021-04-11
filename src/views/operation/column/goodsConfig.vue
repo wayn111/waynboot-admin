@@ -31,17 +31,12 @@
         >重置</el-button>
       </el-form-item>
     </el-form>
-    <el-tabs
-      v-model="activeTab"
-      tab-position="left"
-      type="border-card"
-      @tab-click="tabClick"
-    >
+    <el-tabs v-model="activeTab" tab-position="left" @tab-click="tabClick">
       <el-tab-pane label="已添加" name="bind">
         <el-table
           v-loading="goodsLoading"
-          :data="bindGoodsList"
           border
+          :data="bindGoodsList"
           style="width: 100%"
           max-height="580px"
         >
@@ -111,8 +106,8 @@
       <el-tab-pane label="未添加" name="unBind">
         <el-table
           v-loading="goodsLoading"
-          :data="unBindGoodsList"
           border
+          :data="unBindGoodsList"
           style="width: 100%"
           max-height="580px"
         >

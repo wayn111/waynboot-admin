@@ -97,7 +97,7 @@
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="typeList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" border :data="typeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="标签编号" width="120" align="center" prop="dictId" />
       <el-table-column label="标签名" align="center" prop="name" :show-overflow-tooltip="true" />

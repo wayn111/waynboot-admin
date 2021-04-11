@@ -94,6 +94,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="roleList"
       style="width: 100%"
       @sort-change="handleSortChange"

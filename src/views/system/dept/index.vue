@@ -45,6 +45,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="deptList"
       row-key="deptId"
       default-expand-all

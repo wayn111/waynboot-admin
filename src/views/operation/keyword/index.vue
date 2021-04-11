@@ -91,6 +91,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="keywordList"
       style="width: 100%"
       @selection-change="handleSelectionChange"

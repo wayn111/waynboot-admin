@@ -51,6 +51,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="bannerList"
       style="width: 100%"
       @selection-change="handleSelectionChange"

@@ -135,7 +135,7 @@
         </el-col>
       </el-row>
 
-      <el-table :data="specifications">
+      <el-table border :data="specifications">
         <el-table-column property="specification" label="规格名" />
         <el-table-column property="value" label="规格值">
           <template slot-scope="scope">
@@ -199,7 +199,7 @@
 
     <el-card class="box-card">
       <h3>商品库存</h3>
-      <el-table :data="products">
+      <el-table border :data="products">
         <el-table-column property="value" label="货品规格">
           <template slot-scope="scope">
             <el-tag v-for="tag in scope.row.specifications" :key="tag">{{ tag }}</el-tag>
@@ -277,7 +277,7 @@
     <el-card class="box-card">
       <h3>商品参数</h3>
       <el-button type="primary" @click="handleAttributeShow">添加</el-button>
-      <el-table :data="attributes">
+      <el-table border :data="attributes">
         <el-table-column property="attribute" label="商品参数名称" />
         <el-table-column property="value" label="商品参数值" />
         <el-table-column

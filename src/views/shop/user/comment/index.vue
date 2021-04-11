@@ -83,6 +83,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="commentList"
       style="width: 100%"
       @selection-change="handleSelectionChange"

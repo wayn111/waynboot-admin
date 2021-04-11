@@ -112,6 +112,7 @@
     <el-table
       ref="table"
       v-loading="loading"
+      border
       :data="fileList"
       style="width: 100%"
       @selection-change="handleSelectionChange"

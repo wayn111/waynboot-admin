@@ -67,6 +67,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="diamondList"
       style="width: 100%"
       @sort-change="handleSortChange"
@@ -88,7 +89,10 @@
       <el-table-column label="跳转类型" prop="jumpType">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.jumpType == 0">栏目</el-tag>
-          <el-tag v-else-if="scope.row.jumpType == 1" type="success">类目</el-tag>
+          <el-tag
+            v-else-if="scope.row.jumpType == 1"
+            type="success"
+          >类目</el-tag>
           <el-tag v-else type="warning">链接</el-tag>
         </template>
       </el-table-column>
@@ -163,11 +167,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              v-if="jumpColumn"
-              label="选择栏目"
-              prop="valueId"
-            >
+            <el-form-item v-if="jumpColumn" label="选择栏目" prop="valueId">
               <el-select
                 v-model="form.valueId"
                 placeholder="请选择栏目"
@@ -256,7 +256,7 @@
       :close-on-click-modal="false"
       :visible.sync="goodsOpen"
       top="1vh"
-      width="60vw"
+      width="70%"
     >
       <span slot="footer" class="dialog-footer">
         <el-button @click="goodsOpen = false">关 闭</el-button>
@@ -359,9 +359,11 @@ export default {
       } = response
       this.statusOptions = data
     })
-    listAllColumn().then(res => {
-      this.columnList = res.map.data
-    }).catch(e => {})
+    listAllColumn()
+      .then((res) => {
+        this.columnList = res.map.data
+      })
+      .catch((e) => {})
     this.getCategoryList()
   },
   methods: {

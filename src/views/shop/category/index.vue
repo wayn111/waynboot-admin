@@ -31,6 +31,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="categoryList"
       row-key="id"
       :default-expand-all="false"

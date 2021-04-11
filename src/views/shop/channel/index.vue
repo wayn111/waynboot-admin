@@ -43,6 +43,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="channelList"
       style="width: 100%"
       @selection-change="handleSelectionChange"

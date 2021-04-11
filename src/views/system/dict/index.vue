@@ -112,6 +112,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="typeList"
       @selection-change="handleSelectionChange"
     >

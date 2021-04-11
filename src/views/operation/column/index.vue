@@ -67,6 +67,7 @@
 
     <el-table
       v-loading="loading"
+      border
       :data="columnList"
       style="width: 100%"
       @sort-change="handleSortChange"
@@ -127,7 +128,7 @@
     <el-dialog
       :title="title"
       :visible.sync="open"
-      width="30%"
+      width="40%"
       :close-on-click-modal="false"
       :before-close="columnDialogHandleClose"
     >
@@ -155,7 +156,7 @@
       :close-on-click-modal="false"
       :visible.sync="goodsOpen"
       top="1vh"
-      width="60vw"
+      width="70%"
     >
       <goods-config :column-id="columnId" />
       <span slot="footer" class="dialog-footer">
