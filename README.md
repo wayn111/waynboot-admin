@@ -1,6 +1,10 @@
 ## waynboot-mall项目
 
-waynboot-mall是一套全部开源的微商城项目，包含一个运营后台、h5商城和后台接口。实现了一个商城所需的首页展示、商品分类、商品详情、商品搜索、加入购物车、结算下单、订单状态流转等一系列功能。技术上基于Springboot2.0，整合了Redis、RabbitMQ、ElasticSearch等常用中间件不断完善中。
+waynboot-mall是一套全部开源的微商城项目，包含一个运营后台、h5商城和后台接口。
+实现了一个商城所需的首页展示、商品分类、商品详情、sku详情、商品搜索、加入购物车、结算下单、订单状态流转、商品评论等一系列功能。
+技术上基于Springboot2.0，整合了Redis、RabbitMQ、ElasticSearch等常用中间件，
+贴近生产环境实际经验开发而来不断完善、优化、改进中。
+
 
 [后台接口项目](https://github.com/wayn111/waynboot-mall)  
 [运营后台项目](https://github.com/wayn111/waynboot-mall)  
@@ -100,7 +104,7 @@ npm run dev
         <td><img src="https://oscimg.oschina.net/oscnet/up-cec6bde100884182a9ad7aae10cb8c9d5b8.png"/></td>
         <td><img src="https://oscimg.oschina.net/oscnet/up-535f8cab7365885095e3e511ec3762b0973.png"/></td>
     </tr>
-     <tr>
+    <tr>
         <td><img src="https://oscimg.oschina.net/oscnet/up-b831bbf1f4fa00655d3b7e4368d4181a9b9.png"/></td>
         <td><img src="https://oscimg.oschina.net/oscnet/up-e9edbb0bfcfd2c8687457573caf603e6275.png"/></td>
     </tr>
@@ -112,7 +116,7 @@ npm run dev
         <td><img src="https://oscimg.oschina.net/oscnet/up-ef857d19b1f905afec239c673be24860a9a.png"/></td>
         <td><img src="https://oscimg.oschina.net/oscnet/up-e0effea68ad0073f30d5b5f6d9567a24b9e.png"/></td>
     </tr>
-     <tr>
+    <tr>
         <td><img src="https://oscimg.oschina.net/oscnet/up-d3bce6e295c1ddf4b27e6c437ca6a8b6351.png"/></td>
         <td><img src="https://oscimg.oschina.net/oscnet/up-e6c8baa4e20766156053daa15b0b0240653.png"/></td>
     </tr>
