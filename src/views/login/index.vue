@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">wayn后台管理系统</h3>
+      <h3 class="title">waynboot-mall</h3>
       <el-form-item prop="username">
         <el-input v-model="loginForm.username" type="text" auto-complete="off" placeholder="账号">
           <svg-icon
@@ -164,7 +164,7 @@ export default {
 }
 
 .login-form {
-  opacity: 0.88;
+  opacity: 0.9;
   border-radius: 6px;
   background: #ffffff;
   width: 320px;
