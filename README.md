@@ -86,7 +86,7 @@ npm run dev
 
 - admin/admin123
 
-演示地址：http://mall.wayn.ltd/admin
+演示地址：http://www.wayn.ltd/admin
 
 ## 演示图
 
