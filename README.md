@@ -133,3 +133,4 @@ QQ群：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=Mvf4HO4EhdXlf
 ## 感谢
 
 - [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
+- [litemall](https://github.com/linlinjava/litemall)
