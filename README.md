@@ -7,8 +7,8 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
 
 
 [后台接口项目](https://github.com/wayn111/waynboot-mall)  
-[运营后台项目](https://github.com/wayn111/waynboot-mall)  
-[h5商城项目](https://github.com/wayn111/waynboot-mall)
+[运营后台项目](https://github.com/wayn111/waynboot-admin)  
+[h5商城项目](https://github.com/wayn111/waynboot-mobile)
 
 ## waynboot-admin
 
@@ -85,7 +85,6 @@ npm run dev
 ## 在线体验
 
 - admin/admin123
-- 陆陆续续收到一些打赏，为了更好的体验已用于演示服务器升级。谢谢各位小伙伴。
 
 演示地址：http://mall.wayn.ltd/admin
 
