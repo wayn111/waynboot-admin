@@ -84,7 +84,7 @@ npm run dev
 
 ## 在线体验
 
-- admin/admin123
+- waynboot/123456
 
 演示地址：http://www.wayn.ltd/admin
 
