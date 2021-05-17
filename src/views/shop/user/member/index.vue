@@ -9,11 +9,11 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="会员名称" prop="username">
+      <el-form-item label="会员昵称" prop="nickname">
         <el-input
-          v-model="queryForm.username"
+          v-model="queryForm.nickname"
           size="small"
-          placeholder="请输入会员名称"
+          placeholder="请输入会员昵称"
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
@@ -64,7 +64,6 @@
       style="width: 100%"
     >
       <el-table-column label="编号" prop="id" width="120" />
-      <el-table-column label="用户名称" prop="username" />
       <el-table-column label="性别" prop="gender">
         <template slot-scope="scope">
           {{ scope.row.gender == 1? '男':'女' }}
@@ -113,9 +112,6 @@
       :before-close="memberDialogHandleClose"
     >
       <el-form ref="userDetail" :model="userDetail" :rules="rules" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="userDetail.username" :disabled="true" />
-        </el-form-item>
         <el-form-item label="用户昵称" prop="nickname">
           <el-input v-model="userDetail.nickname" />
         </el-form-item>
@@ -172,7 +168,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         id: undefined,
-        username: undefined,
+        nickname: undefined,
         status: undefined
       },
       // 角色列表

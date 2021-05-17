@@ -96,7 +96,7 @@
           <span>{{ scope.row.type == 0 ? '商品评论' : '专题评论' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="评论内容" prop="content" width="480">
+      <el-table-column label="评论内容" prop="content" width="280">
         <template slot-scope="scope">
           <el-tooltip
             class="item"
