@@ -422,7 +422,7 @@ export default {
           return exportRole(queryForm)
         })
         .then(response => {
-          this.download(response.msg)
+          this.download(response.map.filepath)
         })
         .catch(function() {})
     },
