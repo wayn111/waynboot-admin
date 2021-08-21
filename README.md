@@ -86,7 +86,7 @@ npm run dev
 
 - waynboot/123456
 
-演示地址：http://www.wayn.ltd/admin
+演示地址：https://www.wayn.ltd/admin
 
 ## 演示图
 
