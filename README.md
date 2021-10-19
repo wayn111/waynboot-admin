@@ -80,6 +80,9 @@ npm install --registry=https://registry.npm.taobao.org
 
 # 启动服务
 npm run dev
+
+# 管理员账号/密码
+admin/123456
 ```
 
 ## 在线体验
