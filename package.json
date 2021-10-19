@@ -16,7 +16,7 @@
   "dependencies": {
     "@riophae/vue-treeselect": "^0.4.0",
     "@tinymce/tinymce-vue": "^3.2.8",
-    "axios": "0.21.1",
+    "axios": "0.23.0",
     "core-js": "^3.8.3",
     "echarts": "^4.9.0",
     "element-ui": "2.14.1",
