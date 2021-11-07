@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, sliderLogin, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 
@@ -40,6 +40,18 @@ const actions = {
   login({ commit }, userInfo) {
     return new Promise((resolve, reject) => {
       login(userInfo).then(response => {
+        const { map: data } = response
+        commit('SET_TOKEN', data.token)
+        setToken(data.token)
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  sliderLogin({ commit }, userInfo) {
+    return new Promise((resolve, reject) => {
+      sliderLogin(userInfo).then(response => {
         const { map: data } = response
         commit('SET_TOKEN', data.token)
         setToken(data.token)

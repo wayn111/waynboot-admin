@@ -44,7 +44,7 @@ service.interceptors.response.use(res => {
       store.dispatch('user/logout').then(() => {
         location.reload() // 为了重新实例化vue-router对象 避免bug
       })
-    }).catch(() => {})
+    }).catch(() => { })
   } else if (code !== 200) {
     Notification.error({
       title: res.data.msg
@@ -53,8 +53,7 @@ service.interceptors.response.use(res => {
   } else {
     return res.data
   }
-},
-error => {
+}, error => {
   console.log('err' + error)
   Message({
     message: error.message,

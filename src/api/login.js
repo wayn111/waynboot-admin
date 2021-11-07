@@ -8,6 +8,14 @@ export function login(data) {
   })
 }
 
+export function sliderLogin(data) {
+  return request({
+    url: '/slider/login',
+    method: 'post',
+    data
+  })
+}
+
 export function getInfo() {
   return request({
     url: '/getInfo',
