@@ -89,7 +89,7 @@ admin/123456
 
 - waynboot/123456
 
-演示地址：https://www.wayn.ltd/admin
+演示地址：https//admin.wayn.ltd
 
 ## 演示图
 
