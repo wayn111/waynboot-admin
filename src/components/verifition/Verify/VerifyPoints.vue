@@ -47,9 +47,9 @@
     <div
       class="verify-bar-area"
       :style="{'width': setSize.imgWidth,
-               'color': this.barAreaColor,
-               'border-color': this.barAreaBorderColor,
-               'line-height':this.barSize.height}"
+               'color': barAreaColor,
+               'border-color': barAreaBorderColor,
+               'line-height':barSize.height}"
     >
       <span class="verify-msg">{{ text }}</span>
     </div>
@@ -74,7 +74,8 @@ export default {
       default: 'fixed'
     },
     captchaType: {
-      type: String
+      type: String,
+      default: ''
     },
     // 间隔
     vSpace: {
@@ -162,7 +163,7 @@ export default {
     },
     canvasClick(e) {
       this.checkPosArr.push(this.getMousePos(this.$refs.canvas, e))
-      if (this.num == this.checkNum) {
+      if (this.num === this.checkNum) {
         this.num = this.createPoint(this.getMousePos(this.$refs.canvas, e))
         // 按比例转换坐标值
         this.checkPosArr = this.pointTransfrom(this.checkPosArr, this.setSize)
@@ -177,12 +178,12 @@ export default {
             'token': this.backToken
           }
           reqCheck(data).then(res => {
-            if (res.repCode == '0000') {
+            if (res.repCode === '0000') {
               this.barAreaColor = '#4cae4c'
               this.barAreaBorderColor = '#5cb85c'
               this.text = '验证成功'
               this.bindingClick = false
-              if (this.mode == 'pop') {
+              if (this.mode === 'pop') {
                 setTimeout(() => {
                   this.$parent.clickShow = false
                   this.refresh()
@@ -238,7 +239,7 @@ export default {
         ts: Date.now() // 现在的时间戳
       }
       reqGet(data).then(res => {
-        if (res.repCode == '0000') {
+        if (res.repCode === '0000') {
           this.pointBackImgBase = res.repData.originalImageBase64
           this.backToken = res.repData.token
           this.secretKey = res.repData.secretKey
@@ -249,7 +250,7 @@ export default {
         }
 
         // 判断接口请求次数是否失效
-        if (res.repCode == '6201') {
+        if (res.repCode === '6201') {
           this.pointBackImgBase = null
         }
       })

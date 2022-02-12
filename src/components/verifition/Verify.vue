@@ -50,10 +50,11 @@ export default {
       type: String,
       default() {
         // 默认语言不输入为浏览器语言
+        let language
         if (navigator.language) {
-          var language = navigator.language
+          language = navigator.language
         } else {
-          var language = navigator.browserLanguage
+          language = navigator.browserLanguage
         }
         return language
       }
@@ -63,20 +64,24 @@ export default {
       required: true
     },
     figure: {
-      type: Number
+      type: Number,
+      default: 0
     },
     arith: {
-      type: Number
+      type: Number,
+      default: 0
     },
     mode: {
       type: String,
       default: 'pop'
     },
     vSpace: {
-      type: Number
+      type: Number,
+      default: 0
     },
     explain: {
-      type: String
+      type: String,
+      default: ''
     },
     imgSize: {
       type: Object,
@@ -88,11 +93,13 @@ export default {
       }
     },
     blockSize: {
-      type: Object
+      type: Object,
+      default: () => {}
     },
     barSize: {
-      type: Object
-    },
+      type: Object,
+      default: () => {}
+    }
   },
   data() {
     return {
@@ -111,7 +118,7 @@ export default {
       return this.$refs.instance || {}
     },
     showBox() {
-      if (this.mode == 'pop') {
+      if (this.mode === 'pop') {
         return this.clickShow
       } else {
         return true
@@ -133,7 +140,7 @@ export default {
             break
         }
       }
-    },
+    }
   },
   mounted() {
     this.uuid()
@@ -190,11 +197,11 @@ export default {
       this.refresh()
     },
     show() {
-      if (this.mode == 'pop') {
+      if (this.mode === 'pop') {
         this.clickShow = true
       }
     }
-  },
+  }
 }
 </script>
 <style>
