@@ -242,6 +242,7 @@
         <el-button @click="dictDialogHandleClose">取 消</el-button>
       </div>
     </el-dialog>
+    <Progess :percentage="percentage" :progress-dialog-visible="progressDialogVisible" />
   </div>
 </template>
 
@@ -254,11 +255,17 @@ import {
   updateType,
   exportType
 } from '@/api/system/dict/type'
-
+import { streamDownload } from '@/utils/index'
+import Progess from '@/components/Progress'
 export default {
   name: 'Dict',
+  components: {
+    Progess
+  },
   data() {
     return {
+      percentage: 0,
+      progressDialogVisible: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -410,6 +417,7 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
+      const that = this
       const queryForm = this.queryForm
       this.$confirm('是否确认导出所有类型数据项?', '警告', {
         confirmButtonText: '确定',
@@ -417,12 +425,23 @@ export default {
         type: 'warning'
       })
         .then(function() {
-          return exportType(queryForm)
+          that.progressDialogVisible = true
+          return exportType(queryForm, (progressEvent) => {
+            const process = (progressEvent.loaded / progressEvent.total * 100 | 0)
+            const progressText = `下载进度：${process}%`
+            console.log(progressText)
+            that.percentage = process
+          })
         })
-        .then((response) => {
-          this.download(response.map.filepath)
+        .then((res) => {
+          streamDownload(res)
         })
         .catch(function() {})
+        .finally(() => {
+          setTimeout(() => {
+            that.progressDialogVisible = false
+          }, 1500)
+        })
     },
     /** 删除按钮操作 */
     handleDelete(row) {

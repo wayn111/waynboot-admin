@@ -52,11 +52,15 @@ export function clearCache() {
 }
 
 // 导出字典类型
-export function exportType(query) {
+export function exportType(query, progress) {
   return request({
     url: '/system/dict/type/export',
     method: 'get',
-    params: query
+    params: query,
+    responseType: 'blob',
+    // `onDownloadProgress` 允许为下载处理进度事件
+    // 浏览器专属
+    onDownloadProgress: progress
   })
 }
 

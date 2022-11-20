@@ -44,11 +44,15 @@ export function delUser(userId) {
 }
 
 // 导出用户
-export function exportUser(query) {
+export function exportUser(query, progress) {
   return request({
     url: '/system/user/export',
     method: 'get',
-    params: query
+    params: query,
+    responseType: 'blob',
+    // `onDownloadProgress` 允许为下载处理进度事件
+    // 浏览器专属
+    onDownloadProgress: progress
   })
 }
 

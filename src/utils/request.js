@@ -32,6 +32,9 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(res => {
+  if (res.data instanceof Blob) {
+    return res
+  }
   const code = res.data.code
   if (code === 401) {
     MessageBox.alert(

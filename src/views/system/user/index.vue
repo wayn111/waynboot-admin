@@ -329,6 +329,7 @@
         <el-button @click="upload.open = false">取 消</el-button>
       </div>
     </el-dialog>
+    <Progess :percentage="percentage" :progress-dialog-visible="progressDialogVisible" />
   </div>
 </template>
 <script>
@@ -343,17 +344,22 @@ import {
   changeUserStatus
 } from '@/api/system/user'
 import { getToken } from '@/utils/auth'
+import { streamDownload } from '@/utils/index'
 import { treeselect } from '@/api/system/dept'
 import Treeselect from '@riophae/vue-treeselect'
+import Progess from '@/components/Progress'
 // import the styles
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
 export default {
   components: {
-    Treeselect
+    Treeselect,
+    Progess
   },
   data() {
     return {
+      percentage: 0,
+      progressDialogVisible: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -636,16 +642,29 @@ export default {
      * 导出操作
      */
     handleExport() {
+      const that = this
       const queryForm = this.addDateRange(this.queryForm, this.dateRange)
       this.$confirm('是否确认导出所有用户数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(function() {
-        return exportUser(queryForm)
-      }).then(response => {
-        this.download(response.map.filepath)
-      }).catch(function() {})
+        that.progressDialogVisible = true
+        return exportUser(queryForm, (progressEvent) => {
+          const process = (progressEvent.loaded / progressEvent.total * 100 | 0)
+          const progressText = `下载进度：${process}%`
+          console.log(progressText)
+          that.percentage = process
+        })
+      }).then(res => {
+        streamDownload(res)
+      }).catch(function(e) {
+        console.log(e)
+      }).finally(() => {
+        setTimeout(() => {
+          that.progressDialogVisible = false
+        }, 1500)
+      })
     },
     submitForm() {
       this.$refs['form'].validate(valid => {

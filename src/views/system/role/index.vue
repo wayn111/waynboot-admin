@@ -207,6 +207,7 @@
         <el-button type="primary" @click="submitForm">确 定</el-button>
       </span>
     </el-dialog>
+    <Progess :percentage="percentage" :progress-dialog-visible="progressDialogVisible" />
   </div>
 </template>
 
@@ -224,10 +225,17 @@ import {
   treeselect as menuTreeselect,
   roleMenuTreeselect
 } from '@/api/system/menu'
+import { streamDownload } from '@/utils/index'
+import Progess from '@/components/Progress'
 
 export default {
+  components: {
+    Progess
+  },
   data() {
     return {
+      percentage: 0,
+      progressDialogVisible: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -412,6 +420,7 @@ export default {
      * 导出按钮操作
      */
     handleExport() {
+      const that = this
       const queryForm = this.addDateRange(this.queryForm, this.dateRange)
       this.$confirm('是否确认导出所有角色数据项?', '警告', {
         confirmButtonText: '确定',
@@ -419,12 +428,23 @@ export default {
         type: 'warning'
       })
         .then(function() {
-          return exportRole(queryForm)
+          that.progressDialogVisible = true
+          return exportRole(queryForm, (progressEvent) => {
+            const process = (progressEvent.loaded / progressEvent.total * 100 | 0)
+            const progressText = `下载进度：${process}%`
+            console.log(progressText)
+            that.percentage = process
+          })
         })
-        .then(response => {
-          this.download(response.map.filepath)
+        .then(res => {
+          streamDownload(res)
         })
         .catch(function() {})
+        .finally(() => {
+          setTimeout(() => {
+            that.progressDialogVisible = false
+          }, 1500)
+        })
     },
     /**
      * 角色对话框关闭

@@ -56,10 +56,14 @@ export function delRole(roleId) {
 }
 
 // 导出角色
-export function exportRole(query) {
+export function exportRole(query, progress) {
   return request({
     url: '/system/role/export',
     method: 'get',
-    params: query
+    params: query,
+    responseType: 'blob',
+    // `onDownloadProgress` 允许为下载处理进度事件
+    // 浏览器专属
+    onDownloadProgress: progress
   })
 }
