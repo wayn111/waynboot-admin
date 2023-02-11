@@ -89,7 +89,7 @@ admin/123456
 
 - waynboot/123456
 
-演示地址：演示地址：http://mall.wayn.xin/admin
+演示地址：演示地址：http://121.4.124.33/admin
 
 ## 演示图
 
