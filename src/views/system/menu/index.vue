@@ -92,6 +92,12 @@
         :formatter="statusFormat"
         width="80"
       />
+      <el-table-column
+        prop="visible"
+        label="显示状态"
+        :formatter="visibleFormat"
+        width="80"
+      />
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -325,6 +331,8 @@ export default {
       open: false,
       // 状态数据字典
       statusOptions: [],
+      // 显示状态数据字典
+      visibleOptions: [],
       // 表单参数
       form: {
         menuId: undefined,
@@ -359,6 +367,12 @@ export default {
         map: { data }
       } = response
       this.statusOptions = data
+    })
+    this.getDicts('visible').then((response) => {
+      const {
+        map: { data }
+      } = response
+      this.visibleOptions = data
     })
   },
   methods: {
@@ -441,6 +455,12 @@ export default {
      */
     statusFormat(row, column) {
       return this.echoDictName(this.statusOptions, row.menuStatus)
+    },
+    /**
+     * 隐藏状态翻译
+     */
+    visibleFormat(row, column) {
+      return this.echoDictName(this.visibleOptions, row.visible)
     },
     /**
      * 查询菜单下拉树结构
