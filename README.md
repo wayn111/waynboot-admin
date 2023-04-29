@@ -6,9 +6,9 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
 贴近生产环境实际经验开发而来不断完善、优化、改进中。
 
 
-[h5商城项目](https://github.com/wayn111/waynboot-mobile)
-[运营后台项目](https://github.com/wayn111/waynboot-admin)  
-[后台接口项目](https://github.com/wayn111/waynboot-mall)  
+- [h5商城项目](https://gitee.com/wayn111/waynboot-mobile)
+- [运营后台项目](https://gitee.com/wayn111/waynboot-admin)  
+- [后台接口项目](https://gitee.com/wayn111/waynboot-mall)  
 
 ## waynboot-admin
 
