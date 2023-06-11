@@ -25,7 +25,8 @@ export default {
   data() {
     return {
       title: 'waynboot-mall       ',
-      logo: this.$store.getters.avatar
+      // logo: this.$store.getters.avatar
+      logo: require('@/assets/image/mall-logo.png')
     }
   }
 }
@@ -58,7 +59,7 @@ export default {
       height: 32px;
       vertical-align: middle;
       margin: 0 10px;
-      border-radius: 50%;
+      // border-radius: 50%;
     }
 
     & .sidebar-title {

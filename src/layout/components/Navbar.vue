@@ -7,8 +7,8 @@
     />
 
     <breadcrumb class="breadcrumb-container" />
-
     <div class="right-menu">
+      <img :src="logo" class="avatar" @click="avatarClick()">
       <el-dropdown class="avatar-container" trigger="hover">
         <span class="el-dropdown-link">
           {{ name }}
@@ -40,6 +40,11 @@ export default {
     Breadcrumb,
     Hamburger
   },
+  data: function() {
+    return {
+      logo: this.$store.getters.avatar
+    }
+  },
   computed: {
     ...mapGetters(['sidebar', 'name'])
   },
@@ -58,6 +63,9 @@ export default {
           this.$router.push(`/login?redirect=${this.$route.fullPath}`)
         })
         .catch(e => {})
+    },
+    avatarClick() {
+      this.$router.push('/profile')
     }
   }
 }
@@ -113,6 +121,14 @@ export default {
           background: rgba(0, 0, 0, .025)
         }
       }
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      vertical-align: middle;
+      margin: 0 10px;
+      border-radius: 50%;
     }
 
     .avatar-container {

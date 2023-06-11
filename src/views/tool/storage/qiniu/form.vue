@@ -105,7 +105,9 @@ export default {
   methods: {
     init() {
       get().then((res) => {
-        this.form = res.map.data
+        if (res.map.data) {
+          this.form = res.map.data
+        }
       })
     },
     doSubmit() {

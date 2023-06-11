@@ -2,6 +2,14 @@ import request from '@/utils/request'
 const uploadPath = process.env.VUE_APP_BASE_API + '/tool/qiniu/upload'
 export { uploadPath }
 
+export function upload(data) {
+  return request({
+    url: '/tool/qiniu/upload',
+    data,
+    method: 'post'
+  })
+}
+
 export function list(query) {
   return request({
     url: 'tool/qiniu/list',

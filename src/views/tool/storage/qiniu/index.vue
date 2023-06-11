@@ -89,6 +89,7 @@
       @close="doSubmit"
     >
       <el-upload
+        :http-request="uploadSectionFile"
         :before-remove="handleBeforeRemove"
         :on-success="handleSuccess"
         :on-error="handleError"
@@ -161,7 +162,7 @@
   </div>
 </template>
 <script>
-import { list, del, download, syncQiniu } from '@/api/tool/qiniu'
+import { list, del, download, syncQiniu, upload } from '@/api/tool/qiniu'
 import { getToken } from '@/utils/auth'
 import eForm from './form'
 import { uploadPath } from '@/api/tool/qiniu'
@@ -297,15 +298,25 @@ export default {
           this.syncLoading = false
         })
     },
+    // 自定义上传
+    uploadSectionFile(param) {
+      const fileObj = param.file
+      const form = new FormData()
+      // 文件对象
+      form.append('file', fileObj)
+      upload(form).then(res => {
+        param.onSuccess(res)
+      }).catch(({ err }) => {
+        param.onError(err)
+      })
+    },
     handleSuccess(response, file, fileList) {
-      const uid = file.uid
       const id = response.id
+      const uid = file.uid
       this.files.push({ uid, id })
     },
     // 监听上传失败
     handleError(e, file, fileList) {
-      const msg = JSON.parse(e.message)
-      console.log(msg)
     },
     handleBeforeRemove(file, fileList) {
       for (let i = 0; i < this.files.length; i++) {
