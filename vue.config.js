@@ -14,6 +14,7 @@ const name = defaultSettings.title || 'wayn-shop' // page title
 // You can change the port by the following methods:
 // port = 9528 npm run dev OR npm run dev --port = 9528
 const port = process.env.port || process.env.npm_config_port || 9528 // dev port
+const baseUrl = process.env.VUE_APP_BASE_URL
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
@@ -38,12 +39,18 @@ module.exports = {
     },
     proxy: {
       // detail: https://cli.vuejs.org/config/#devserver-proxy
-      [process.env.VUE_APP_BASE_API]: {
-        target: `http://localhost:81`,
-        changeOrigin: true,
+      '/dev-api': {
+        target: baseUrl,
         pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
-        }
+          '^/dev-api': '/'
+        },
+        secure: false,
+        changeOrigin: true
+      },
+      'upload': {
+        target: baseUrl,
+        secure: false,
+        changeOrigin: true
       }
     },
     disableHostCheck: true
