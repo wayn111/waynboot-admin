@@ -45,7 +45,13 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button
+          v-hasPermi="['system:banner:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd()"
+        >新增</el-button>
       </el-col>
     </el-row>
 
@@ -74,8 +80,15 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button
+            v-hasPermi="['system:banner:edit']"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+          >修改</el-button>
+          <el-button
+            v-hasPermi="['system:banner:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"

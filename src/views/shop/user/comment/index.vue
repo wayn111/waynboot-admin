@@ -139,12 +139,14 @@
       >
         <template slot-scope="scope">
           <el-button
+            v-hasPermi="['system:common:reply']"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleReply(scope.row)"
           >回复</el-button>
           <el-button
+            v-hasPermi="['system:common:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"

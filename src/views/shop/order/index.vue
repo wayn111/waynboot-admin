@@ -124,6 +124,7 @@
       <el-table-column align="center" label="操作" width="250">
         <template slot-scope="scope">
           <el-button
+            v-hasPermi="['system:order:info']"
             size="mini"
             @click="handleDetail(scope.row)"
           >详情</el-button>
@@ -132,18 +133,21 @@
             trigger="click"
           >
             <el-button
+              v-hasPermi="['system:order:delete']"
               size="mini"
               type="danger"
               @click="handleDelete(scope.row)"
             >删除</el-button>
             <el-button
               v-if="scope.row.orderStatus == 201"
+              v-hasPermi="['system:order:ship']"
               size="mini"
               type="primary"
               @click="handleShip(scope.row)"
             >发货</el-button>
             <el-button
               v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
+              v-hasPermi="['system:order:refund']"
               size="mini"
               type="warning"
               @click="handleRefund(scope.row)"

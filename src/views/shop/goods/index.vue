@@ -60,12 +60,14 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['system:goods:add']"
           type="primary"
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd()"
         >新增</el-button>
         <el-button
+          v-hasPermi="['system:goods:syncEs']"
           type="success"
           icon="el-icon-position"
           size="mini"
@@ -159,12 +161,14 @@
       >
         <template slot-scope="scope">
           <el-button
+            v-hasPermi="['system:goods:update']"
             size="mini"
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
+            v-hasPermi="['system:goods:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"

@@ -25,7 +25,13 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd">新增</el-button>
+        <el-button
+          v-hasPermi="['system:category:add']"
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+        >新增</el-button>
       </el-col>
     </el-row>
 
@@ -63,13 +69,21 @@
         <template slot-scope="scope">
           <el-button
             v-if="scope.row.level == 'L1'"
+            v-hasPermi="['system:category:add']"
             size="mini"
             type="text"
             icon="el-icon-plus"
             @click="handleAdd(scope.row)"
           >添加</el-button>
-          <el-button size="mini" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)">修改</el-button>
           <el-button
+            v-hasPermi="['system:category:update']"
+            size="mini"
+            type="text"
+            icon="el-icon-edit"
+            @click="handleUpdate(scope.row)"
+          >修改</el-button>
+          <el-button
+            v-hasPermi="['system:category:delete']"
             size="mini"
             type="text"
             icon="el-icon-delete"
