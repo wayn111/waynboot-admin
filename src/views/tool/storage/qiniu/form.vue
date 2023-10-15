@@ -106,7 +106,7 @@ export default {
     init() {
       get().then((res) => {
         if (res.map.data) {
-          this.form = res.map.data
+          this.form = res.map.data || {}
         }
       })
     },
