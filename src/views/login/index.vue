@@ -69,8 +69,8 @@ export default {
       codeUrl: '',
       cookiePassword: '',
       loginForm: {
-        username: 'waynboot',
-        password: '123456',
+        username: '',
+        password: '',
         rememberMe: false,
         code: '',
         key: ''
