@@ -17,7 +17,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="状态" prop="orderStatus">
+      <el-form-item label="订单状态" prop="orderStatus">
         <el-select
           v-model="queryForm.orderStatus"
           placeholder="订单状态"
@@ -27,6 +27,22 @@
         >
           <el-option
             v-for="dict in orderStatusOptions"
+            :key="dict.value"
+            :label="dict.name"
+            :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="支付方式" prop="orderStatus">
+        <el-select
+          v-model="queryForm.payType"
+          placeholder="支付方式"
+          clearable
+          size="small"
+          style="width: 180px"
+        >
+          <el-option
+            v-for="dict in payTypeOptions"
             :key="dict.value"
             :label="dict.name"
             :value="dict.value"
@@ -88,9 +104,15 @@
         sortable="custom"
       />
       <el-table-column align="center" label="用户ID" prop="userId" width="100" />
+      <el-table-column align="center" label="手机号" prop="mobile" width="100" />
       <el-table-column align="center" label="订单状态">
         <template slot-scope="scope">
           <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="支付类型">
+        <template slot-scope="scope">
+          <el-tag>{{ scope.row.payType | payStatusFilter }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="订单金额/元" prop="orderPrice" sortable="custom">
@@ -231,7 +253,7 @@
             </span>
           </el-form-item>
           <el-form-item label="支付信息">
-            <span>（支付渠道）微信支付</span>
+            <span>（支付渠道）{{ orderDetail.order.payType | payStatusFilter }}</span>
             <span>（支付时间）{{ orderDetail.order.payTime }}</span>
           </el-form-item>
           <el-form-item label="快递信息">
@@ -299,7 +321,7 @@ import {
 } from '@/api/shop/order'
 import { yuan } from '@/utils'
 
-const statusMap = {
+const orderStatusMap = {
   101: '未付款',
   102: '用户取消',
   103: '系统取消',
@@ -311,10 +333,19 @@ const statusMap = {
   402: '系统收货'
 }
 
+const payStatusMap = {
+  1: '微信',
+  2: '支付宝',
+  3: '测试'
+}
+
 export default {
   filters: {
     orderStatusFilter(status) {
-      return statusMap[status]
+      return orderStatusMap[status]
+    },
+    payStatusFilter(status) {
+      return payStatusMap[status]
     },
     yuan
   },
@@ -327,12 +358,15 @@ export default {
       dateRange: [],
       // 订单状态数据字典
       orderStatusOptions: [],
+      payTypeOptions: [
+        { name: '微信', value: '1' },
+        { name: '支付宝', value: '2' },
+        { name: '测试', value: '3' }
+      ],
       // 查询参数
       queryForm: {
         pageNum: 1,
         pageSize: 10,
-        sortName: 'createTime',
-        sort: 'desc',
         orderSn: undefined,
         userId: undefined,
         name: undefined
