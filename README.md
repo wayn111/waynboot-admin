@@ -74,7 +74,7 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
     - 邮件管理
     - 系统接口
 ```
-## 开发部署
+## 本地开发
 ```
 # 克隆项目
 git clone git@github.com:wayn111/waynboot-admin.git
@@ -146,3 +146,7 @@ admin/123456
 
 - [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
 - [litemall](https://github.com/linlinjava/litemall)
+
+# 捐助
+
+<img src="./images/捐助.jpg" width="260" alt="如果这个项目对你有所帮助，不如请作者喝杯咖啡吧">
