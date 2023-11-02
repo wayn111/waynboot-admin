@@ -5,9 +5,9 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
 技术上基于Springboot2.0，整合了Redis、RabbitMQ、ElasticSearch等常用中间件，
 贴近生产环境实际经验开发而来不断完善、优化、改进中。
 
-- [h5商城项目](https://gitee.com/wayn111/waynboot-mobile)
-- [运营后台项目](https://gitee.com/wayn111/waynboot-admin)  
-- [后台接口项目](https://gitee.com/wayn111/waynboot-mall)
+- [h5商城项目](https://github.com/wayn111/waynboot-mobile)
+- [运营后台项目](https://github.com/wayn111/waynboot-admin)  
+- [后台接口项目](https://github.com/wayn111/waynboot-mall)
 
 ## waynboot-admin
 
@@ -22,6 +22,7 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
 - **学习**：加群交流，群内问题都会一一解答。
 - **演示账号**：获得线上项目管理后台演示账号。
 - **开源项目**：获取博主自己写的三个开源项目，包含PC、H5商城、后台权限管理系统等。
+- **加微信**：联系博主。
 
 <img src="images/wx-mp-code.png" width = "100" />
 
@@ -96,7 +97,7 @@ admin/123456
 ```
 
 ## 在线体验
-演示地址：[http://121.4.124.33/admin](http://43.136.235.243/admin)
+演示地址：http://43.136.235.243/admin
 
 演示账号：关注博主公众号【waynblog】，发送 演示账号
 
