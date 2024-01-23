@@ -77,6 +77,9 @@ waynboot-mall是一套全部开源的微商城项目，包含一个运营后台�
 ```
 ## 本地开发
 ```
+# 前置准备
+下载 nodejs v16.20.1 版本
+
 # 克隆项目
 git clone git@github.com:wayn111/waynboot-admin.git
 
@@ -100,47 +103,13 @@ admin/123456
 
 演示地址以及账号：关注我的公众号【程序员wayn】，发送 演示账号
 
-## 演示图
+## 演示gif
 
-<table>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-3cb800e60b6c99c5e0c2e2984b9ddffdcc0.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-224e54dcb3eb4035736fcbea4626b85223d.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-7fabe6227a9447653e06d2d8e4efb974195.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-0192d4f41f9c061ed5329d9d6267ce3b8f3.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-cec6bde100884182a9ad7aae10cb8c9d5b8.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-535f8cab7365885095e3e511ec3762b0973.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-b831bbf1f4fa00655d3b7e4368d4181a9b9.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-e9edbb0bfcfd2c8687457573caf603e6275.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-5447c1deaa5e1db63b81a9f90b5eed2fc07.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-c769886a136ce0f25edcc4d647322d5d51f.png"/></td>
-    </tr>
-     <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-ef857d19b1f905afec239c673be24860a9a.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-e0effea68ad0073f30d5b5f6d9567a24b9e.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-d3bce6e295c1ddf4b27e6c437ca6a8b6351.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-e6c8baa4e20766156053daa15b0b0240653.png"/></td>
-    </tr>
-    <tr>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-f5989718203874629c12f637c1c787c5ea6.png"/></td>
-        <td><img src="https://oscimg.oschina.net/oscnet/up-0613c4a6eb745def23c5359a53340744c05.png"/></td>
-    </tr>
-</table>
-
+![Alt text](images/admin.gif)
 
 ## waynboot-mall交流群
 
-关注博主公众号【程序员wayn】，发送 加群，博主拉你进群
+关注我的公众号【程序员wayn】，发送 加群，拉你进我的技术交流群
 
 ## 感谢
 

@@ -20,6 +20,16 @@
       <el-input v-model="form.port" style="width: 40%;" />
       <span style="color: #C0C0C0;margin-left: 10px;">SMTP port</span>
     </el-form-item>
+    <el-form-item label="SMTP SSL端口" prop="port">
+      <el-input v-model="form.sslPort" style="width: 40%;" />
+      <span style="color: #C0C0C0;margin-left: 10px;">SMTP ssl port</span>
+    </el-form-item>
+    <el-form-item label="是否启用SSL" prop="sslEnable">
+      <el-radio-group v-model="form.sslEnable">
+        <el-radio :label="0">不启用</el-radio>
+        <el-radio :label="1">启用</el-radio>
+      </el-radio-group>
+    </el-form-item>
     <el-form-item label="">
       <el-button :loading="loading" size="medium" type="primary" @click="doSubmit">保存配置</el-button>
     </el-form-item>
@@ -32,7 +42,7 @@ export default {
   name: 'Config',
   data() {
     return {
-      loading: false, form: { id: 1, fromUser: '', user: '', pass: '', host: '', port: '', sslEnable: '' },
+      loading: false, form: { id: 1, fromUser: '', user: '', pass: '', host: '', port: '25', sslPort: '465', sslEnable: 1 },
       rules: {
         fromUser: [
           { required: true, message: '请输入发件人邮箱', trigger: 'blur' },
@@ -49,6 +59,9 @@ export default {
         ],
         port: [
           { required: true, message: 'SMTP端口不能为空', trigger: 'blur' }
+        ],
+        sslPort: [
+          { required: true, message: 'SMTP SSL端口不能为空', trigger: 'blur' }
         ]
       }
     }

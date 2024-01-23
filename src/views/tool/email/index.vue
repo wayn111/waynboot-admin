@@ -11,7 +11,8 @@
         <blockquote class="my-blockquote"> 邮件服务器配置</blockquote>
         <pre class="my-code">
  # 邮件服务器的SMTP地址，可选，默认为smtp
- # 邮件服务器的SMTP端口，可选，默认465或者25
+ # 邮件服务器的SMTP端口，可选，默认25
+ # 邮件服务器的SMTP SSL端口，可选，默认465
  # 发件人（必须正确，否则发送失败）
  # 用户名，默认为发件人邮箱前缀
  # 密码（注意，某些邮箱需要为SMTP服务单独设置密码，如QQ和163等等）
