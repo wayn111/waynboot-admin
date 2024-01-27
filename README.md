@@ -86,11 +86,14 @@ git clone git@github.com:wayn111/waynboot-admin.git
 # 进入项目目录
 cd waynboot-admin
 
+// 1清空缓存
+npm cache clean --force
+
+// 2切换新淘宝源
+npm config set registry https://registry.npmmirror.com
+
 # 安装依赖
 npm install
-
-# 建议不要直接使用 cnpm 安装依赖，会有各种诡异的 bug。可以通过如下操作解决 npm 下载速度慢的问题
-npm install --registry=https://registry.npm.taobao.org
 
 # 启动服务
 npm run dev
