@@ -296,7 +296,7 @@ export default {
   created() {
     this.getList()
     this.getDicts('status').then(response => {
-      const { map: { data }} = response
+      const { data } = response
       this.statusOptions = data
     })
   },
@@ -322,9 +322,7 @@ export default {
     async getList() {
       this.loading = true
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listRole(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.roleList = data
@@ -387,7 +385,7 @@ export default {
         this.getRoleMenuTreeselect(roleId)
       })
       const {
-        map: { data }
+        data
       } = await getRole(roleId)
       this.form = data
       this.title = '修改角色'
@@ -474,14 +472,14 @@ export default {
      * 查询菜单树结构
      */
     async getMenuTreeselect() {
-      const { map } = await menuTreeselect()
-      this.menuOptions = map.menuTree
+      const { data } = await menuTreeselect()
+      this.menuOptions = data
     },
     /** 根据角色ID查询菜单树结构 */
     async getRoleMenuTreeselect(roleId) {
-      const { map } = await roleMenuTreeselect(roleId)
-      this.menuOptions = map.menuTree
-      this.$refs.menuRef.setCheckedKeys(map.checkedKeys)
+      const { data } = await roleMenuTreeselect(roleId)
+      this.menuOptions = data.menuTree
+      this.$refs.menuRef.setCheckedKeys(data.checkedKeys)
     },
     /**
      * 提交角色表单

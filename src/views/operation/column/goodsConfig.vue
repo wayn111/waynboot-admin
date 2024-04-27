@@ -249,9 +249,7 @@ export default {
     async getBindGoodsList() {
       this.goodsQueryForm.columnId = this.columnId
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await bindGoodsList(
         this.addDateRange(this.goodsQueryForm, this.dateRange)
       )
@@ -265,9 +263,7 @@ export default {
     async getUnBindGoodsList() {
       this.goodsQueryForm.columnId = this.columnId
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await unBindGoodsList(
         this.addDateRange(this.goodsQueryForm, this.dateRange)
       )

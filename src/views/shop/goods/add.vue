@@ -420,7 +420,7 @@ export default {
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
             .then((res) => {
-              success(res.map.url)
+              success(res.url)
             })
             .catch(() => {
               failure('上传失败，请重新上传')
@@ -445,7 +445,7 @@ export default {
     // 获取商品分类
     async getCategoryList() {
       const {
-        map: { data }
+        data
       } = await listCategory()
       this.categoryList = this.buildTree(data, 'id', 'pid')
     },
@@ -506,7 +506,7 @@ export default {
     // 上传商品图片
     uploadPicUrl: function(response) {
       if (response.code === 200) {
-        this.goods.picUrl = response.map.url
+        this.goods.picUrl = response.data.url
       }
     },
     uploadOverrun: function() {
@@ -518,7 +518,7 @@ export default {
     // 上传商品画廊
     handleGalleryUrl(response, file, fileList) {
       if (response.code === 200) {
-        this.goods.gallery.push(response.map.url)
+        this.goods.gallery.push(response.data)
       }
     },
     // 移除商品画廊
@@ -532,7 +532,7 @@ export default {
         if (file.response === undefined) {
           url = file.url
         } else {
-          url = file.response.data.url
+          url = file.response.data
         }
 
         if (this.goods.gallery[i] === url) {
@@ -568,7 +568,7 @@ export default {
     // 上传规格图片
     uploadSpecPicUrl: function(response) {
       if (response.code === 200) {
-        this.specForm.picUrl = response.map.url
+        this.specForm.picUrl = response.data
       }
     },
     // 显示规格弹出层
@@ -686,7 +686,7 @@ export default {
     // 上传货品图片
     uploadProductUrl: function(response) {
       if (response.code === 200) {
-        this.productForm.url = response.map.url
+        this.productForm.url = response.data
       }
     },
     // 保存货品

@@ -40,9 +40,9 @@ const actions = {
   login({ commit }, userInfo) {
     return new Promise((resolve, reject) => {
       login(userInfo).then(response => {
-        const { map: data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        const { data } = response
+        commit('SET_TOKEN', data)
+        setToken(data)
         resolve()
       }).catch(error => {
         reject(error)
@@ -53,8 +53,8 @@ const actions = {
     return new Promise((resolve, reject) => {
       sliderLogin(userInfo).then(response => {
         const { map: data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        commit('SET_TOKEN', data)
+        setToken(data)
         resolve()
       }).catch(error => {
         reject(error)
@@ -69,7 +69,7 @@ const actions = {
         if (!response) {
           return reject('用户认证失败，无法访问系统资源')
         }
-        const { map: { user, roles, permissions }} = response
+        const { data: { user, roles, permissions }} = response
         if (!user) {
           return reject('Verification failed, please Login again.')
         }

@@ -105,8 +105,8 @@ export default {
   methods: {
     init() {
       get().then((res) => {
-        if (res.map.data) {
-          this.form = res.map.data || {}
+        if (res.data) {
+          this.form = res.data || {}
         }
       })
     },

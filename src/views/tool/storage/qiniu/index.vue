@@ -245,9 +245,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await list(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.fileList = data
@@ -332,7 +330,7 @@ export default {
       this.newWin = window.open()
       download(id)
         .then((res) => {
-          this.url = res.map.url
+          this.url = res.url
         })
         .catch((err) => {
           console.log(err.response.data.message)

@@ -282,9 +282,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listKeyword(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.keywordList = data
@@ -311,7 +309,7 @@ export default {
     async handleUpdate(row) {
       const keywordId = row.id || this.ids
       const {
-        map: { data }
+        data
       } = await getKeyword(keywordId)
       this.form = data
       this.title = '修改栏目'

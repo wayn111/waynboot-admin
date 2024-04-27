@@ -349,19 +349,19 @@ export default {
     this.getList()
     this.getDicts('diamondJumpType').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.jumpTypeOptions = data
     })
     this.getDicts('status').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
     listAllColumn()
       .then((res) => {
-        this.columnList = res.map.data
+        this.columnList = res.data
       })
       .catch((e) => {})
     this.getCategoryList()
@@ -392,9 +392,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listDiamond(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.diamondList = data
@@ -403,7 +401,7 @@ export default {
     // 获取商品分类
     async getCategoryList() {
       const {
-        map: { data }
+        data
       } = await listCategory()
       this.categoryList = this.buildTree(data, 'id', 'pid')
       console.log(this.categoryList)
@@ -413,10 +411,10 @@ export default {
       this.form.valueId = value[value.length - 1]
     },
     uploadIconUrl: function(response) {
-      this.form.iconUrl = response.map.url
+      this.form.iconUrl = response.data
     },
     uploadPicUrl: function(response) {
-      this.form.picUrl = response.map.url
+      this.form.picUrl = response.data
     },
     checkFileSize: function(file) {
       if (file.size > 1048576) {
@@ -456,7 +454,7 @@ export default {
     async handleUpdate(row) {
       const columnId = row.id || this.ids
       const {
-        map: { data }
+        data
       } = await getDiamond(columnId)
       this.form = data
       this.selectChange(data.jumpType)

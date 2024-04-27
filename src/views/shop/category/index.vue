@@ -238,7 +238,7 @@ export default {
     },
     async getList() {
       const {
-        map: { data }
+        data
       } = await listCategory(this.queryForm)
       this.categoryList = this.buildTree(data, 'id', 'pid')
       this.loading = false
@@ -261,7 +261,7 @@ export default {
     async handleUpdate(row) {
       this.getTreeselect()
       const {
-        map: { data }
+        data
       } = await getCategory(row.id)
       this.form = data
       this.title = '修改分类'
@@ -290,7 +290,7 @@ export default {
      */
     async getTreeselect() {
       const {
-        map: { data }
+        data
       } = await listCategory()
       this.categoryOptions = []
       const category = { id: 0, name: '主类目', children: [] }
@@ -338,10 +338,10 @@ export default {
       this.open = false
     },
     uploadIconUrl: function(response) {
-      this.form.iconUrl = response.map.url
+      this.form.iconUrl = response.data
     },
     uploadPicUrl: function(response) {
-      this.form.picUrl = response.map.url
+      this.form.picUrl = response.data
     },
     checkFileSize: function(file) {
       if (file.size > 1048576) {

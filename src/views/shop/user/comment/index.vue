@@ -256,13 +256,13 @@ export default {
     this.getList()
     this.getDicts('commentType').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.commentTypeOptions = data
     })
     this.getDicts('starLevel').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.starLevelOptions = data
     })
@@ -281,9 +281,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listComment(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.commentList = data
@@ -339,7 +337,7 @@ export default {
      */
     async handleReply(row) {
       const {
-        map: { data }
+        data
       } = await getComment(row.id)
       this.replyForm['id'] = data.id
       this.replyForm['adminContent'] = data.adminContent

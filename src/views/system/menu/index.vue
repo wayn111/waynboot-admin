@@ -364,13 +364,13 @@ export default {
     this.getList()
     this.getDicts('status').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
     this.getDicts('visible').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.visibleOptions = data
     })
@@ -398,7 +398,7 @@ export default {
     async getList() {
       this.loading = true
       const {
-        map: { data }
+        data
       } = await listMenu(this.queryForm)
       this.menuList = this.buildTree(data, 'menuId')
       this.loading = false
@@ -422,7 +422,7 @@ export default {
     async handleUpdate(row) {
       this.getTreeselect()
       const {
-        map: { data }
+        data
       } = await getMenu(row.menuId)
       this.form = data
       this.title = '修改菜单'
@@ -467,7 +467,7 @@ export default {
      */
     async getTreeselect() {
       const {
-        map: { data }
+        data
       } = await listMenu()
       this.menuOptions = []
       const menu = { menuId: 0, menuName: '主类目', children: [] }

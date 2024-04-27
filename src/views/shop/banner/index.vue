@@ -226,7 +226,7 @@ export default {
     this.getList()
     this.getDicts('status').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
@@ -245,9 +245,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listBanner(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.bannerList = data
@@ -293,7 +291,7 @@ export default {
      */
     async handleUpdate(row) {
       const {
-        map: { data }
+        data
       } = await getBanner(row.id)
       this.form = data
       this.title = '修改banner'
@@ -347,7 +345,7 @@ export default {
       this.open = false
     },
     uploadUrl: function(response) {
-      this.form.imgUrl = response.map.url
+      this.form.imgUrl = response.data
     },
     checkFileSize: function(file) {
       if (file.size > 1048576) {

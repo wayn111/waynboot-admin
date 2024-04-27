@@ -476,7 +476,7 @@ export default {
     this.getTreeselect()
     this.getList()
     this.getDicts('status').then(response => {
-      const { map: { data }} = response
+      const { data } = response
       this.statusOptions = data
     })
   },
@@ -497,7 +497,7 @@ export default {
      */
     async getList() {
       this.loading = true
-      const { map: { page: { records: data, total }}} = await listUser(this.addDateRange(this.queryForm, this.dateRange))
+      const { data: { records: data, total }} = await listUser(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.userList = data
       this.loading = false
@@ -507,9 +507,9 @@ export default {
      */
     async getTreeselect() {
       const {
-        map: { deptTree }
+        data
       } = await treeselect()
-      this.deptOptions = deptTree
+      this.deptOptions = data
     },
     /**
      * 筛选节点
@@ -585,7 +585,7 @@ export default {
     /** 新增按钮操作 */
     async handleAdd() {
       this.getTreeselect()
-      const { map: { roles }} = await getUser()
+      const { data: { roles }} = await getUser()
       this.roleOptions = roles
       this.title = '添加用户'
       this.form.password = this.initPassword
@@ -595,7 +595,7 @@ export default {
     async handleUpdate(row) {
       this.getTreeselect()
       const userId = row.userId || this.ids
-      const { map: { user, roles, roleIds }} = await getUser(userId)
+      const { data: { user, roles, roleIds }} = await getUser(userId)
       this.form = user
       this.roleOptions = roles
       this.form.roleIds = roleIds

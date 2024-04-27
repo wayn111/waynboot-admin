@@ -320,7 +320,7 @@ export default {
     this.getList()
     this.getDicts('status').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
@@ -332,9 +332,7 @@ export default {
       listType(this.addDateRange(this.queryForm, this.dateRange)).then(
         (response) => {
           const {
-            map: {
-              page: { records: data, total }
-            }
+            data: { records: data, total }
           } = response
           this.typeList = data
           this.total = total
@@ -392,7 +390,7 @@ export default {
       const dictId = row.dictId || this.ids
       getType(dictId).then((response) => {
         const {
-          map: { data }
+          data
         } = response
         this.form = data
         this.open = true

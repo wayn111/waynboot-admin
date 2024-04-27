@@ -67,7 +67,7 @@ export default {
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
             .then((res) => {
-              success(res.map.url)
+              success(res.url)
             })
             .catch(() => {
               failure('上传失败，请重新上传')

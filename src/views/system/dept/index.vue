@@ -231,7 +231,7 @@ export default {
   created() {
     this.getList()
     this.getDicts('status').then(response => {
-      const { map: { data }} = response
+      const { data } = response
       this.statusOptions = data
     })
   },
@@ -252,7 +252,7 @@ export default {
     async getList() {
       this.loading = true
       const {
-        map: { data }
+        data
       } = await listDept(this.queryForm)
       this.deptList = this.buildTree(data, 'deptId')
       this.loading = false
@@ -273,7 +273,7 @@ export default {
      */
     async handleUpdate(row) {
       this.getTreeselect()
-      const { map: { data }} = await getDept(row.deptId)
+      const { data } = await getDept(row.deptId)
       this.form = data
       this.title = '修改部门'
       this.open = true
@@ -310,7 +310,7 @@ export default {
      * 查询菜单下拉树结构
      */
     async getTreeselect() {
-      const { map: { data }} = await listDept()
+      const { data } = await listDept()
       this.deptOptions = this.buildTree(data, 'deptId')
     },
     /**

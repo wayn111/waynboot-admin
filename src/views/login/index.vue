@@ -103,7 +103,7 @@ export default {
   methods: {
     getCode() {
       getCodeImg().then(res => {
-        const { map: { key, image }} = res
+        const { data: { key, image }} = res
         this.codeUrl = image
         this.loginForm.key = key
       })

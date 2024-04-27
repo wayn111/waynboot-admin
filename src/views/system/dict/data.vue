@@ -254,14 +254,14 @@ export default {
     this.queryForm.parentType = this.parentType
     selectTypeList().then(response => {
       const {
-        map: { typeList }
+        data: { typeList }
       } = response
       this.typeOptions = typeList
     })
     this.getList()
     this.getDicts('status').then(response => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
@@ -273,9 +273,7 @@ export default {
       listData(this.addDateRange(this.queryForm, this.dateRange)).then(
         response => {
           const {
-            map: {
-              page: { records: data, total }
-            }
+            data: { records: data, total }
           } = response
           this.typeList = data
           this.total = total
@@ -335,7 +333,7 @@ export default {
       const dictId = row.dictId || this.ids
       getData(dictId).then(response => {
         const {
-          map: { data }
+          data
         } = response
         this.form = data
         this.open = true

@@ -437,7 +437,7 @@ export default {
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
             .then((res) => {
-              success(res.map.url)
+              success(res.url)
             })
             .catch(() => {
               failure('上传失败，请重新上传')
@@ -472,7 +472,7 @@ export default {
       }
       const goodsId = this.$route.query.id
       getGoods(goodsId).then((response) => {
-        this.goods = response.map.data.goods
+        this.goods = response.data.goods
         // 稍微调整一下前后端不一致
         // if (this.goods.brandId === 0) {
         //   this.goods.brandId = null
@@ -480,10 +480,10 @@ export default {
         if (this.goods.keywords === '') {
           this.goods.keywords = null
         }
-        this.specifications = response.map.data.specifications
-        this.products = response.map.data.products
-        this.attributes = response.map.data.attributes
-        this.categoryIds = response.map.data.categoryIds
+        this.specifications = response.data.specifications
+        this.products = response.data.products
+        this.attributes = response.data.attributes
+        this.categoryIds = response.data.categoryIds
         this.galleryFileList = []
         for (var i = 0; i < this.goods.gallery.length; i++) {
           this.galleryFileList.push({
@@ -499,7 +499,7 @@ export default {
     },
     async getCategoryList() {
       const {
-        map: { data }
+        data
       } = await listCategory()
       this.categoryList = this.buildTree(data, 'id', 'pid')
     },
@@ -553,7 +553,7 @@ export default {
     },
     uploadPicUrl: function(response) {
       if (response.code === 200) {
-        this.goods.picUrl = response.map.url
+        this.goods.picUrl = response.data
       }
     },
     uploadOverrun: function() {
@@ -564,7 +564,7 @@ export default {
     },
     handleGalleryUrl(response, file, fileList) {
       if (response.code === 200) {
-        this.goods.gallery.push(response.map.url)
+        this.goods.gallery.push(response.data)
       }
     },
     handleRemove: function(file, fileList) {
@@ -577,7 +577,7 @@ export default {
         if (file.response === undefined) {
           url = file.url
         } else {
-          url = file.response.data.url
+          url = file.response.data
         }
 
         if (this.goods.gallery[i] === url) {
@@ -611,7 +611,7 @@ export default {
     },
     uploadSpecPicUrl: function(response) {
       if (response.code === 200) {
-        this.specForm.picUrl = response.map.url
+        this.specForm.picUrl = response.data
       }
     },
     handleSpecificationShow(row) {
@@ -635,7 +635,7 @@ export default {
     },
     uploadProductUrl: function(response) {
       if (response.code === 200) {
-        this.productForm.url = response.map.url
+        this.productForm.url = response.data
       }
     },
     handleProductEdit() {

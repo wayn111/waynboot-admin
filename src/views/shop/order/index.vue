@@ -401,7 +401,7 @@ export default {
     this.getChannel()
     this.getDicts('orderStatus').then((response) => {
       const {
-        map: { data }
+        data
       } = response
       this.orderStatusOptions = data
     })
@@ -409,7 +409,7 @@ export default {
   methods: {
     getChannel() {
       listChannel().then((response) => {
-        this.channels = response.map.data
+        this.channels = response.data
       })
     },
     handleQuery() {
@@ -425,9 +425,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listOrder(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.orderList = data
@@ -443,7 +441,7 @@ export default {
     },
     async handleDetail(row) {
       const {
-        map: { data }
+        data
       } = await getOrder(row.id)
       this.orderDetail = data
       this.orderDialogVisible = true

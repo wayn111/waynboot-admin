@@ -83,7 +83,7 @@ export default {
   },
   methods: {
     async getUser() {
-      const { map: { user, roleGroup }} = await getUserProfile()
+      const { data: { user, roleGroup }} = await getUserProfile()
       this.user = user
       this.roleGroup = roleGroup
     }

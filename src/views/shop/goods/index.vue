@@ -257,9 +257,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listGoods(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.goodsList = data

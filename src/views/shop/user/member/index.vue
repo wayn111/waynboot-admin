@@ -200,7 +200,7 @@ export default {
     this.getList()
     this.getDicts('status').then(response => {
       const {
-        map: { data }
+        data
       } = response
       this.statusOptions = data
     })
@@ -219,9 +219,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listMember(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.memberList = data
@@ -273,7 +271,7 @@ export default {
      * 编辑操作
      */
     async handleUpdate(row) {
-      const { map: { data }} = await getMember(row.id)
+      const { data } = await getMember(row.id)
       this.userDetail = data
       this.open = true
     },

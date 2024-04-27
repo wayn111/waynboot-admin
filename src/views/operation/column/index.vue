@@ -225,7 +225,7 @@ export default {
     this.getList()
     this.getDicts('status').then((response) => {
       const {
-        map: { data }
+        data: { data }
       } = response
       this.statusOptions = data
     })
@@ -244,9 +244,7 @@ export default {
     },
     async getList() {
       const {
-        map: {
-          page: { records: data, total }
-        }
+        data: { records: data, total }
       } = await listColumn(this.addDateRange(this.queryForm, this.dateRange))
       this.total = total
       this.columnList = data
@@ -288,7 +286,7 @@ export default {
     async handleUpdate(row) {
       const columnId = row.id || this.ids
       const {
-        map: { data }
+        data
       } = await getColumn(columnId)
       this.form = data
       this.title = '修改栏目'

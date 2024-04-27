@@ -121,7 +121,7 @@ export default {
         uploadAvatar(formData).then(response => {
           if (response.code === 200) {
             this.open = false
-            this.options.img = response.map.imgUrl
+            this.options.img = response.data
             this.$message.success('修改成功')
           } else {
             this.$message.error(response.msg)
