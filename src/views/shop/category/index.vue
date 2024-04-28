@@ -45,14 +45,9 @@
     >
       <el-table-column align="center" label="类目ID" prop="id" />
       <el-table-column align="center" label="类目名" prop="name" />
-      <el-table-column align="center" property="iconUrl" label="类目图标">
+      <el-table-column align="center" property="iconUrl" label="图标图片">
         <template slot-scope="scope">
           <img v-if="scope.row.iconUrl" :src="scope.row.iconUrl" width="40">
-        </template>
-      </el-table-column>
-      <el-table-column align="center" property="picUrl" label="类目图片">
-        <template slot-scope="scope">
-          <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="80">
         </template>
       </el-table-column>
       <el-table-column align="center" label="关键字" prop="keywords" />
