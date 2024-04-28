@@ -135,20 +135,7 @@
           >
             <img v-if="form.iconUrl" :src="form.iconUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="分类图片" prop="picUrl">
-          <el-upload
-            :headers="headers"
-            :action="uploadPath"
-            :show-file-list="false"
-            :on-success="uploadPicUrl"
-            :before-upload="checkFileSize"
-            class="avatar-uploader"
-            accept=".jpg, .jpeg, .png, .gif"
-          >
-            <img v-if="form.picUrl" :src="form.picUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png文件，120 x 120</div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -251,9 +238,9 @@ export default {
       if (!row) {
         row.id = 0
       }
-      this.form.pid = row.id
       this.title = '添加分类'
       this.open = true
+      this.form.pid = row.id || 0
     },
     /**
      * 修改按钮
@@ -322,7 +309,7 @@ export default {
         sort: undefined,
         name: '',
         keywords: '',
-        level: 'L2',
+        level: 'L1',
         pid: 0,
         desc: '',
         iconUrl: '',
@@ -363,7 +350,7 @@ export default {
               this.updateHandle(response, this)
             })
           } else {
-            // 分类pid为0时，为一级分类，默认二级
+            // 分类pid为0时，为一级分类
             if (this.form.pid === 0) {
               this.form.level = 'L1'
             }

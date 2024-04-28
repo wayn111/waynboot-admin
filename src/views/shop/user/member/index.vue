@@ -66,7 +66,7 @@
       <el-table-column label="编号" prop="id" width="120" />
       <el-table-column label="性别" prop="gender">
         <template slot-scope="scope">
-          {{ scope.row.gender == 1? '男':'女' }}
+          {{ genderMap[scope.row.gender] }}
         </template>
       </el-table-column>
       <el-table-column label="昵称" prop="nickname" />
@@ -126,6 +126,7 @@
         </el-form-item>
         <el-form-item label="用户性别" prop="gender">
           <el-radio-group v-model="userDetail.gender">
+            <el-radio :label="0">未知</el-radio>
             <el-radio :label="1">男</el-radio>
             <el-radio :label="2">女</el-radio>
           </el-radio-group>
@@ -193,7 +194,12 @@ export default {
       // 上传文件路径
       uploadPath,
       // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() }
+      headers: { Authorization: 'Bearer ' + getToken() },
+      genderMap: {
+        0: '未知',
+        1: '男',
+        2: '女'
+      }
     }
   },
   created() {

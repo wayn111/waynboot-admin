@@ -277,9 +277,7 @@ export function toolTip(value, row, index) {
 
 /**
  * 文件流下载
- * @param value
- * @param row
- * @param index
+ * @param res 文件二进制流
  * @returns {string}
  */
 export function streamDownload(res) {
@@ -289,16 +287,19 @@ export function streamDownload(res) {
   // 解码
   const fileName = decodeURIComponent(fileNameEncode)
   console.log('fileName', fileName)
-  // 设置type类型
+  // 创建 Blob 对象，处理二进制流，并且设置type类型
   const blob = new Blob([res.data], {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; application/octet-stream'
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;' +
+      ' application/octet-stream'
   })
+  // 创建 a 标签下载文件
   const fileUrl = window.URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = fileUrl
-  console.log('url', fileUrl)
   a.setAttribute('download', fileName)
   a.style.display = 'none'
+  // 触发文件下载
   a.click()
+  // 移除 a 标签
   a.remove()
 }

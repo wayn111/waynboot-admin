@@ -130,7 +130,7 @@
           >
             <img v-if="form.imgUrl" :src="form.imgUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1024kb</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 150</div>
           </el-upload>
         </el-form-item>
         <el-form-item label="顺序" prop="sort">
@@ -211,9 +211,6 @@ export default {
         imgUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }],
         sort: [
           { required: true, message: '排序不能为空', trigger: 'blur' }
-        ],
-        jumpUrl: [
-          { required: true, message: '跳转链接不能为空', trigger: 'blur' }
         ]
       },
       // 上传文件路径

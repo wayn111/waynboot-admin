@@ -108,9 +108,6 @@
             <el-form-item label="类目ID">
               <span>{{ props.row.categoryId }}</span>
             </el-form-item>
-            <el-form-item label="品牌商ID">
-              <span>{{ props.row.brandId }}</span>
-            </el-form-item>
           </el-form>
         </template>
       </el-table-column>
@@ -126,12 +123,6 @@
           <img :src="scope.row.picUrl" width="40">
         </template>
       </el-table-column>
-      <el-table-column align="center" property="iconUrl" label="分享图">
-        <template slot-scope="scope">
-          <img :src="scope.row.shareUrl" width="40">
-        </template>
-      </el-table-column>
-      <el-table-column align="center" label="市场售价" prop="counterPrice" />
       <el-table-column align="center" label="当前价格" prop="retailPrice" />
       <el-table-column align="center" label="是否新品" prop="isNew">
         <template slot-scope="scope">

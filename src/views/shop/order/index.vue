@@ -103,6 +103,7 @@
         prop="orderSn"
         sortable="custom"
       />
+      <el-table-column align="center" label="商品名称" prop="goodsName" width="200" />
       <el-table-column align="center" label="用户ID" prop="userId" width="100" />
       <el-table-column align="center" label="手机号" prop="mobile" width="100" />
       <el-table-column align="center" label="订单状态">
@@ -120,9 +121,14 @@
           scope.row.orderPrice | yuan
         }}</template>
       </el-table-column>
-      <el-table-column align="center" label="支付金额/元" prop="actualPrice" sortable="custom">
+      <el-table-column align="center" label="实际金额/元" prop="actualPrice" sortable="custom">
         <template slot-scope="scope">{{
           scope.row.actualPrice | yuan
+        }}</template>
+      </el-table-column>
+      <el-table-column align="center" label="退款金额/元" prop="actualPrice" sortable="custom">
+        <template slot-scope="scope">{{
+          scope.row.refundAmount | yuan
         }}</template>
       </el-table-column>
       <el-table-column
@@ -246,10 +252,7 @@
             <span>
               (实际费用){{ orderDetail.order.actualPrice }}元 = (商品总价){{
                 orderDetail.order.goodsPrice
-              }}元 + (快递费用){{ orderDetail.order.freightPrice }}元 -
-              (优惠减免){{ orderDetail.order.couponPrice }}元 - (积分减免){{
-                orderDetail.order.integralPrice
-              }}元
+              }}元 + (快递费用){{ orderDetail.order.freightPrice }}元
             </span>
           </el-form-item>
           <el-form-item label="支付信息">

@@ -47,6 +47,7 @@
           >
             <img v-if="goods.picUrl" :src="goods.picUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，180 x 180</div>
           </el-upload>
         </el-form-item>
 
@@ -64,6 +65,7 @@
             list-type="picture-card"
           >
             <i class="el-icon-plus" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 400</div>
           </el-upload>
         </el-form-item>
 
@@ -191,6 +193,7 @@
                 class="avatar"
               >
               <i v-else class="el-icon-plus avatar-uploader-icon" />
+              <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，200 x 200</div>
             </el-upload>
           </el-form-item>
         </el-form>
@@ -216,11 +219,6 @@
         </el-table-column>
         <el-table-column property="price" label="货品售价" />
         <el-table-column property="number" label="货品数量" />
-        <el-table-column property="url" label="货品图片">
-          <template slot-scope="scope">
-            <img v-if="scope.row.url" :src="scope.row.url" width="40">
-          </template>
-        </el-table-column>
         <el-table-column property="defaultSelected" label="默认选中">
           <template slot-scope="scope">
             <el-switch
@@ -267,23 +265,6 @@
           </el-form-item>
           <el-form-item label="货品数量" prop="number">
             <el-input v-model="productForm.number" />
-          </el-form-item>
-          <el-form-item label="货品图片" prop="url">
-            <el-upload
-              :headers="headers"
-              :action="uploadPath"
-              :show-file-list="false"
-              :on-success="uploadProductUrl"
-              class="avatar-uploader"
-              accept=".jpg, .jpeg, .png, .gif"
-            >
-              <img
-                v-if="productForm.url"
-                :src="productForm.url"
-                class="avatar"
-              >
-              <i v-else class="el-icon-plus avatar-uploader-icon" />
-            </el-upload>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -437,7 +418,7 @@ export default {
           formData.append('file', blobInfo.blob())
           fileUpload(formData)
             .then((res) => {
-              success(res.url)
+              success(res.data)
             })
             .catch(() => {
               failure('上传失败，请重新上传')

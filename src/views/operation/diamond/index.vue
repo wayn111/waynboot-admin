@@ -92,7 +92,7 @@
           <el-tag
             v-else-if="scope.row.jumpType == 1"
             type="success"
-          >类目</el-tag>
+          >分类</el-tag>
           <el-tag v-else type="warning">链接</el-tag>
         </template>
       </el-table-column>
@@ -211,6 +211,7 @@
           >
             <img v-if="form.iconUrl" :src="form.iconUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png文件，120 x 120</div>
           </el-upload>
         </el-form-item>
         <el-form-item label="图片" prop="picUrl">
@@ -225,6 +226,7 @@
           >
             <img v-if="form.picUrl" :src="form.picUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 200</div>
           </el-upload>
         </el-form-item>
         <el-form-item label="顺序" prop="sort">

@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'Wayn Admin',
+  title: 'waynboot mall Admin',
 
   /**
    * @type {boolean} true | false
