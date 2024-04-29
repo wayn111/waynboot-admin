@@ -264,14 +264,16 @@
             <span>（快递单号）{{ orderDetail.order.shipSn }}</span>
             <span>（发货时间）{{ orderDetail.order.shipTime }}</span>
           </el-form-item>
-          <el-form-item label="退款信息">
-            <span>（退款金额）{{ orderDetail.order.refundAmount }}元</span>
-            <span>（退款类型）{{ orderDetail.order.refundType }}</span>
-            <span>（退款备注）{{ orderDetail.order.refundContent }}</span>
-            <span>（退款时间）{{ orderDetail.order.refundTime }}</span>
-          </el-form-item>
           <el-form-item label="收货信息">
             <span>（确认收货时间）{{ orderDetail.order.confirmTime }}</span>
+          </el-form-item>
+          <el-form-item label="退款信息">
+            <span>（退款金额）{{ orderDetail.order.refundAmount }}元</span>
+            <span>（退款类型）{{ orderDetail.order.refundType | payStatusFilter }}</span>
+            <span>（退款时间）{{ orderDetail.order.refundTime }}</span>
+          </el-form-item>
+          <el-form-item label="退款原因">
+            <span>{{ orderDetail.order.refundContent }}</span>
           </el-form-item>
         </el-form>
       </section>
@@ -279,6 +281,32 @@
         <el-button @click="orderDialogVisible = false">取 消</el-button>
         <el-button type="primary">打 印</el-button>
       </span>
+    </el-dialog>
+
+    <!-- 退款对话框 -->
+    <el-dialog :visible.sync="refundDialogVisible" title="退款">
+      <el-form
+        ref="refundForm"
+        :model="refundForm"
+        status-icon
+        label-position="left"
+        label-width="100px"
+        :rules="refundFormRules"
+      >
+        <el-form-item label="订单编号" prop="orderSn">
+          <el-input v-model="refundForm.orderSn" disabled />
+        </el-form-item>
+        <el-form-item label="退款金额" prop="refundMoney">
+          <el-input v-model="refundForm.refundMoney" />
+        </el-form-item>
+        <el-form-item label="退款原因" prop="refundReason">
+          <el-input v-model="refundForm.refundReason" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="refundDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="clickRefund">确定</el-button>
+      </div>
     </el-dialog>
 
     <!-- 发货对话框 -->
@@ -396,7 +424,21 @@ export default {
           { required: true, message: '发货编号不能为空', trigger: 'blur' }
         ]
       },
-      shipDialogVisible: false
+      shipDialogVisible: false,
+      refundDialogVisible: false,
+      refundForm: {
+        orderSn: undefined,
+        refundMoney: undefined,
+        refundReason: undefined
+      },
+      refundFormRules: {
+        refundMoney: [
+          { required: true, message: '退款金额不能为空', trigger: 'blur' }
+        ],
+        refundReason: [
+          { required: true, message: '退款原因不能为空', trigger: 'blur' }
+        ]
+      }
     }
   },
   created() {
@@ -472,23 +514,22 @@ export default {
       })
     },
     handleRefund(row) {
-      this.$confirm(
-        '是否确认为订单编号为 [' + row.orderSn + '] 的订单退款?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
+      this.refundForm.orderSn = row.orderSn
+      this.refundDialogVisible = true
+    },
+    clickRefund(row) {
+      this.$refs['refundForm'].validate(async(valid) => {
+        if (valid) {
+          const { code, msg } = await refundOrder(this.refundForm)
+          if (code === 200) {
+            this.$message.success('退款成功')
+            this.refundDialogVisible = false
+            this.getList()
+          } else {
+            this.$message.error(msg)
+          }
         }
-      )
-        .then(function() {
-          return refundOrder({ 'orderSn': row.orderSn })
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('退款成功')
-        })
-        .catch(function(e) {})
+      })
     },
     /**
      * 删除按钮
