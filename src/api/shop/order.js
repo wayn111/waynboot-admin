@@ -26,10 +26,11 @@ export function delOrder(orderId) {
 }
 
 // 订单退款
-export function refundOrder(orderId) {
+export function refundOrder(data) {
   return request({
-    url: '/shop/order/refund/' + orderId,
-    method: 'post'
+    url: '/shop/order/refund',
+    method: 'post',
+    data
   })
 }
 

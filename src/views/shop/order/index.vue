@@ -482,7 +482,7 @@ export default {
         }
       )
         .then(function() {
-          return refundOrder(row.id)
+          return refundOrder({ 'orderSn': row.orderSn })
         })
         .then(() => {
           this.getList()
