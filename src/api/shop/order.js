@@ -50,3 +50,15 @@ export function clickShip(data) {
     data
   })
 }
+
+export function exportOrder(query, progress) {
+  return request({
+    url: '/shop/order/export',
+    method: 'get',
+    params: query,
+    responseType: 'blob',
+    // `onDownloadProgress` 允许为下载处理进度事件
+    // 浏览器专属
+    onDownloadProgress: progress
+  })
+}

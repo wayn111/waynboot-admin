@@ -76,11 +76,17 @@
       </el-form-item>
     </el-form>
 
-    <!-- <el-row :gutter="10" class="mb8">
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button
+          v-hasPermi="['system:order:list']"
+          type="warning"
+          icon="el-icon-download"
+          size="mini"
+          @click="handleExport"
+        >导出</el-button>
       </el-col>
-    </el-row> -->
+    </el-row>
 
     <el-table
       v-loading="loading"
@@ -108,12 +114,12 @@
       <el-table-column align="center" label="手机号" prop="mobile" width="100" />
       <el-table-column align="center" label="订单状态">
         <template slot-scope="scope">
-          <el-tag>{{ scope.row.orderStatus | orderStatusFilter }}</el-tag>
+          <el-tag>{{ scope.row.orderStatusMsg }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="支付类型">
         <template slot-scope="scope">
-          <el-tag>{{ scope.row.payType | payStatusFilter }}</el-tag>
+          <el-tag>{{ scope.row.payTypeMsg }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="订单金额/元" prop="orderPrice" sortable="custom">
@@ -124,6 +130,11 @@
       <el-table-column align="center" label="实际金额/元" prop="actualPrice" sortable="custom">
         <template slot-scope="scope">{{
           scope.row.actualPrice | yuan
+        }}</template>
+      </el-table-column>
+      <el-table-column align="center" label="退款状态" prop="actualPrice" sortable="custom">
+        <template slot-scope="scope">{{
+          scope.row.refundStatusMsg
         }}</template>
       </el-table-column>
       <el-table-column align="center" label="退款金额/元" prop="actualPrice" sortable="custom">
@@ -140,13 +151,13 @@
       <el-table-column align="center" label="物流单号" prop="shipSn" />
       <el-table-column align="center" label="物流渠道" prop="shipChannel" />
       <el-table-column
-        label="创建时间"
+        label="发货时间"
         align="center"
         prop="createTime"
         sortable="custom"
       >
         <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.createTime) }}</span>
+          <span>{{ parseTime(scope.row.shipTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="250">
@@ -207,7 +218,7 @@
           </el-form-item>
           <el-form-item label="订单状态">
             <el-tag>{{
-              orderDetail.order.orderStatus | orderStatusFilter
+              orderDetail.order.orderStatusMsg
             }}</el-tag>
           </el-form-item>
           <el-form-item label="订单用户">
@@ -256,7 +267,7 @@
             </span>
           </el-form-item>
           <el-form-item label="支付信息">
-            <span>（支付渠道）{{ orderDetail.order.payType | payStatusFilter }}</span>
+            <span>（支付渠道）<el-tag>{{ orderDetail.order.payTypeMsg }}</el-tag></span>
             <span>（支付时间）{{ orderDetail.order.payTime }}</span>
           </el-form-item>
           <el-form-item label="快递信息">
@@ -268,8 +279,9 @@
             <span>（确认收货时间）{{ orderDetail.order.confirmTime }}</span>
           </el-form-item>
           <el-form-item label="退款信息">
+            <span>（退款状态）<el-tag>{{ orderDetail.order.refundStatusMsg }}</el-tag></span>
             <span>（退款金额）{{ orderDetail.order.refundAmount }}元</span>
-            <span>（退款类型）{{ orderDetail.order.refundType | payStatusFilter }}</span>
+            <span>（退款类型）{{ orderDetail.order.refundTypeMsg }}</span>
             <span>（退款时间）{{ orderDetail.order.refundTime }}</span>
           </el-form-item>
           <el-form-item label="退款原因">
@@ -339,49 +351,33 @@
         <el-button type="primary" @click="clickShip">确定</el-button>
       </div>
     </el-dialog>
+    <Progess :percentage="percentage" :progress-dialog-visible="progressDialogVisible" />
   </div>
 </template>
 <script>
+import { streamDownload } from '@/utils/index'
 import {
   listOrder,
   delOrder,
   getOrder,
   refundOrder,
   listChannel,
-  clickShip
+  clickShip,
+  exportOrder
 } from '@/api/shop/order'
 import { yuan } from '@/utils'
-
-const orderStatusMap = {
-  101: '未付款',
-  102: '用户取消',
-  103: '系统取消',
-  201: '已付款',
-  202: '申请退款',
-  203: '已退款',
-  301: '已发货',
-  401: '用户收货',
-  402: '系统收货'
-}
-
-const payStatusMap = {
-  1: '微信',
-  2: '支付宝',
-  3: '测试'
-}
-
+import Progess from '@/components/Progress'
 export default {
+  components: {
+    Progess
+  },
   filters: {
-    orderStatusFilter(status) {
-      return orderStatusMap[status]
-    },
-    payStatusFilter(status) {
-      return payStatusMap[status]
-    },
     yuan
   },
   data() {
     return {
+      percentage: 0,
+      progressDialogVisible: false,
       loading: true,
       // 列表总数
       total: 0,
@@ -515,6 +511,8 @@ export default {
     },
     handleRefund(row) {
       this.refundForm.orderSn = row.orderSn
+      this.refundForm.refundMoney = undefined
+      this.refundForm.refundReason = undefined
       this.refundDialogVisible = true
     },
     clickRefund(row) {
@@ -553,6 +551,36 @@ export default {
           this.$message.success('删除成功')
         })
         .catch(function(e) {})
+    },
+    /**
+     * 导出操作
+     */
+    handleExport() {
+      const that = this
+      this.queryForm.pageNum = 1
+      this.queryForm.pageSize = 100000
+      const queryForm = this.addDateRange(this.queryForm, this.dateRange)
+      this.$confirm('是否确认导出所有用户数据项?', '警告', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(function() {
+        that.progressDialogVisible = true
+        return exportOrder(queryForm, (progressEvent) => {
+          const process = (progressEvent.loaded / progressEvent.total * 100 | 0)
+          const progressText = `下载进度：${process}%`
+          console.log(progressText)
+          that.percentage = process
+        })
+      }).then(res => {
+        streamDownload(res)
+      }).catch(function(e) {
+        console.log(e)
+      }).finally(() => {
+        setTimeout(() => {
+          that.progressDialogVisible = false
+        }, 1500)
+      })
     }
   }
 }
