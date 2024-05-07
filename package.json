@@ -17,7 +17,7 @@
     "@tinymce/tinymce-vue": "^3.2.8",
     "axios": "1.6.0",
     "core-js": "^3.8.3",
-    "crypto-js": "^4.1.1",
+    "crypto-js": "4.2.0",
     "echarts": "^4.9.0",
     "element-ui": "2.15.14",
     "js-cookie": "2.2.0",

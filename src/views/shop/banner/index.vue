@@ -130,7 +130,7 @@
           >
             <img v-if="form.imgUrl" :src="form.imgUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 150</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，1043 x 430</div>
           </el-upload>
         </el-form-item>
         <el-form-item label="顺序" prop="sort">
