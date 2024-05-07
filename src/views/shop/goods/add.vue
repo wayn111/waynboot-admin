@@ -491,7 +491,7 @@ export default {
     // 上传商品图片
     uploadPicUrl: function(response) {
       if (response.code === 200) {
-        this.goods.picUrl = response.data.url
+        this.goods.picUrl = response.data
       }
     },
     uploadOverrun: function() {
