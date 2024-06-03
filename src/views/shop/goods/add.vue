@@ -41,7 +41,7 @@
           >
             <img v-if="goods.picUrl" :src="goods.picUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，180 x 180</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
           </el-upload>
         </el-form-item>
 
@@ -58,7 +58,7 @@
             list-type="picture-card"
           >
             <i class="el-icon-plus" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 400</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
           </el-upload>
         </el-form-item>
 
@@ -491,7 +491,7 @@ export default {
     // 上传商品图片
     uploadPicUrl: function(response) {
       if (response.code === 200) {
-        this.goods.picUrl = response.data.url
+        this.goods.picUrl = response.data
       }
     },
     uploadOverrun: function() {
