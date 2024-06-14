@@ -25,6 +25,30 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="类型" prop="type">
+        <el-select
+          v-model="queryForm.type"
+          placeholder="请选择类型"
+          @change="selectChange"
+        >
+          <el-option
+            label="首页轮播"
+            :value="1"
+          />
+          <el-option
+            label="静态位置"
+            :value="2"
+          />
+          <el-option
+            label="活动专区"
+            :value="3"
+          />
+          <el-option
+            label="品牌推荐"
+            :value="4"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
@@ -138,6 +162,14 @@
               label="静态位置"
               :value="2"
             />
+            <el-option
+              label="活动专区"
+              :value="3"
+            />
+            <el-option
+              label="品牌推荐"
+              :value="4"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="图片" prop="imgUrl">
@@ -210,6 +242,7 @@ export default {
       queryForm: {
         pageNum: 1,
         pageSize: 10,
+        type: undefined,
         title: undefined,
         status: undefined
       },
