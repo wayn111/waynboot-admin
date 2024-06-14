@@ -348,6 +348,8 @@ export default {
             // 分类pid为0时，为一级分类
             if (this.form.pid === 0) {
               this.form.level = 'L1'
+            } else {
+              this.form.level = 'L2'
             }
             addCategory(this.form).then(response => {
               this.saveHandle(response, this)
