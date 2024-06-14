@@ -17,7 +17,7 @@
             <template slot="append">元</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="是否新品" prop="isNew">
+        <!-- <el-form-item label="是否新品" prop="isNew">
           <el-radio-group v-model="goods.isNew">
             <el-radio :label="true">新品</el-radio>
             <el-radio :label="false">非新品</el-radio>
@@ -28,7 +28,7 @@
             <el-radio :label="false">普通</el-radio>
             <el-radio :label="true">热卖</el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="是否在售" prop="isOnSale">
           <el-radio-group v-model="goods.isOnSale">
             <el-radio :label="true">在售</el-radio>
