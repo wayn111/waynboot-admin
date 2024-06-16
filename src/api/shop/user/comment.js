@@ -10,6 +10,15 @@ export function listComment(query) {
 }
 
 // 更新评论信息
+export function addComment(data) {
+  return request({
+    url: '/shop/comment',
+    method: 'post',
+    data: data
+  })
+}
+
+// 更新评论信息
 export function updateComment(data) {
   return request({
     url: '/shop/comment',

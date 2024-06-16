@@ -200,7 +200,7 @@
       </div>
     </el-dialog>
     <el-dialog
-      :visible.sync="addComment"
+      :visible.sync="addCommentOpen"
       title="回复"
       width="600px"
       :close-on-click-modal="false"
@@ -212,7 +212,7 @@
         :rules="rulesCommentFrom"
         label-width="80px"
       >
-      <el-form-item label="商品ID" prop="valueId">
+        <el-form-item label="商品ID" prop="valueId">
           <el-input v-model="commentFrom.valueId" placeholder="请输入商品ID" />
         </el-form-item>
         <el-form-item label="用户名称" prop="username">
@@ -240,7 +240,7 @@
             placeholder="请输入内容"
           />
         </el-form-item>
-       
+
         <el-form-item label="评论图片">
           <el-upload
             :action="uploadPath"
@@ -258,9 +258,9 @@
           </el-upload>
         </el-form-item>
         <el-form-item label="评论评分" prop="star">
-          <el-rate v-model="commentFrom.star" show-text style="margin-top: 10px;"/>
+          <el-rate v-model="commentFrom.star" show-text style="margin-top: 10px;" />
         </el-form-item>
-        
+
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="addCommentForm">确定</el-button>
@@ -273,6 +273,7 @@
 import {
   listComment,
   getComment,
+  addComment,
   updateComment,
   delComment
 } from '@/api/shop/user/comment'
@@ -319,7 +320,7 @@ export default {
           { required: true, message: '回复内容不能为空', trigger: 'blur' }
         ]
       },
-      rulesCommentFrom:{
+      rulesCommentFrom: {
         content: [
           { required: true, message: '回复内容不能为空', trigger: 'blur' }
         ],
@@ -334,15 +335,15 @@ export default {
       uploadPath,
       // 上传路径header设置
       headers: { Authorization: 'Bearer ' + getToken() },
-      addComment:false,
-      commentFrom:{
-        content:'',
-        type:1,
-        avatar:'',
-        username:'',
-        star:4,
-        hasPicture:false,
-        picUrls:[]
+      addCommentOpen: false,
+      commentFrom: {
+        content: '',
+        type: 1,
+        avatar: '',
+        username: '',
+        star: 4,
+        hasPicture: false,
+        picUrls: []
       }
     }
   },
@@ -494,20 +495,26 @@ export default {
         }
       }
     },
-    handleAdd(){
-      this.addComment = true
+    handleAdd() {
+      this.addCommentOpen = true
     },
-    addCommentClose(){
-      this.addComment = false
+    addCommentClose() {
+      this.addCommentOpen = false
       this.commentFrom = {}
       this.$refs['commentFrom'].resetFields()
     },
-    addCommentForm(){
-      if(this.commentFrom.picUrls.length > 0) this.commentFrom.hasPicture = true
+    addCommentForm() {
+      if (this.commentFrom.picUrls.length > 0) this.commentFrom.hasPicture = true
       console.log(this.commentFrom)
       this.$refs['commentFrom'].validate((valid) => {
         if (valid) {
-          
+          addComment(this.commentFrom).then(response => {
+            this.$message.success('添加成功')
+            this.addCommentOpen = false
+            this.commentFrom = {}
+            this.$refs['commentFrom'].resetFields()
+            this.getList()
+          })
         }
       })
     }
