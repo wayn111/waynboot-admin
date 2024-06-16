@@ -36,7 +36,7 @@
             :value="1"
           />
           <el-option
-            label="静态位置"
+            label="静态图片"
             :value="2"
           />
           <el-option
@@ -89,10 +89,12 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
       <el-table-column label="标题" prop="title" width="200" />
-      <el-table-column label="类型" prop="jumpType">
+      <el-table-column label="类型" prop="type">
         <template slot-scope="scope">
           <el-tag v-if="scope.row.type == 1">首页轮播</el-tag>
-          <el-tag v-else type="warning">静态图片</el-tag>
+          <el-tag v-if="scope.row.type == 2">静态图片</el-tag>
+          <el-tag v-if="scope.row.type == 3">活动专区</el-tag>
+          <el-tag v-if="scope.row.type == 4">品牌推荐</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="图片" prop="imgUrl" width="200">
@@ -159,7 +161,7 @@
               :value="1"
             />
             <el-option
-              label="静态位置"
+              label="静态图片"
               :value="2"
             />
             <el-option
