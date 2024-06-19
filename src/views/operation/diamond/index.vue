@@ -316,7 +316,7 @@ export default {
       // 商品分类
       categoryList: [],
       // el-cascader’s props
-      props: { label: 'name', value: 'id', expandTrigger: 'hover' },
+      props: { label: 'name', value: 'id', expandTrigger: 'hover', checkStrictly: true },
       // 是否显示弹出层
       open: false,
       // 商品配置弹出层
