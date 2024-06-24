@@ -488,7 +488,7 @@ export default {
       this.goods.categoryId = value[value.length - 1]
     },
     handleCancel: function() {
-      this.$router.push({ path: '/shop/goods' })
+      this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
     },
     handleEdit: function() {
       const finalGoods = {
@@ -505,7 +505,7 @@ export default {
                 title: '成功',
                 message: '编辑成功'
               })
-              this.$router.push({ path: '/shop/goods' })
+              this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
             })
             .catch(function(e) {})
         } else {

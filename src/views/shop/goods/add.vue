@@ -440,7 +440,7 @@ export default {
     },
     // 关闭当前页面
     handleCancel: function() {
-      this.$router.push({ path: '/shop/goods' })
+      this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
     },
     // 上架商品
     handlePublish: function() {
@@ -458,7 +458,7 @@ export default {
                 title: '成功',
                 message: '创建成功'
               })
-              this.$router.push({ path: '/shop/goods' })
+              this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
             })
             .catch(function(e) {})
         } else {
