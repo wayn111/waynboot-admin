@@ -25,7 +25,7 @@
     "lodash": "^4.17.20",
     "normalize.css": "7.0.0",
     "nprogress": "0.2.0",
-    "path-to-regexp": "2.4.0",
+    "path-to-regexp": "8.0.0",
     "vue": "^2.7.16",
     "vue-count-to": "^1.0.13",
     "vue-cropper": "^0.5.6",
