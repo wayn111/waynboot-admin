@@ -18,9 +18,6 @@
           <router-link to="/profile">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
-          <a target="_blank" href="https://github.com/wayn111/waynboot-mall">
-            <el-dropdown-item>Github</el-dropdown-item>
-          </a>
           <el-dropdown-item divided @click.native="logout">
             <span style="display:block;">退出登陆</span>
           </el-dropdown-item>

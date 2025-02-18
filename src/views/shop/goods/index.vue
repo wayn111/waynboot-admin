@@ -232,6 +232,9 @@ export default {
     }
   },
   created() {
+    if (this.$route.query.pageNum) {
+      this.queryForm.pageNum = parseInt(this.$route.query.pageNum)
+    }
     this.getList()
   },
   methods: {
@@ -255,10 +258,10 @@ export default {
       this.loading = false
     },
     handleAdd() {
-      this.$router.push({ path: '/shop/goods/add' })
+      this.$router.push({ path: '/shop/goods/add', query: { pageNum: this.queryForm.pageNum }})
     },
     handleUpdate(row) {
-      this.$router.push({ path: '/shop/goods/edit', query: { id: row.id }})
+      this.$router.push({ path: '/shop/goods/edit', query: { id: row.id, pageNum: this.queryForm.pageNum }})
     },
     handleSyncEs() {
       this.syncLoading = true

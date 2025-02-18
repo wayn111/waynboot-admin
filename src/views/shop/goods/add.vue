@@ -11,7 +11,7 @@
             <template slot="append">元</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="是否新品" prop="isNew">
+        <!-- <el-form-item label="是否新品" prop="isNew">
           <el-radio-group v-model="goods.isNew">
             <el-radio :label="true">新品</el-radio>
             <el-radio :label="false">非新品</el-radio>
@@ -22,7 +22,7 @@
             <el-radio :label="false">普通</el-radio>
             <el-radio :label="true">热卖</el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="是否在售" prop="isOnSale">
           <el-radio-group v-model="goods.isOnSale">
             <el-radio :label="true">在售</el-radio>
@@ -440,7 +440,7 @@ export default {
     },
     // 关闭当前页面
     handleCancel: function() {
-      this.$router.push({ path: '/shop/goods' })
+      this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
     },
     // 上架商品
     handlePublish: function() {
@@ -458,7 +458,7 @@ export default {
                 title: '成功',
                 message: '创建成功'
               })
-              this.$router.push({ path: '/shop/goods' })
+              this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
             })
             .catch(function(e) {})
         } else {

@@ -1,6 +1,6 @@
 module.exports = {
 
-  title: 'waynboot mall Admin',
+  title: '港岛妆城后管',
 
   /**
    * @type {boolean} true | false

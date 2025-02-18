@@ -71,6 +71,14 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
+          type="primary"
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+        >新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           v-hasPermi="['system:dict:remove']"
           type="danger"
           icon="el-icon-delete"
@@ -191,12 +199,81 @@
         <el-button @click="replyDialogHandleClose">取消</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      :visible.sync="addCommentOpen"
+      title="回复"
+      width="600px"
+      :close-on-click-modal="false"
+      :before-close="addCommentClose"
+    >
+      <el-form
+        ref="commentFrom"
+        :model="commentFrom"
+        :rules="rulesCommentFrom"
+        label-width="80px"
+      >
+        <el-form-item label="商品ID" prop="valueId">
+          <el-input v-model="commentFrom.valueId" placeholder="请输入商品ID" />
+        </el-form-item>
+        <el-form-item label="用户名称" prop="username">
+          <el-input v-model="commentFrom.username" placeholder="请输入用户名称" />
+        </el-form-item>
+        <el-form-item label="用户头像" prop="avatar">
+          <el-upload
+            :headers="headers"
+            :action="uploadPath"
+            :show-file-list="false"
+            :on-success="uploadPicUrl"
+            :before-upload="checkFileSize"
+            class="avatar-uploader"
+            accept=".jpg, .jpeg, .png, .gif"
+          >
+            <img v-if="commentFrom.avatar" :src="commentFrom.avatar" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件</div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="评论内容" prop="content">
+          <el-input
+            v-model="commentFrom.content"
+            type="textarea"
+            placeholder="请输入内容"
+          />
+        </el-form-item>
+
+        <el-form-item label="评论图片">
+          <el-upload
+            :action="uploadPath"
+            :limit="5"
+            :headers="headers"
+            :on-exceed="uploadOverrun"
+            :on-success="handleGalleryUrl"
+            :on-remove="handleRemove"
+            multiple
+            accept=".jpg, .jpeg, .png, .gif"
+            list-type="picture-card"
+          >
+            <i class="el-icon-plus" />
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="评论评分" prop="star">
+          <el-rate v-model="commentFrom.star" show-text style="margin-top: 10px;" />
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addCommentForm">确定</el-button>
+        <el-button @click="addCommentClose">取消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
 import {
   listComment,
   getComment,
+  addComment,
   updateComment,
   delComment
 } from '@/api/shop/user/comment'
@@ -243,13 +320,31 @@ export default {
           { required: true, message: '回复内容不能为空', trigger: 'blur' }
         ]
       },
+      rulesCommentFrom: {
+        content: [
+          { required: true, message: '回复内容不能为空', trigger: 'blur' }
+        ],
+        username: [
+          { required: true, message: '用户名称不能为空', trigger: 'blur' }
+        ]
+      },
       // 状态数据字典
       commentTypeOptions: [],
       starLevelOptions: [],
       // 上传文件路径
       uploadPath,
       // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() }
+      headers: { Authorization: 'Bearer ' + getToken() },
+      addCommentOpen: false,
+      commentFrom: {
+        content: '',
+        type: 1,
+        avatar: '',
+        username: '',
+        star: 4,
+        hasPicture: false,
+        picUrls: []
+      }
     }
   },
   created() {
@@ -354,6 +449,72 @@ export default {
               this.updateHandle(response, this)
             })
           }
+        }
+      })
+    },
+    uploadPicUrl: function(response) {
+      this.commentFrom.avatar = response.data
+    },
+    checkFileSize: function(file) {
+      if (file.size > 1048576) {
+        this.$message.error(
+          `${file.name}文件大于1024KB，请选择小于1024KB大小的图片`
+        )
+        return false
+      }
+      return true
+    },
+    uploadOverrun: function() {
+      this.$message({
+        type: 'error',
+        message: '上传文件个数超出限制!最多上传5张图片!'
+      })
+    },
+    // 上传商品画廊
+    handleGalleryUrl(response, file, fileList) {
+      if (response.code === 200) {
+        this.commentFrom.picUrls.push(response.data)
+      }
+    },
+    // 移除商品画廊
+    handleRemove: function(file, fileList) {
+      for (let i = 0; i < this.commentFrom.picUrls.length; i++) {
+        // 这里存在两种情况
+        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
+        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
+        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
+        let url
+        if (file.response === undefined) {
+          url = file.url
+        } else {
+          url = file.response.data
+        }
+
+        if (this.commentFrom.picUrls[i] === url) {
+          this.commentFrom.picUrls.splice(i, 1)
+        }
+      }
+    },
+    handleAdd() {
+      this.addCommentOpen = true
+    },
+    addCommentClose() {
+      this.addCommentOpen = false
+      this.commentFrom = {}
+      this.$refs['commentFrom'].resetFields()
+    },
+    addCommentForm() {
+      if (this.commentFrom.picUrls.length > 0) this.commentFrom.hasPicture = true
+      console.log(this.commentFrom)
+      this.$refs['commentFrom'].validate((valid) => {
+        if (valid) {
+          addComment(this.commentFrom).then(response => {
+            this.$message.success('添加成功')
+            this.addCommentOpen = false
+            this.commentFrom = {}
+            this.$refs['commentFrom'].resetFields()
+            this.getList()
+          })
         }
       })
     }

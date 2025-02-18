@@ -17,7 +17,7 @@
             <template slot="append">元</template>
           </el-input>
         </el-form-item>
-        <el-form-item label="是否新品" prop="isNew">
+        <!-- <el-form-item label="是否新品" prop="isNew">
           <el-radio-group v-model="goods.isNew">
             <el-radio :label="true">新品</el-radio>
             <el-radio :label="false">非新品</el-radio>
@@ -28,7 +28,7 @@
             <el-radio :label="false">普通</el-radio>
             <el-radio :label="true">热卖</el-radio>
           </el-radio-group>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="是否在售" prop="isOnSale">
           <el-radio-group v-model="goods.isOnSale">
             <el-radio :label="true">在售</el-radio>
@@ -47,7 +47,7 @@
           >
             <img v-if="goods.picUrl" :src="goods.picUrl" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，180 x 180</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
           </el-upload>
         </el-form-item>
 
@@ -65,7 +65,7 @@
             list-type="picture-card"
           >
             <i class="el-icon-plus" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，430 x 400</div>
+            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
           </el-upload>
         </el-form-item>
 
@@ -488,7 +488,7 @@ export default {
       this.goods.categoryId = value[value.length - 1]
     },
     handleCancel: function() {
-      this.$router.push({ path: '/shop/goods' })
+      this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
     },
     handleEdit: function() {
       const finalGoods = {
@@ -505,7 +505,7 @@ export default {
                 title: '成功',
                 message: '编辑成功'
               })
-              this.$router.push({ path: '/shop/goods' })
+              this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
             })
             .catch(function(e) {})
         } else {

@@ -93,6 +93,14 @@
             v-else-if="scope.row.jumpType == 1"
             type="success"
           >分类</el-tag>
+          <el-tag
+            v-else-if="scope.row.jumpType == 3"
+            type="success"
+          >领券中心</el-tag>
+          <el-tag
+            v-else-if="scope.row.jumpType == 4"
+            type="success"
+          >全部分类</el-tag>
           <el-tag v-else type="warning">链接</el-tag>
         </template>
       </el-table-column>
@@ -308,7 +316,7 @@ export default {
       // 商品分类
       categoryList: [],
       // el-cascader’s props
-      props: { label: 'name', value: 'id', expandTrigger: 'hover' },
+      props: { label: 'name', value: 'id', expandTrigger: 'hover', checkStrictly: true },
       // 是否显示弹出层
       open: false,
       // 商品配置弹出层
@@ -388,6 +396,10 @@ export default {
         this.jumpColumn = true
       } else if (val === 1) {
         this.jumpCategory = true
+      } else if (val === 3) {
+        //
+      } else if (val === 4) {
+        //
       } else {
         this.jumpUrl = true
       }

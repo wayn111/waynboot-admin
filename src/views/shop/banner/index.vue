@@ -25,6 +25,30 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="类型" prop="type">
+        <el-select
+          v-model="queryForm.type"
+          placeholder="请选择类型"
+          @change="selectChange"
+        >
+          <el-option
+            label="首页轮播"
+            :value="1"
+          />
+          <el-option
+            label="静态图片"
+            :value="2"
+          />
+          <el-option
+            label="活动专区"
+            :value="3"
+          />
+          <el-option
+            label="品牌推荐"
+            :value="4"
+          />
+        </el-select>
+      </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
           v-model="dateRange"
@@ -65,6 +89,14 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="编号" prop="id" width="120" />
       <el-table-column label="标题" prop="title" width="200" />
+      <el-table-column label="类型" prop="type">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.type == 1">首页轮播</el-tag>
+          <el-tag v-if="scope.row.type == 2">静态图片</el-tag>
+          <el-tag v-if="scope.row.type == 3">活动专区</el-tag>
+          <el-tag v-if="scope.row.type == 4">品牌推荐</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="图片" prop="imgUrl" width="200">
         <template slot-scope="scope">
           <img v-if="scope.row.imgUrl" :src="scope.row.imgUrl" width="80">
@@ -117,6 +149,30 @@
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入标题" />
+        </el-form-item>
+        <el-form-item label="类型" prop="type">
+          <el-select
+            v-model="form.type"
+            placeholder="请选择类型"
+            @change="selectChange"
+          >
+            <el-option
+              label="首页轮播"
+              :value="1"
+            />
+            <el-option
+              label="静态图片"
+              :value="2"
+            />
+            <el-option
+              label="活动专区"
+              :value="3"
+            />
+            <el-option
+              label="品牌推荐"
+              :value="4"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="图片" prop="imgUrl">
           <el-upload
@@ -188,6 +244,7 @@ export default {
       queryForm: {
         pageNum: 1,
         pageSize: 10,
+        type: undefined,
         title: undefined,
         status: undefined
       },
@@ -201,6 +258,7 @@ export default {
       form: {
         title: undefined,
         status: 0,
+        type: 1,
         sort: undefined,
         imgUrl: undefined,
         jumpUrl: undefined
