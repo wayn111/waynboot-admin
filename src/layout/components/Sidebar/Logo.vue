@@ -24,7 +24,7 @@ export default {
   },
   data() {
     return {
-      title: '港岛妆城',
+      title: 'waynboot-mall',
       // logo: this.$store.getters.avatar
       logo: require('@/assets/image/mall-logo.png')
     }
