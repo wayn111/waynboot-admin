@@ -1,6 +1,6 @@
-import router from './router'
+import router, { addDynamicRoute } from './router'
 import store from './store'
-import { Message } from 'element-ui'
+import { ElMessage } from 'element-plus'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
@@ -38,13 +38,13 @@ router.beforeEach(async(to, from, next) => {
           // store.dispatch('permission/generateRoutes', { roles }).then(accessRoutes => {
           // 根据roles权限生成可访问的路由表
           accessRoutes.forEach(element => {
-            router.addRoute(element) // 动态添加可访问路由表
+            addDynamicRoute(element) // 动态添加可访问路由表
           })
           next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
+          ElMessage.error(error || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }

@@ -1,6 +1,6 @@
 <template>
   <div :class="classObj" class="app-wrapper">
-    <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside" />
+    <div v-if="device==='mobile'&&sidebarState.opened" class="drawer-bg" @click="handleClickOutside" />
     <sidebar class="sidebar-container" />
     <div class="main-container">
       <div :class="{'fixed-header':fixedHeader}">
@@ -11,48 +11,55 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import { Navbar, Sidebar, AppMain } from './components'
 import ResizeMixin from './mixin/ResizeHandler'
-
-export default {
+const store = useStore()
+defineOptions({
   name: 'Layout',
   components: {
     Navbar,
     Sidebar,
     AppMain
   },
-  mixins: [ResizeMixin],
-  computed: {
-    sidebar() {
-      return this.$store.state.app.sidebar
-    },
-    device() {
-      return this.$store.state.app.device
-    },
-    fixedHeader() {
-      return this.$store.state.settings.fixedHeader
-    },
-    classObj() {
-      return {
-        hideSidebar: !this.sidebar.opened,
-        openSidebar: this.sidebar.opened,
-        withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
-      }
-    }
-  },
-  methods: {
-    handleClickOutside() {
-      this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
-    }
+  mixins: [ResizeMixin]
+})
+const sidebarState = computed(() => {
+  return store.state.app.sidebar
+})
+const device = computed(() => {
+  return store.state.app.device
+})
+const fixedHeader = computed(() => {
+  return store.state.settings.fixedHeader
+})
+const classObj = computed(() => {
+  return {
+    hideSidebar: !sidebarState.value.opened,
+    openSidebar: sidebarState.value.opened,
+    withoutAnimation: sidebarState.value.withoutAnimation,
+    mobile: device.value === 'mobile'
   }
+})
+function handleClickOutside() {
+  store.dispatch('app/closeSideBar', {
+    withoutAnimation: false
+  })
 }
+defineExpose({
+  classObj,
+  device,
+  fixedHeader,
+  handleClickOutside,
+  sidebarState
+})
 </script>
 
 <style lang="scss" scoped>
-  @import "~@/styles/mixin.scss";
-  @import "~@/styles/variables.scss";
+  @use "@/styles/mixin.scss" as *;
+  @use "@/styles/variables.scss" as *;
 
   .app-wrapper {
     @include clearfix;
@@ -84,7 +91,7 @@ export default {
   }
 
   .hideSidebar .fixed-header {
-    width: calc(100% - 54px)
+    width: calc(100% - 64px)
   }
 
   .mobile .fixed-header {

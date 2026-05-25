@@ -1,6 +1,7 @@
 import request from '@/utils/request'
+import { baseApi } from '@/utils/env'
 
-const uploadPath = process.env.VUE_APP_BASE_API + '/common/upload'
+const uploadPath = baseApi + '/common/upload'
 export { uploadPath }
 
 export function fileUpload(data) {

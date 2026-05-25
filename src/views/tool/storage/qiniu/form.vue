@@ -1,13 +1,13 @@
 <template>
   <el-dialog
-    :visible.sync="dialog"
+    v-model="dialog"
     :close-on-click-modal="false"
     title="七牛云配置"
     append-to-body
     width="580px"
   >
     <el-form
-      ref="form"
+      ref="formRef"
       :model="form"
       :rules="rules"
       style="margin-top: 6px"
@@ -58,79 +58,94 @@
         <el-radio v-model="form.type" :label="1">私有</el-radio>
       </el-form-item>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <template #footer><div class="dialog-footer">
       <el-button type="text" @click="dialog = false">取消</el-button>
       <el-button
         :loading="loading"
         type="primary"
         @click="doSubmit"
       >确认</el-button>
-    </div>
+    </div></template>
   </el-dialog>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
 import { get, update } from '@/api/tool/qiniu'
-export default {
-  data() {
-    return {
-      zones: ['华东', '华北', '华南', '北美', '东南亚'],
-      dialog: false,
-      loading: false,
-      form: {
-        accessKey: '',
-        secretKey: '',
-        bucket: '',
-        host: '',
-        zone: '',
-        type: ''
-      },
-      rules: {
-        accessKey: [
-          { required: true, message: '请输入accessKey', trigger: 'blur' }
-        ],
-        secretKey: [
-          { required: true, message: '请输入secretKey', trigger: 'blur' }
-        ],
-        bucket: [
-          { required: true, message: '请输入空间名称', trigger: 'blur' }
-        ],
-        host: [{ required: true, message: '请输入外链域名', trigger: 'blur' }],
-        type: [
-          { required: true, message: '空间类型不能为空', trigger: 'blur' }
-        ]
-      }
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const templateRefs = useTemplateRefs(instance)
+const zones = ref(['华东', '华北', '华南', '北美', '东南亚'])
+const dialog = ref(false)
+const loading = ref(false)
+const form = ref({
+  accessKey: '',
+  secretKey: '',
+  bucket: '',
+  host: '',
+  zone: '',
+  type: ''
+})
+const rules = ref({
+  accessKey: [{
+    required: true,
+    message: '请输入accessKey',
+    trigger: 'blur'
+  }],
+  secretKey: [{
+    required: true,
+    message: '请输入secretKey',
+    trigger: 'blur'
+  }],
+  bucket: [{
+    required: true,
+    message: '请输入空间名称',
+    trigger: 'blur'
+  }],
+  host: [{
+    required: true,
+    message: '请输入外链域名',
+    trigger: 'blur'
+  }],
+  type: [{
+    required: true,
+    message: '空间类型不能为空',
+    trigger: 'blur'
+  }]
+})
+function init() {
+  get().then(res => {
+    if (res.data) {
+      form.value = res.data || {}
     }
-  },
-  methods: {
-    init() {
-      get().then((res) => {
-        if (res.data) {
-          this.form = res.data || {}
-        }
-      })
-    },
-    doSubmit() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          this.loading = true
-          update(this.form)
-            .then((res) => {
-              this.$message.success('修改成功')
-              this.loading = false
-              this.dialog = false
-            })
-            .catch((err) => {
-              this.loading = false
-              console.log(err.map.msg)
-            })
-        } else {
-          return false
-        }
-      })
-    }
-  }
+  })
 }
+function doSubmit() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      loading.value = true
+      update(form.value).then(res => {
+        instance.proxy.$message.success('修改成功')
+        loading.value = false
+        dialog.value = false
+      }).catch(err => {
+        loading.value = false
+        console.log(err.map.msg)
+      })
+    } else {
+      return false
+    }
+  })
+}
+defineExpose({
+  dialog,
+  doSubmit,
+  form,
+  init,
+  loading,
+  rules,
+  zones
+})
 </script>
 
 <style scoped>

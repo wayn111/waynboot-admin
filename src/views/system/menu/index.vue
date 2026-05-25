@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="菜单名称" prop="menuName">
         <el-input
           v-model="queryForm.menuName"
           size="small"
           placeholder="请输入菜单名称"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="menuStatus">
@@ -28,13 +28,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -45,8 +45,8 @@
         <el-button
           v-hasPermi="['system:menu:add']"
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd()"
         >新增</el-button>
       </el-col>
@@ -66,7 +66,7 @@
         width="160"
       />
       <el-table-column prop="icon" label="图标" align="center" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <svg-icon :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
@@ -99,7 +99,7 @@
         width="80"
       />
       <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -108,26 +108,26 @@
         align="center"
         class-name="small-padding fixed-width"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-hasPermi="['system:menu:update']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
             v-hasPermi="['system:menu:add']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-plus"
+            icon="Plus"
             @click="handleAdd(scope.row)"
           >新增</el-button>
           <el-button
             v-hasPermi="['system:menu:delete']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -137,12 +137,12 @@
     <!-- 添加或修改菜单对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+      v-model="open"
       width="600px"
       :close-on-click-modal="false"
       :before-close="menuDialogHandleClose"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24">
             <el-form-item label="上级菜单">
@@ -177,25 +177,26 @@
                 @show="$refs['iconSelect'].reset()"
               >
                 <IconSelect ref="iconSelect" @selected="selected" />
-                <el-input
-                  slot="reference"
-                  v-model="form.icon"
-                  placeholder="点击选择图标"
-                  readonly
-                >
-                  <svg-icon
-                    v-if="form.icon"
-                    slot="prefix"
-                    :icon-class="form.icon"
-                    class="el-input__icon"
-                    style="height: 32px; width: 16px"
-                  />
-                  <i
-                    v-else
-                    slot="prefix"
-                    class="el-icon-search el-input__icon"
-                  />
-                </el-input>
+                <template #reference>
+                  <el-input
+                    v-model="form.icon"
+                    placeholder="点击选择图标"
+                    readonly
+                  >
+                    <template #prefix>
+                      <svg-icon
+                        v-if="form.icon"
+                        :icon-class="form.icon"
+                        class="el-input__icon"
+                        style="height: 32px; width: 16px"
+                      />
+                      <i
+                        v-else
+                        class="Search el-input__icon"
+                      />
+                    </template>
+                  </el-input>
+                </template>
               </el-popover>
             </el-form-item>
           </el-col>
@@ -281,262 +282,244 @@
           </el-col>
         </el-row>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <template #footer><span class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="menuDialogHandleClose">取 消</el-button>
-      </span>
+      </span></template>
     </el-dialog>
   </div>
 </template>
 
-<script>
-import {
-  listMenu,
-  getMenu,
-  delMenu,
-  addMenu,
-  updateMenu
-} from '@/api/system/menu'
-import Treeselect from '@riophae/vue-treeselect'
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listMenu, getMenu, delMenu, addMenu, updateMenu } from '@/api/system/menu'
+import Treeselect from '@zanmato/vue3-treeselect'
 // import the styles
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
+import '@zanmato/vue3-treeselect/dist/vue3-treeselect.min.css'
 import IconSelect from '@/components/IconSelect'
-export default {
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   components: {
     Treeselect,
     IconSelect
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 查询参数
-      queryForm: {
-        menuName: '',
-        menuStatus: undefined
-      },
-      // 菜单表格树数据
-      menuList: [],
-      // 菜单树
-      menuOptions: [],
-      // 是否显示弹出层
-      open: false,
-      // 状态数据字典
-      statusOptions: [],
-      // 显示状态数据字典
-      visibleOptions: [],
-      // 表单参数
-      form: {
-        menuId: undefined,
-        parentId: 0,
-        menuName: undefined,
-        icon: undefined,
-        menuType: 'M',
-        sort: undefined,
-        isFrame: '1',
-        path: '',
-        visible: 0,
-        menuStatus: 0
-      },
-      // 表单校验
-      rules: {
-        menuName: [
-          { required: true, message: '菜单名称不能为空', trigger: 'blur' }
-        ],
-        sort: [
-          { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
-        ],
-        path: [
-          { required: true, message: '路由地址不能为空', trigger: 'blur' }
-        ]
-      }
-    }
-  },
-  created() {
-    this.getList()
-    this.getDicts('status').then((response) => {
-      const {
-        data
-      } = response
-      this.statusOptions = data
-    })
-    this.getDicts('visible').then((response) => {
-      const {
-        data
-      } = response
-      this.visibleOptions = data
-    })
-  },
-  methods: {
-    /**
-     * 选择图标
-     */
-    selected(name) {
-      this.form.icon = name
-    },
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.handleQuery()
-    },
-    /**
-     * 获取菜单列表
-     */
-    async getList() {
-      this.loading = true
-      const {
-        data
-      } = await listMenu(this.queryForm)
-      this.menuList = this.buildTree(data, 'menuId')
-      this.loading = false
-    },
-    /**
-     * 添加按钮
-     */
-    handleAdd(row) {
-      this.getTreeselect()
-      if (row != null) {
-        this.form.parentId = row.menuId
-      } else {
-        this.form.parentId = 0
-      }
-      this.title = '添加菜单'
-      this.open = true
-    },
-    /**
-     * 修改按钮
-     */
-    async handleUpdate(row) {
-      this.getTreeselect()
-      const {
-        data
-      } = await getMenu(row.menuId)
-      this.form = data
-      this.title = '修改菜单'
-      this.open = true
-    },
-    /**
-     * 删除按钮
-     */
-    handleDelete(row) {
-      this.$confirm(
-        '是否确认删除名称为"' + row.menuName + '"的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delMenu(row.menuId)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function() {})
-    },
-    /**
-     * 菜单状态翻译
-     */
-    statusFormat(row, column) {
-      return this.echoDictName(this.statusOptions, row.menuStatus)
-    },
-    /**
-     * 隐藏状态翻译
-     */
-    visibleFormat(row, column) {
-      return this.echoDictName(this.visibleOptions, row.visible)
-    },
-    /**
-     * 查询菜单下拉树结构
-     */
-    async getTreeselect() {
-      const {
-        data
-      } = await listMenu()
-      this.menuOptions = []
-      const menu = { menuId: 0, menuName: '主类目', children: [] }
-      menu.children = this.buildTree(data, 'menuId')
-      this.menuOptions.push(menu)
-    },
-    /**
-     * 转换菜单数据结构
-     */
-    normalizer(node) {
-      if (node.children && !node.children.length) {
-        delete node.children
-      }
-      return {
-        id: node.menuId,
-        label: node.menuName,
-        children: node.children
-      }
-    },
-    /**
-     * 菜单对话框关闭
-     */
-    menuDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    /**
-     * 表单重置
-     */
-    reset() {
-      this.form = {
-        menuId: undefined,
-        parentId: 0,
-        menuName: undefined,
-        icon: undefined,
-        menuType: 'M',
-        sort: undefined,
-        isFrame: '1',
-        path: '',
-        visible: 0,
-        menuStatus: 0
-      }
-      this.$refs['form'].resetFields()
-    },
-    /**
-     * 提交角色表单
-     */
-    submitForm() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          if (this.form.menuId !== undefined) {
-            updateMenu(this.form).then((response) => {
-              this.updateHandle(response, this)
-            })
-          } else {
-            addMenu(this.form).then((response) => {
-              this.saveHandle(response, this)
-            })
-          }
-        }
-      })
-    }
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const queryForm = ref({
+  menuName: '',
+  menuStatus: undefined
+})
+const menuList = ref([])
+const menuOptions = ref([])
+const open = ref(false)
+const statusOptions = ref([])
+const visibleOptions = ref([])
+const form = ref({
+  menuId: undefined,
+  parentId: 0,
+  menuName: undefined,
+  icon: undefined,
+  menuType: 'M',
+  sort: undefined,
+  isFrame: '1',
+  path: '',
+  visible: 0,
+  menuStatus: 0
+})
+const rules = ref({
+  menuName: [{
+    required: true,
+    message: '菜单名称不能为空',
+    trigger: 'blur'
+  }],
+  sort: [{
+    required: true,
+    message: '菜单顺序不能为空',
+    trigger: 'blur'
+  }],
+  path: [{
+    required: true,
+    message: '路由地址不能为空',
+    trigger: 'blur'
+  }]
+})
+function selected(name) {
+  form.value.icon = name
+}
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  handleQuery()
+}
+async function getList() {
+  loading.value = true
+  const {
+    data
+  } = await listMenu(queryForm.value)
+  menuList.value = instance.proxy.buildTree(data, 'menuId')
+  loading.value = false
+}
+function handleAdd(row) {
+  getTreeselect()
+  if (row != null) {
+    form.value.parentId = row.menuId
+  } else {
+    form.value.parentId = 0
+  }
+  title.value = '添加菜单'
+  open.value = true
+}
+async function handleUpdate(row) {
+  getTreeselect()
+  const {
+    data
+  } = await getMenu(row.menuId)
+  form.value = data
+  title.value = '修改菜单'
+  open.value = true
+}
+function handleDelete(row) {
+  instance.proxy.$confirm('是否确认删除名称为"' + row.menuName + '"的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delMenu(row.menuId)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function() {})
+}
+function statusFormat(row, column) {
+  return instance.proxy.echoDictName(statusOptions.value, row.menuStatus)
+}
+function visibleFormat(row, column) {
+  return instance.proxy.echoDictName(visibleOptions.value, row.visible)
+}
+async function getTreeselect() {
+  const {
+    data
+  } = await listMenu()
+  menuOptions.value = []
+  const menu = {
+    menuId: 0,
+    menuName: '主类目',
+    children: []
+  }
+  menu.children = instance.proxy.buildTree(data, 'menuId')
+  menuOptions.value.push(menu)
+}
+function normalizer(node) {
+  if (node.children && !node.children.length) {
+    delete node.children
+  }
+  return {
+    id: node.menuId,
+    label: node.menuName,
+    children: node.children
   }
 }
+function menuDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function reset() {
+  form.value = {
+    menuId: undefined,
+    parentId: 0,
+    menuName: undefined,
+    icon: undefined,
+    menuType: 'M',
+    sort: undefined,
+    isFrame: '1',
+    path: '',
+    visible: 0,
+    menuStatus: 0
+  }
+  templateRefs.formRef.resetFields()
+}
+function submitForm() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      if (form.value.menuId !== undefined) {
+        updateMenu(form.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
+      } else {
+        addMenu(form.value).then(response => {
+          handleSubmitResponse(response, '新增成功')
+        })
+      }
+    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
+  }
+}
+(() => {
+  getList()
+  instance.proxy.getDicts('status').then(response => {
+    const {
+      data
+    } = response
+    statusOptions.value = data
+  })
+  instance.proxy.getDicts('visible').then(response => {
+    const {
+      data
+    } = response
+    visibleOptions.value = data
+  })
+})()
+defineExpose({
+  form,
+  getList,
+  getTreeselect,
+  handleAdd,
+  handleDelete,
+  handleQuery,
+  handleUpdate,
+  ids,
+  loading,
+  menuDialogHandleClose,
+  menuList,
+  menuOptions,
+  multiple,
+  normalizer,
+  open,
+  queryForm,
+  reset,
+  resetQuery,
+  rules,
+  selected,
+  single,
+  statusFormat,
+  statusOptions,
+  submitForm,
+  title,
+  visibleFormat,
+  visibleOptions
+})
 </script>
 <style lang="scss" scoped>
-::v-deep .vue-treeselect__control,
-::v-deep .vue-treeselect__placeholder,
-::v-deep .vue-treeselect__single-value {
+:deep(.vue-treeselect__control),
+:deep(.vue-treeselect__placeholder),
+:deep(.vue-treeselect__single-value) {
   height: 40px;
   line-height: 40px;
 }

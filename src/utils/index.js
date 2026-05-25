@@ -8,7 +8,9 @@
  * @param {string} cFormat
  * @returns {string | null}
  */
-const baseURL = process.env.VUE_APP_BASE_API
+import { baseApi } from '@/utils/env'
+
+const baseURL = baseApi
 
 export function parseTime(time, cFormat) {
   if (arguments.length === 0 || !time) {
@@ -123,9 +125,9 @@ export function addDateRange(params, dateRange) {
   const search = params
   search.startTime = ''
   search.endTime = ''
-  if (dateRange != null && dateRange !== '') {
-    search.startTime = this.dateRange[0]
-    search.endTime = this.dateRange[1]
+  if (Array.isArray(dateRange) && dateRange.length >= 2) {
+    search.startTime = dateRange[0]
+    search.endTime = dateRange[1]
   }
   return search
 }

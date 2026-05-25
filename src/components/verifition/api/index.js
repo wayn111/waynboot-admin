@@ -1,7 +1,8 @@
 import axios from './../utils/axios' // 组件内部封装的axios
+import { baseApi } from '@/utils/env'
 // import request from "@/api/axios.js"       //调用项目封装的axios
 const request = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  baseURL: baseApi, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 10000 // request timeout
 })

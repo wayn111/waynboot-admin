@@ -20,16 +20,17 @@
   </div>
 </template>
 
-<script>
-
-export default {
-  name: 'Page404',
-  computed: {
-    message() {
-      return 'The webmaster said that you can not enter this page...'
-    }
-  }
-}
+<script setup>
+import { computed } from 'vue'
+defineOptions({
+  name: 'Page404'
+})
+const message = computed(() => {
+  return 'The webmaster said that you can not enter this page...'
+})
+defineExpose({
+  message
+})
 </script>
 
 <style lang="scss" scoped>

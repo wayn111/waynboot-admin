@@ -24,18 +24,21 @@
   </el-tabs>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import Config from './config'
 import Send from './send'
-export default {
+defineOptions({
   name: 'Email',
-  components: { Config, Send },
-  data() {
-    return {
-      activeName: 'second'
-    }
+  components: {
+    Config,
+    Send
   }
-}
+})
+const activeName = ref('second')
+defineExpose({
+  activeName
+})
 </script>
 
 <style scoped>

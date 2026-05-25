@@ -1,79 +1,82 @@
-import { mount, createLocalVue } from '@vue/test-utils'
-import VueRouter from 'vue-router'
-import ElementUI from 'element-ui'
+import { mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 
-const localVue = createLocalVue()
-localVue.use(VueRouter)
-localVue.use(ElementUI)
+let mockedRoute
+const mockedRouter = {
+  push: vi.fn()
+}
 
-const routes = [
-  {
-    path: '/',
-    name: 'home',
-    children: [{
-      path: 'dashboard',
-      name: 'dashboard'
-    }]
-  },
-  {
-    path: '/menu',
-    name: 'menu',
-    children: [{
-      path: 'menu1',
-      name: 'menu1',
-      meta: { title: 'menu1' },
-      children: [{
-        path: 'menu1-1',
-        name: 'menu1-1',
-        meta: { title: 'menu1-1' }
-      },
-      {
-        path: 'menu1-2',
-        name: 'menu1-2',
-        redirect: 'noredirect',
-        meta: { title: 'menu1-2' },
-        children: [{
-          path: 'menu1-2-1',
-          name: 'menu1-2-1',
-          meta: { title: 'menu1-2-1' }
-        },
-        {
-          path: 'menu1-2-2',
-          name: 'menu1-2-2'
-        }]
-      }]
-    }]
-  }]
+vi.mock('vue-router', () => ({
+  useRoute: () => mockedRoute,
+  useRouter: () => mockedRouter
+}))
 
-const router = new VueRouter({
-  routes
-})
+function routeFrom(matched, params = {}) {
+  return {
+    matched,
+    params
+  }
+}
+
+const routes = {
+  dashboard: routeFrom([
+    { path: '/dashboard', name: '首页', meta: { title: '首页' }}
+  ]),
+  normal: routeFrom([
+    { path: '/menu/menu1', name: 'menu1', meta: { title: 'menu1' }}
+  ]),
+  nested: routeFrom([
+    { path: '/menu/menu1', name: 'menu1', meta: { title: 'menu1' }},
+    { path: '/menu/menu1/menu1-2', name: 'menu1-2', redirect: 'noRedirect', meta: { title: 'menu1-2' }},
+    { path: '/menu/menu1/menu1-2/menu1-2-1', name: 'menu1-2-1', meta: { title: 'menu1-2-1' }}
+  ]),
+  noTitle: routeFrom([
+    { path: '/menu/menu1', name: 'menu1', meta: { title: 'menu1' }},
+    { path: '/menu/menu1/menu1-2', name: 'menu1-2', redirect: 'noRedirect', meta: { title: 'menu1-2' }},
+    { path: '/menu/menu1/menu1-2/menu1-2-2', name: 'menu1-2-2' }
+  ])
+}
 
 describe('Breadcrumb.vue', () => {
-  const wrapper = mount(Breadcrumb, {
-    localVue,
-    router
+  let wrapper
+
+  function mountBreadcrumb(route) {
+    mockedRoute = route
+    return mount(Breadcrumb, {
+      global: {
+        stubs: {
+          'el-breadcrumb': {
+            template: '<div class="el-breadcrumb"><slot /></div>'
+          },
+          'el-breadcrumb-item': {
+            template: '<span class="el-breadcrumb__inner"><slot /></span>'
+          }
+        },
+        mocks: {}
+      }
+    })
+  }
+
+  it('dashboard', async() => {
+    wrapper = mountBreadcrumb(routes.dashboard)
+    await nextTick()
+    expect(wrapper.vm.levelList).toHaveLength(1)
   })
-  it('dashboard', () => {
-    router.push('/dashboard')
-    const len = wrapper.findAll('.el-breadcrumb__inner').length
-    expect(len).toBe(1)
+  it('normal route', async() => {
+    wrapper = mountBreadcrumb(routes.normal)
+    await nextTick()
+    expect(wrapper.vm.levelList).toHaveLength(2)
   })
-  it('normal route', () => {
-    router.push('/menu/menu1')
-    const len = wrapper.findAll('.el-breadcrumb__inner').length
-    expect(len).toBe(2)
+  it('nested route', async() => {
+    wrapper = mountBreadcrumb(routes.nested)
+    await nextTick()
+    expect(wrapper.vm.levelList).toHaveLength(4)
   })
-  it('nested route', () => {
-    router.push('/menu/menu1/menu1-2/menu1-2-1')
-    const len = wrapper.findAll('.el-breadcrumb__inner').length
-    expect(len).toBe(4)
-  })
-  it('no meta.title', () => {
-    router.push('/menu/menu1/menu1-2/menu1-2-2')
-    const len = wrapper.findAll('.el-breadcrumb__inner').length
-    expect(len).toBe(3)
+  it('no meta.title', async() => {
+    wrapper = mountBreadcrumb(routes.noTitle)
+    await nextTick()
+    expect(wrapper.vm.levelList).toHaveLength(3)
   })
   // it('click link', () => {
   //   router.push('/menu/menu1/menu1-2/menu1-2-2')
@@ -89,10 +92,9 @@ describe('Breadcrumb.vue', () => {
   //   const redirectBreadcrumb = breadcrumbArray.at(2)
   //   expect(redirectBreadcrumb.contains('a')).toBe(false)
   // })
-  it('last breadcrumb', () => {
-    router.push('/menu/menu1/menu1-2/menu1-2-1')
-    const breadcrumbArray = wrapper.findAll('.el-breadcrumb__inner')
-    const redirectBreadcrumb = breadcrumbArray.at(3)
-    expect(redirectBreadcrumb.contains('a')).toBe(false)
+  it('last breadcrumb', async() => {
+    wrapper = mountBreadcrumb(routes.nested)
+    await nextTick()
+    expect(wrapper.vm.levelList.at(-1).meta.title).toBe('menu1-2-1')
   })
 })

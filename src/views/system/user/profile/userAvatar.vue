@@ -1,7 +1,7 @@
 <template>
   <div>
     <img :src="options.img" title="点击上传头像" class="img-circle img-lg" @click="editCropper()">
-    <el-dialog :title="title" :visible.sync="open" width="800px">
+    <el-dialog :title="title" v-model="open" width="800px">
       <el-row>
         <el-col :xs="24" :md="12" :style="{height: '350px'}">
           <vue-cropper
@@ -27,21 +27,21 @@
           <el-upload action="#" :http-request="requestUpload" :show-file-list="false" :before-upload="beforeUpload">
             <el-button size="small">
               上传
-              <i class="el-icon-upload el-icon--right" />
+              <el-icon class="el-icon--right"><Upload /></el-icon>
             </el-button>
           </el-upload>
         </el-col>
         <el-col :lg="{span: 1, offset: 2}" :md="2">
-          <el-button icon="el-icon-plus" size="small" @click="changeScale(1)" />
+          <el-button icon="Plus" size="small" @click="changeScale(1)" />
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button icon="el-icon-minus" size="small" @click="changeScale(-1)" />
+          <el-button icon="Minus" size="small" @click="changeScale(-1)" />
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button icon="el-icon-refresh-left" size="small" @click="rotateLeft()" />
+          <el-button icon="RefreshLeft" size="small" @click="rotateLeft()" />
         </el-col>
         <el-col :lg="{span: 1, offset: 1}" :md="2">
-          <el-button icon="el-icon-refresh-right" size="small" @click="rotateRight()" />
+          <el-button icon="RefreshRight" size="small" @click="rotateRight()" />
         </el-col>
         <el-col :lg="{span: 2, offset: 6}" :md="2">
           <el-button type="primary" size="small" @click="uploadImg()">提 交</el-button>
@@ -51,89 +51,97 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
 import store from '@/store'
 import { VueCropper } from 'vue-cropper'
 import { uploadAvatar } from '@/api/system/user'
-
-export default {
-  components: { VueCropper },
-  props: {
-    user: {
-      type: Object,
-      default: () => {}
-    }
-  },
-  data() {
-    return {
-      // 是否显示弹出层
-      open: false,
-      // 弹出层标题
-      title: '修改头像',
-      options: {
-        img: store.getters.avatar, // 裁剪图片的地址
-        autoCrop: true, // 是否默认生成截图框
-        autoCropWidth: 200, // 默认生成截图框宽度
-        autoCropHeight: 200, // 默认生成截图框高度
-        fixedBox: true // 固定截图框大小 不允许改变
-      },
-      previews: {}
-    }
-  },
-  methods: {
-    // 编辑头像
-    editCropper() {
-      this.open = true
-    },
-    // 覆盖默认的上传行为
-    requestUpload() {
-    },
-    // 向左旋转
-    rotateLeft() {
-      this.$refs.cropper.rotateLeft()
-    },
-    // 向右旋转
-    rotateRight() {
-      this.$refs.cropper.rotateRight()
-    },
-    // 图片缩放
-    changeScale(num) {
-      num = num || 1
-      this.$refs.cropper.changeScale(num)
-    },
-    // 上传预处理
-    beforeUpload(file) {
-      if (file.type.indexOf('image/') === -1) {
-        this.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
-      } else {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = () => {
-          this.options.img = reader.result
-        }
-      }
-    },
-    // 上传图片
-    uploadImg() {
-      this.$refs.cropper.getCropBlob(data => {
-        const formData = new FormData()
-        formData.append('avatarfile', data)
-        uploadAvatar(formData).then(response => {
-          if (response.code === 200) {
-            this.open = false
-            this.options.img = response.data
-            this.$message.success('修改成功')
-          } else {
-            this.$message.error(response.msg)
-          }
-          this.$refs.cropper.clearCrop()
-        })
-      })
-    },
-    // 实时预览
-    realTime(data) {
-      this.previews = data
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
+  components: {
+    VueCropper
+  }
+})
+defineProps({
+  user: {
+    type: Object,
+    default: () => ({})
+  }
+})
+const emit = defineEmits(['updated'])
+const templateRefs = useTemplateRefs(instance)
+const open = ref(false)
+const title = ref('修改头像')
+const options = ref({
+  img: store.getters.avatar,
+  // 裁剪图片的地址
+  autoCrop: true,
+  // 是否默认生成截图框
+  autoCropWidth: 200,
+  // 默认生成截图框宽度
+  autoCropHeight: 200,
+  // 默认生成截图框高度
+  fixedBox: true // 固定截图框大小 不允许改变
+})
+const previews = ref({})
+function editCropper() {
+  open.value = true
+}
+function requestUpload() {}
+function rotateLeft() {
+  templateRefs.cropper.rotateLeft()
+}
+function rotateRight() {
+  templateRefs.cropper.rotateRight()
+}
+function changeScale(num) {
+  num = num || 1
+  templateRefs.cropper.changeScale(num)
+}
+function beforeUpload(file) {
+  if (file.type.indexOf('image/') === -1) {
+    instance.proxy.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
+  } else {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      options.value.img = reader.result
     }
   }
 }
+function uploadImg() {
+  templateRefs.cropper.getCropBlob(data => {
+    const formData = new FormData()
+    formData.append('avatarfile', data)
+    uploadAvatar(formData).then(response => {
+      if (response.code === 200) {
+        open.value = false
+        options.value.img = response.data
+        emit('updated', { avatar: response.data })
+        instance.proxy.$message.success('修改成功')
+      } else {
+        instance.proxy.$message.error(response.msg)
+      }
+      templateRefs.cropper.clearCrop()
+    })
+  })
+}
+function realTime(data) {
+  previews.value = data
+}
+defineExpose({
+  beforeUpload,
+  changeScale,
+  editCropper,
+  open,
+  options,
+  previews,
+  realTime,
+  requestUpload,
+  rotateLeft,
+  rotateRight,
+  title,
+  uploadImg
+})
 </script>

@@ -45,9 +45,9 @@ export function delCoupon(id) {
 
 // 赠送
 export function giveCoupon(data) {
-    return request({
-      url: '/shop/coupon/giveUser',
-      method: 'post',
-      data: data
-    })
-  }
+  return request({
+    url: '/shop/coupon/giveUser',
+    method: 'post',
+    data: data
+  })
+}

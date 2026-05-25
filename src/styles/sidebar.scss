@@ -1,3 +1,5 @@
+@use './variables.scss' as *;
+
 #app {
 
   .main-container {
@@ -10,8 +12,11 @@
   .sidebar-container {
     transition: width 0.28s;
     width: $sideBarWidth !important;
-    background-color: $menuBg;
-    height: 100%;
+    background: $menuBg;
+    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     position: fixed;
     font-size: 0px;
     top: 0;
@@ -19,8 +24,9 @@
     left: 0;
     z-index: 1001;
     overflow: hidden;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .08);
 
-    // reset element-ui css
+    // reset element-plus css
     .horizontal-collapse-transition {
       transition: 0s width ease-in-out, 0s padding-left ease-in-out, 0s padding-right ease-in-out;
     }
@@ -29,17 +35,26 @@
       overflow-x: hidden !important;
     }
 
+    .el-scrollbar {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      background: $menuBg;
+    }
+
+    .el-scrollbar__wrap,
+    .el-scrollbar__view {
+      height: 100%;
+      min-height: 100%;
+    }
+
     .el-scrollbar__bar.is-vertical {
       right: 0px;
     }
 
-    .el-scrollbar {
-      height: 100%;
-    }
-
     &.has-logo {
       .el-scrollbar {
-        height: calc(100% - 50px);
+        height: auto;
       }
     }
 
@@ -54,7 +69,10 @@
     }
 
     .svg-icon {
-      margin-right: 16px;
+      width: 18px;
+      height: 18px;
+      margin-right: 12px;
+      color: currentColor;
     }
 
     .sub-el-icon {
@@ -64,40 +82,123 @@
 
     .el-menu {
       border: none;
-      height: 100%;
+      height: auto;
+      min-height: 100%;
       width: 100% !important;
+      background: transparent !important;
+      padding: 14px 14px 24px;
+    }
+
+    .el-menu.el-menu--vertical {
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+    }
+
+    .el-menu-item,
+    .el-submenu__title,
+    .el-sub-menu__title {
+      height: 48px;
+      line-height: 48px;
+      margin: 4px 0;
+      border-radius: 14px;
+      color: $menuText !important;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0;
+      transition: background .18s ease, color .18s ease, transform .18s ease;
+
+      span {
+        vertical-align: middle;
+      }
+
+      .el-sub-menu__icon-arrow {
+        right: 16px;
+        margin-top: -6px;
+        color: #a1a1a6;
+        font-size: 12px;
+      }
+    }
+
+    .el-menu-item.is-active {
+      background: rgba(0, 102, 204, .1) !important;
+      color: #0066cc !important;
+      box-shadow: inset 0 0 0 1px rgba(0, 102, 204, .16);
+
+      .svg-icon,
+      .sub-el-icon {
+        color: #0066cc;
+      }
     }
 
     // menu hover
     .submenu-title-noDropdown,
-    .el-submenu__title {
+    .el-submenu__title,
+    .el-sub-menu__title {
       &:hover {
-        background-color: $menuHover !important;
+        background-color: #f5f5f7 !important;
+        color: #1d1d1f !important;
+        transform: translateX(2px);
       }
     }
 
-    .is-active>.el-submenu__title {
+    .is-active > .el-submenu__title,
+    .is-active > .el-sub-menu__title {
+      background: #f5f5f7 !important;
       color: $subMenuActiveText !important;
+
+      .svg-icon,
+      .sub-el-icon {
+        color: #0066cc;
+      }
     }
 
-    & .nest-menu .el-submenu>.el-submenu__title,
-    & .el-submenu .el-menu-item {
+    & .nest-menu .el-submenu > .el-submenu__title,
+    & .nest-menu .el-sub-menu > .el-sub-menu__title,
+    & .el-submenu .el-menu-item,
+    & .el-sub-menu .el-menu-item {
       min-width: $sideBarWidth !important;
-      background-color: $subMenuBg !important;
+      background-color: transparent !important;
+      height: 40px;
+      line-height: 40px;
+      margin: 2px 0 2px 30px;
+      border-radius: 12px;
+      color: #6e6e73 !important;
+      font-size: 13px;
+      font-weight: 500;
+
+      .svg-icon,
+      .sub-el-icon {
+        width: 15px;
+        height: 15px;
+        margin-right: 10px;
+        color: #a1a1a6;
+      }
 
       &:hover {
         background-color: $subMenuHover !important;
+        color: #1d1d1f !important;
+      }
+
+      &.is-active {
+        background: rgba(0, 102, 204, .1) !important;
+        color: #0066cc !important;
       }
     }
   }
 
   .hideSidebar {
     .sidebar-container {
-      width: 54px !important;
+      width: 64px !important;
+
+      .el-menu {
+        padding: 12px 8px 20px;
+      }
     }
 
     .main-container {
-      margin-left: 54px;
+      margin-left: 64px;
     }
 
     .submenu-title-noDropdown {
@@ -108,39 +209,90 @@
         padding: 0 !important;
 
         .svg-icon {
-          margin-left: 20px;
+          margin-left: 17px;
+          margin-right: 0;
         }
 
         .sub-el-icon {
-          margin-left: 19px;
+          margin-left: 18px;
+          margin-right: 0;
         }
+      }
+
+      > span {
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        display: inline-block;
       }
     }
 
-    .el-submenu {
+    .el-submenu,
+    .el-sub-menu {
       overflow: hidden;
 
-      &>.el-submenu__title {
+      & > .el-submenu__title,
+      & > .el-sub-menu__title {
         padding: 0 !important;
 
         .svg-icon {
-          margin-left: 20px;
+          margin-left: 17px;
+          margin-right: 0;
         }
 
         .sub-el-icon {
-          margin-left: 19px;
+          margin-left: 18px;
+          margin-right: 0;
         }
 
-        .el-submenu__icon-arrow {
+        .el-submenu__icon-arrow,
+        .el-sub-menu__icon-arrow {
           display: none;
+        }
+
+        > span {
+          width: 0;
+          height: 0;
+          overflow: hidden;
+          visibility: hidden;
+          display: inline-block;
         }
       }
     }
 
     .el-menu--collapse {
-      .el-submenu {
-        &>.el-submenu__title {
-          &>span {
+      width: 48px !important;
+
+      .el-menu-item,
+      .el-sub-menu__title,
+      .el-submenu__title {
+        width: 48px;
+        min-width: 48px !important;
+        padding: 0 !important;
+        justify-content: center;
+      }
+
+      .el-menu-item > span,
+      .el-sub-menu__title > span,
+      .el-submenu__title > span {
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        visibility: hidden;
+        display: inline-block;
+      }
+
+      .svg-icon {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+
+      .el-submenu,
+      .el-sub-menu {
+        & > .el-submenu__title,
+        & > .el-sub-menu__title {
+            & > span {
             height: 0;
             width: 0;
             overflow: hidden;
@@ -152,7 +304,8 @@
     }
   }
 
-  .el-menu--collapse .el-menu .el-submenu {
+  .el-menu--collapse .el-menu .el-submenu,
+  .el-menu--collapse .el-menu .el-sub-menu {
     min-width: $sideBarWidth !important;
   }
 
@@ -165,6 +318,8 @@
     .sidebar-container {
       transition: transform .28s;
       width: $sideBarWidth !important;
+      height: 100vh;
+      min-height: 100vh;
     }
 
     &.hideSidebar {
@@ -187,9 +342,20 @@
 
 // when menu collapsed
 .el-menu--vertical {
+  border-radius: 18px;
+  overflow: hidden;
+  background: $subMenuBg !important;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .12);
+
   &>.el-menu {
+    background: $subMenuBg !important;
+    padding: 8px;
+
     .svg-icon {
-      margin-right: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 12px;
     }
     .sub-el-icon {
       margin-right: 12px;
@@ -197,11 +363,20 @@
     }
   }
 
-  .nest-menu .el-submenu>.el-submenu__title,
+  .nest-menu .el-submenu > .el-submenu__title,
+  .nest-menu .el-sub-menu > .el-sub-menu__title,
   .el-menu-item {
+    height: 40px;
+    line-height: 40px;
+    margin: 2px 0;
+    border-radius: 12px;
+    color: $menuText !important;
+    font-size: 13px;
+    font-weight: 500;
+
     &:hover {
-      // you can use $subMenuHover
-      background-color: $menuHover !important;
+      background-color: $subMenuHover !important;
+      color: #1d1d1f !important;
     }
   }
 

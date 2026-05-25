@@ -1,11 +1,12 @@
 import axios from 'axios'
-import { Message, Notification } from 'element-ui'
+import { ElMessage, ElNotification } from 'element-plus'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import { baseApi } from '@/utils/env'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  baseURL: baseApi, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 10000 // request timeout
 })
@@ -50,20 +51,24 @@ service.interceptors.response.use(res => {
   //   }).catch(() => { })
   // } else
   if (code !== 200) {
-    Notification.error({
-      title: res.data.msg
-    })
+    if (!res.config?.silentError) {
+      ElNotification.error({
+        title: res.data.msg
+      })
+    }
     return Promise.reject('error')
   } else {
     return res.data
   }
 }, error => {
   console.log('err' + error)
-  Message({
-    message: error.message,
-    type: 'error',
-    duration: 5 * 1000
-  })
+  if (!error.config?.silentError) {
+    ElMessage({
+      message: error.message,
+      type: 'error',
+      duration: 5 * 1000
+    })
+  }
   return Promise.reject(error)
 }
 )

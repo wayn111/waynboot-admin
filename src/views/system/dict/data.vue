@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :model="queryForm" :inline="true" label-width="68px">
+    <el-form ref="queryFormRef" :model="queryForm" :inline="true" label-width="68px">
       <el-form-item label="标签名" prop="name">
         <el-input
           v-model="queryForm.name"
@@ -8,17 +8,17 @@
           clearable
           size="small"
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="标签值" prop="value">
         <el-input
-          v-model="queryForm.value"
+          v-model="queryForm"
           placeholder="请输入标签值"
           clearable
           size="small"
           style="width: 240px"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="字典名称" prop="dictType">
@@ -52,7 +52,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -60,8 +60,8 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="Search" size="small" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -70,8 +70,8 @@
         <el-button
           v-hasPermi="['system:dict:add']"
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd"
         >新增</el-button>
       </el-col>
@@ -79,8 +79,8 @@
         <el-button
           v-hasPermi="['system:dict:edit']"
           type="success"
-          icon="el-icon-edit"
-          size="mini"
+          icon="Edit"
+          size="small"
           :disabled="single"
           @click="handleUpdate"
         >修改</el-button>
@@ -89,8 +89,8 @@
         <el-button
           v-hasPermi="['system:dict:remove']"
           type="danger"
-          icon="el-icon-delete"
-          size="mini"
+          icon="Delete"
+          size="small"
           :disabled="multiple"
           @click="handleDelete"
         >删除</el-button>
@@ -106,24 +106,24 @@
       <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat" />
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-hasPermi="['system:dict:edit']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
             v-hasPermi="['system:dict:remove']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -133,25 +133,25 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
 
     <!-- 添加或修改字典对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+      v-model="open"
       width="600px"
       :close-on-click-modal="false"
       :before-close="dictDialogHandleClose"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标签名" prop="name">
           <el-input v-model="form.name" placeholder="请输入标签名" />
         </el-form-item>
         <el-form-item label="标签值" prop="value">
-          <el-input v-model="form.value" placeholder="请输入标签值" />
+          <el-input v-model="form" placeholder="请输入标签值" />
         </el-form-item>
         <el-form-item label="标签顺序" prop="sort">
           <el-input-number v-model="form.sort" controls-position="right" :min="0" />
@@ -169,215 +169,216 @@
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="dictDialogHandleClose">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
 
-<script>
-import {
-  listData,
-  getData,
-  addData,
-  updateData,
-  selectTypeList,
-  delData
-} from '@/api/system/dict/data'
-
-export default {
-  name: 'Data',
-  props: {
-    parentType: {
-      type: String,
-      required: true
-    }
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 总条数
-      total: 0,
-      // 字典表格数据
-      typeList: [],
-      // 弹出层标题
-      title: '',
-      // 是否显示弹出层
-      open: false,
-      // 状态数据字典
-      statusOptions: [],
-      // 字典类型数据
-      typeOptions: [],
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined,
-        value: undefined,
-        parentType: undefined,
-        dictStatus: undefined
-      },
-      // 表单参数
-      form: {
-        name: undefined,
-        value: undefined,
-        type: 2,
-        dictStatus: 0,
-        remark: undefined
-      },
-      // 表单校验
-      rules: {
-        name: [
-          { required: true, message: '字典名称不能为空', trigger: 'blur' }
-        ],
-        value: [
-          { required: true, message: '字典类型不能为空', trigger: 'blur' }
-        ],
-        sort: [
-          { required: true, message: '字典顺序不能为空', trigger: 'blur' }
-        ]
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listData, getData, addData, updateData, selectTypeList, delData } from '@/api/system/dict/data'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
+  name: 'Data'
+})
+const props = defineProps({
+  parentType: {
+    type: String,
+    required: true
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const total = ref(0)
+const typeList = ref([])
+const title = ref('')
+const open = ref(false)
+const statusOptions = ref([])
+const typeOptions = ref([])
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  name: undefined,
+  value: undefined,
+  parentType: undefined,
+  dictStatus: undefined
+})
+const form = ref({
+  name: undefined,
+  value: undefined,
+  type: 2,
+  dictStatus: 0,
+  remark: undefined
+})
+const rules = ref({
+  name: [{
+    required: true,
+    message: '字典名称不能为空',
+    trigger: 'blur'
+  }],
+  value: [{
+    required: true,
+    message: '字典类型不能为空',
+    trigger: 'blur'
+  }],
+  sort: [{
+    required: true,
+    message: '字典顺序不能为空',
+    trigger: 'blur'
+  }]
+})
+function getList() {
+  loading.value = true
+  listData(instance.proxy.addDateRange(queryForm.value, dateRange.value)).then(response => {
+    const {
+      data: {
+        records: data,
+        total: pageTotal
+      }
+    } = response
+    typeList.value = data
+    total.value = pageTotal
+    loading.value = false
+  })
+}
+function statusFormat(row, column) {
+  return instance.proxy.echoDictName(statusOptions.value, row.dictStatus)
+}
+function dictDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function reset() {
+  form.value = {
+    dictId: undefined,
+    name: undefined,
+    value: undefined,
+    type: 2,
+    dictStatus: 0,
+    remark: undefined
+  }
+  templateRefs.formRef.resetFields()
+}
+function handleQuery() {
+  queryForm.value.pageNum = 1
+  getList()
+}
+function resetQuery() {
+  dateRange.value = []
+  templateRefs.queryFormRef.resetFields()
+  queryForm.value.parentType = props.parentType
+  handleQuery()
+}
+function handleAdd() {
+  title.value = '添加字典数据'
+  form.value.parentType = queryForm.value.parentType
+  open.value = true
+}
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.dictId)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+function handleUpdate(row) {
+  const dictId = row.dictId || ids.value
+  getData(dictId).then(response => {
+    const {
+      data
+    } = response
+    form.value = data
+    open.value = true
+    title.value = '修改字典数据'
+  })
+}
+function handleDelete(row) {
+  const dictIds = row.dictId || ids.value
+  instance.proxy.$confirm('是否确认删除标签编号为"' + dictIds + '"的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delData(dictIds)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function() {})
+}
+function submitForm() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      if (form.value.dictId !== undefined) {
+        updateData(form.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
+      } else {
+        addData(form.value).then(response => {
+          handleSubmitResponse(response, '新增成功')
+        })
       }
     }
-  },
-  created() {
-    this.queryForm.parentType = this.parentType
-    selectTypeList().then(response => {
-      const {
-        data: { typeList }
-      } = response
-      this.typeOptions = typeList
-    })
-    this.getList()
-    this.getDicts('status').then(response => {
-      const {
-        data
-      } = response
-      this.statusOptions = data
-    })
-  },
-  methods: {
-    /** 查询字典类型列表 */
-    getList() {
-      this.loading = true
-      listData(this.addDateRange(this.queryForm, this.dateRange)).then(
-        response => {
-          const {
-            data: { records: data, total }
-          } = response
-          this.typeList = data
-          this.total = total
-          this.loading = false
-        }
-      )
-    },
-    // 字典状态字典翻译
-    statusFormat(row, column) {
-      return this.echoDictName(this.statusOptions, row.dictStatus)
-    },
-    /**
-     * 字典对话框关闭
-     */
-    dictDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    // 表单重置
-    reset() {
-      this.form = {
-        dictId: undefined,
-        name: undefined,
-        value: undefined,
-        type: 2,
-        dictStatus: 0,
-        remark: undefined
-      }
-      this.$refs['form'].resetFields()
-    },
-    /** 搜索按钮操作 */
-    handleQuery() {
-      this.queryForm.pageNum = 1
-      this.getList()
-    },
-    /** 重置按钮操作 */
-    resetQuery() {
-      this.dateRange = []
-      this.$refs.queryForm.resetFields()
-      this.queryForm.parentType = this.parentType
-      this.handleQuery()
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.title = '添加字典数据'
-      this.form.parentType = this.queryForm.parentType
-      this.open = true
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.dictId)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 修改按钮操作 */
-    handleUpdate(row) {
-      const dictId = row.dictId || this.ids
-      getData(dictId).then(response => {
-        const {
-          data
-        } = response
-        this.form = data
-        this.open = true
-        this.title = '修改字典数据'
-      })
-    },
-
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const dictIds = row.dictId || this.ids
-      this.$confirm(
-        '是否确认删除标签编号为"' + dictIds + '"的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delData(dictIds)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function() {})
-    },
-    /** 提交按钮 */
-    submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.dictId !== undefined) {
-            updateData(this.form).then(response => {
-              this.updateHandle(response, this)
-            })
-          } else {
-            addData(this.form).then(response => {
-              this.saveHandle(response, this)
-            })
-          }
-        }
-      })
-    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
   }
 }
+(() => {
+  queryForm.value.parentType = props.parentType
+  selectTypeList().then(response => {
+    const {
+      data: {
+        typeList
+      }
+    } = response
+    typeOptions.value = typeList
+  })
+  getList()
+  instance.proxy.getDicts('status').then(response => {
+    const {
+      data
+    } = response
+    statusOptions.value = data
+  })
+})()
+defineExpose({
+  dateRange,
+  dictDialogHandleClose,
+  form,
+  getList,
+  handleAdd,
+  handleDelete,
+  handleQuery,
+  handleSelectionChange,
+  handleUpdate,
+  ids,
+  loading,
+  multiple,
+  open,
+  queryForm,
+  reset,
+  resetQuery,
+  rules,
+  single,
+  statusFormat,
+  statusOptions,
+  submitForm,
+  title,
+  total,
+  typeList,
+  typeOptions
+})
 </script>

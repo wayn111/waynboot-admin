@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="部门名称" prop="deptName">
         <el-input
           v-model="queryForm.deptName"
           size="small"
           placeholder="请输入部门名称"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="deptStatus">
@@ -26,8 +26,8 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="Search" size="small" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
@@ -36,8 +36,8 @@
         <el-button
           v-hasPermi="['system:dept:add']"
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd()"
         >新增</el-button>
       </el-col>
@@ -55,32 +55,32 @@
       <el-table-column prop="sort" label="排序" width="200" />
       <el-table-column prop="deptStatus" label="状态" :formatter="statusFormat" width="100" />
       <el-table-column label="创建时间" align="center" prop="createTime" width="200">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-hasPermi="['system:dept:update']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
             v-hasPermi="['system:dept:add']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-plus"
+            icon="Plus"
             @click="handleAdd(scope.row)"
           >新增</el-button>
           <el-button
             v-if="scope.row.parentId != 0"
             v-hasPermi="['system:dept:delete']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -90,12 +90,12 @@
     <!-- 添加或修改部门对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+      v-model="open"
       width="600px"
       :before-close="deptDialogHandleClose"
       :close-on-click-modal="false"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col v-if="form.parentId !== 0" :span="24">
             <el-form-item label="上级部门" prop="parentId">
@@ -140,235 +140,218 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="deptDialogHandleClose">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
 
-<script>
-import {
-  listDept,
-  getDept,
-  delDept,
-  addDept,
-  updateDept
-} from '@/api/system/dept'
-import Treeselect from '@riophae/vue-treeselect'
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listDept, getDept, delDept, addDept, updateDept } from '@/api/system/dept'
+import Treeselect from '@zanmato/vue3-treeselect'
 // import the styles
-import '@riophae/vue-treeselect/dist/vue-treeselect.css'
-
-export default {
+import '@zanmato/vue3-treeselect/dist/vue3-treeselect.min.css'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   components: {
     Treeselect
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 查询参数
-      queryForm: {
-        deptName: undefined,
-        deptStatus: undefined
-      },
-      // 部门表格树数据
-      deptList: [],
-      // 部门树
-      deptOptions: [],
-      // 是否显示弹出层
-      open: false,
-      // 状态数据字典
-      statusOptions: [],
-      // 表单参数
-      form: {
-        deptId: undefined,
-        parentId: undefined,
-        deptName: undefined,
-        sort: undefined,
-        leader: undefined,
-        phone: undefined,
-        email: undefined,
-        deptStatus: 0
-      },
-      // 表单校验
-      rules: {
-        parentId: [
-          { required: true, message: '上级部门不能为空', trigger: 'blur' }
-        ],
-        deptName: [
-          { required: true, message: '部门名称不能为空', trigger: 'blur' }
-        ],
-        sort: [
-          { required: true, message: '菜单顺序不能为空', trigger: 'blur' }
-        ],
-        email: [
-          {
-            type: 'email',
-            message: "'请输入正确的邮箱地址",
-            trigger: ['blur', 'change']
-          }
-        ],
-        phone: [
-          {
-            pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-            message: '请输入正确的手机号码',
-            trigger: 'blur'
-          }
-        ]
-      }
-    }
-  },
-  created() {
-    this.getList()
-    this.getDicts('status').then(response => {
-      const { data } = response
-      this.statusOptions = data
-    })
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.handleQuery()
-    },
-    /**
-     * 获取部门列表
-     */
-    async getList() {
-      this.loading = true
-      const {
-        data
-      } = await listDept(this.queryForm)
-      this.deptList = this.buildTree(data, 'deptId')
-      this.loading = false
-    },
-    /**
-     * 添加按钮
-     */
-    handleAdd(row) {
-      this.getTreeselect()
-      if (row != null) {
-        this.form.parentId = row.deptId
-      }
-      this.title = '添加部门'
-      this.open = true
-    },
-    /**
-     * 修改按钮
-     */
-    async handleUpdate(row) {
-      this.getTreeselect()
-      const { data } = await getDept(row.deptId)
-      this.form = data
-      this.title = '修改部门'
-      this.open = true
-    },
-    /**
-     * 删除按钮
-     */
-    handleDelete(row) {
-      this.$confirm(
-        '是否确认删除名称为"' + row.deptName + '"的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delDept(row.deptId)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function() {})
-    },
-    /**
-     * 部门状态翻译
-     */
-    statusFormat(row, column) {
-      return this.echoDictName(this.statusOptions, row.deptStatus)
-    },
-    /**
-     * 查询菜单下拉树结构
-     */
-    async getTreeselect() {
-      const { data } = await listDept()
-      this.deptOptions = this.buildTree(data, 'deptId')
-    },
-    /**
-     * 转换菜单数据结构
-     */
-    normalizer(node) {
-      if (node.children && !node.children.length) {
-        delete node.children
-      }
-      return {
-        id: node.deptId,
-        label: node.deptName,
-        children: node.children
-      }
-    },
-    /**
-     * 部门对话框关闭
-     */
-    deptDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    /**
-     * 表单重置
-     */
-    reset() {
-      this.form = {
-        deptId: undefined,
-        parentId: undefined,
-        deptName: undefined,
-        sort: undefined,
-        leader: undefined,
-        phone: undefined,
-        email: undefined,
-        deptStatus: 0
-      }
-      this.$refs['form'].resetFields()
-    },
-    /**
-     * 提交角色表单
-     */
-    submitForm() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          if (this.form.deptId !== undefined) {
-            updateDept(this.form).then(response => {
-              this.updateHandle(response, this)
-            })
-          } else {
-            addDept(this.form).then(response => {
-              this.saveHandle(response, this)
-            })
-          }
-        }
-      })
-    }
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const queryForm = ref({
+  deptName: undefined,
+  deptStatus: undefined
+})
+const deptList = ref([])
+const deptOptions = ref([])
+const open = ref(false)
+const statusOptions = ref([])
+const form = ref({
+  deptId: undefined,
+  parentId: undefined,
+  deptName: undefined,
+  sort: undefined,
+  leader: undefined,
+  phone: undefined,
+  email: undefined,
+  deptStatus: 0
+})
+const rules = ref({
+  parentId: [{
+    required: true,
+    message: '上级部门不能为空',
+    trigger: 'blur'
+  }],
+  deptName: [{
+    required: true,
+    message: '部门名称不能为空',
+    trigger: 'blur'
+  }],
+  sort: [{
+    required: true,
+    message: '菜单顺序不能为空',
+    trigger: 'blur'
+  }],
+  email: [{
+    type: 'email',
+    message: "'请输入正确的邮箱地址",
+    trigger: ['blur', 'change']
+  }],
+  phone: [{
+    pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
+    message: '请输入正确的手机号码',
+    trigger: 'blur'
+  }]
+})
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  handleQuery()
+}
+async function getList() {
+  loading.value = true
+  const {
+    data
+  } = await listDept(queryForm.value)
+  deptList.value = instance.proxy.buildTree(data, 'deptId')
+  loading.value = false
+}
+function handleAdd(row) {
+  getTreeselect()
+  if (row != null) {
+    form.value.parentId = row.deptId
+  }
+  title.value = '添加部门'
+  open.value = true
+}
+async function handleUpdate(row) {
+  getTreeselect()
+  const {
+    data
+  } = await getDept(row.deptId)
+  form.value = data
+  title.value = '修改部门'
+  open.value = true
+}
+function handleDelete(row) {
+  instance.proxy.$confirm('是否确认删除名称为"' + row.deptName + '"的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delDept(row.deptId)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function() {})
+}
+function statusFormat(row, column) {
+  return instance.proxy.echoDictName(statusOptions.value, row.deptStatus)
+}
+async function getTreeselect() {
+  const {
+    data
+  } = await listDept()
+  deptOptions.value = instance.proxy.buildTree(data, 'deptId')
+}
+function normalizer(node) {
+  if (node.children && !node.children.length) {
+    delete node.children
+  }
+  return {
+    id: node.deptId,
+    label: node.deptName,
+    children: node.children
   }
 }
+function deptDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function reset() {
+  form.value = {
+    deptId: undefined,
+    parentId: undefined,
+    deptName: undefined,
+    sort: undefined,
+    leader: undefined,
+    phone: undefined,
+    email: undefined,
+    deptStatus: 0
+  }
+  templateRefs.formRef.resetFields()
+}
+function submitForm() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      if (form.value.deptId !== undefined) {
+        updateDept(form.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
+      } else {
+        addDept(form.value).then(response => {
+          handleSubmitResponse(response, '新增成功')
+        })
+      }
+    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
+  }
+}
+(() => {
+  getList()
+  instance.proxy.getDicts('status').then(response => {
+    const {
+      data
+    } = response
+    statusOptions.value = data
+  })
+})()
+defineExpose({
+  deptDialogHandleClose,
+  deptList,
+  deptOptions,
+  form,
+  getList,
+  getTreeselect,
+  handleAdd,
+  handleDelete,
+  handleQuery,
+  handleUpdate,
+  ids,
+  loading,
+  multiple,
+  normalizer,
+  open,
+  queryForm,
+  reset,
+  resetQuery,
+  rules,
+  single,
+  statusFormat,
+  statusOptions,
+  submitForm,
+  title
+})
 </script>
 <style lang="scss" scoped>
 </style>

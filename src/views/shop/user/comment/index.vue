@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="用户ID" prop="userId">
         <el-input
           v-model="queryForm.userId"
           size="small"
           placeholder="请输入用户ID"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="评论类型" prop="type">
@@ -46,7 +46,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -56,13 +56,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -72,8 +72,8 @@
       <el-col :span="1.5">
         <el-button
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd"
         >新增</el-button>
       </el-col>
@@ -81,8 +81,8 @@
         <el-button
           v-hasPermi="['system:dict:remove']"
           type="danger"
-          icon="el-icon-delete"
-          size="mini"
+          icon="Delete"
+          size="small"
           :disabled="multiple"
           @click="handleDelete"
         >删除</el-button>
@@ -100,12 +100,12 @@
       <el-table-column label="编号" prop="id" width="60" />
       <el-table-column label="用户ID" prop="userId" width="80" />
       <el-table-column label="评论类型" prop="type" width="100">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ scope.row.type == 0 ? '商品评论' : '专题评论' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="评论内容" prop="content" width="280">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tooltip
             class="item"
             effect="dark"
@@ -119,7 +119,7 @@
         </template>
       </el-table-column>
       <el-table-column align="center" label="评论图片" prop="picUrls">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-image
             v-for="(item, index) in scope.row.picUrls"
             :key="index"
@@ -131,12 +131,12 @@
         </template>
       </el-table-column>
       <el-table-column label="坪分" prop="star" width="190">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-rate v-model="scope.row.star" disabled show-text />
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -145,19 +145,19 @@
         align="center"
         class-name="small-padding fixed-width"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-hasPermi="['system:common:reply']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleReply(scope.row)"
           >回复</el-button>
           <el-button
             v-hasPermi="['system:common:delete']"
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -167,21 +167,21 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
 
     <!-- 管理员回复对话框 -->
     <el-dialog
-      :visible.sync="open"
+      v-model="open"
       title="回复"
       width="600px"
       :close-on-click-modal="false"
       :before-close="replyDialogHandleClose"
     >
       <el-form
-        ref="replyForm"
+        ref="replyFormRef"
         :model="replyForm"
         :rules="rules"
         label-width="80px"
@@ -194,26 +194,26 @@
           />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="submitForm">确定</el-button>
         <el-button @click="replyDialogHandleClose">取消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <el-dialog
-      :visible.sync="addCommentOpen"
+      v-model="addCommentOpen"
       title="回复"
       width="600px"
       :close-on-click-modal="false"
       :before-close="addCommentClose"
     >
       <el-form
-        ref="commentFrom"
+        ref="commentFromRef"
         :model="commentFrom"
         :rules="rulesCommentFrom"
         label-width="80px"
       >
         <el-form-item label="商品ID" prop="valueId">
-          <el-input v-model="commentFrom.valueId" placeholder="请输入商品ID" />
+          <el-input v-model="commentFromId" placeholder="请输入商品ID" />
         </el-form-item>
         <el-form-item label="用户名称" prop="username">
           <el-input v-model="commentFrom.username" placeholder="请输入用户名称" />
@@ -229,8 +229,8 @@
             accept=".jpg, .jpeg, .png, .gif"
           >
             <img v-if="commentFrom.avatar" :src="commentFrom.avatar" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件</div>
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件</div></template>
           </el-upload>
         </el-form-item>
         <el-form-item label="评论内容" prop="content">
@@ -253,8 +253,8 @@
             accept=".jpg, .jpeg, .png, .gif"
             list-type="picture-card"
           >
-            <i class="el-icon-plus" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
+            <el-icon><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div></template>
           </el-upload>
         </el-form-item>
         <el-form-item label="评论评分" prop="star">
@@ -262,264 +262,268 @@
         </el-form-item>
 
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="addCommentForm">确定</el-button>
         <el-button @click="addCommentClose">取消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
-<script>
-import {
-  listComment,
-  getComment,
-  addComment,
-  updateComment,
-  delComment
-} from '@/api/shop/user/comment'
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listComment, getComment, addComment, updateComment, delComment } from '@/api/shop/user/comment'
 import { getToken } from '@/utils/auth'
-import { uploadPath } from '@/api/upload'
-
-export default {
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        userId: undefined,
-        type: undefined,
-        star: undefined
-      },
-      // 角色列表
-      commentList: [],
-      // 是否显示弹出层
-      open: false,
-      // 管理员回复表单
-      replyForm: {
-        id: undefined,
-        adminContent: undefined
-      },
-      // 表单校验
-      rules: {
-        adminContent: [
-          { required: true, message: '回复内容不能为空', trigger: 'blur' }
-        ]
-      },
-      rulesCommentFrom: {
-        content: [
-          { required: true, message: '回复内容不能为空', trigger: 'blur' }
-        ],
-        username: [
-          { required: true, message: '用户名称不能为空', trigger: 'blur' }
-        ]
-      },
-      // 状态数据字典
-      commentTypeOptions: [],
-      starLevelOptions: [],
-      // 上传文件路径
-      uploadPath,
-      // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() },
-      addCommentOpen: false,
-      commentFrom: {
-        content: '',
-        type: 1,
-        avatar: '',
-        username: '',
-        star: 4,
-        hasPicture: false,
-        picUrls: []
+import { uploadPath as uploadApiPath } from '@/api/upload'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const total = ref(0)
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  userId: undefined,
+  type: undefined,
+  star: undefined
+})
+const commentList = ref([])
+const open = ref(false)
+const replyForm = ref({
+  id: undefined,
+  adminContent: undefined
+})
+const rules = ref({
+  adminContent: [{
+    required: true,
+    message: '回复内容不能为空',
+    trigger: 'blur'
+  }]
+})
+const rulesCommentFrom = ref({
+  content: [{
+    required: true,
+    message: '回复内容不能为空',
+    trigger: 'blur'
+  }],
+  username: [{
+    required: true,
+    message: '用户名称不能为空',
+    trigger: 'blur'
+  }]
+})
+const commentTypeOptions = ref([])
+const starLevelOptions = ref([])
+const uploadPath = ref(uploadApiPath)
+const headers = ref({
+  Authorization: 'Bearer ' + getToken()
+})
+const addCommentOpen = ref(false)
+const commentFrom = ref({
+  content: '',
+  type: 1,
+  avatar: '',
+  username: '',
+  star: 4,
+  hasPicture: false,
+  picUrls: []
+})
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
+    }
+  } = await listComment(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  commentList.value = data
+  loading.value = false
+}
+function statusFormat(row, column) {
+  return instance.proxy.echoDictName(instance.proxy.statusOptions, row.status)
+}
+function replyDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function reset() {
+  replyForm.value = {}
+  templateRefs.replyFormRef.resetFields()
+}
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+function handleDelete(row) {
+  const commentIds = row.id || ids.value
+  instance.proxy.$confirm('是否确认删除评论编号为"' + commentIds + '"的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delComment(commentIds)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function() {})
+}
+async function handleReply(row) {
+  const {
+    data
+  } = await getComment(row.id)
+  replyForm.value['id'] = data.id
+  replyForm.value['adminContent'] = data.adminContent
+  open.value = true
+}
+function submitForm() {
+  templateRefs.replyFormRef.validate(valid => {
+    if (valid) {
+      if (replyForm.value.id !== undefined) {
+        updateComment(replyForm.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
       }
     }
-  },
-  created() {
-    this.getList()
-    this.getDicts('commentType').then((response) => {
-      const {
-        data
-      } = response
-      this.commentTypeOptions = data
-    })
-    this.getDicts('starLevel').then((response) => {
-      const {
-        data
-      } = response
-      this.starLevelOptions = data
-    })
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await listComment(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.commentList = data
-      this.loading = false
-    },
-    // 字典状态字典翻译
-    statusFormat(row, column) {
-      return this.echoDictName(this.statusOptions, row.status)
-    },
-    /**
-     * 会员对话框关闭
-     */
-    replyDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    /**
-     * 表单重置
-     */
-    reset() {
-      this.replyForm = {}
-      this.$refs['replyForm'].resetFields()
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const commentIds = row.id || this.ids
-      this.$confirm(
-        '是否确认删除评论编号为"' + commentIds + '"的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delComment(commentIds)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function() {})
-    },
-    /**
-     * 编辑操作
-     */
-    async handleReply(row) {
-      const {
-        data
-      } = await getComment(row.id)
-      this.replyForm['id'] = data.id
-      this.replyForm['adminContent'] = data.adminContent
-      this.open = true
-    },
-    /**
-     * 提交会员表单
-     */
-    submitForm() {
-      this.$refs['replyForm'].validate((valid) => {
-        if (valid) {
-          if (this.replyForm.id !== undefined) {
-            updateComment(this.replyForm).then((response) => {
-              this.updateHandle(response, this)
-            })
-          }
-        }
-      })
-    },
-    uploadPicUrl: function(response) {
-      this.commentFrom.avatar = response.data
-    },
-    checkFileSize: function(file) {
-      if (file.size > 1048576) {
-        this.$message.error(
-          `${file.name}文件大于1024KB，请选择小于1024KB大小的图片`
-        )
-        return false
-      }
-      return true
-    },
-    uploadOverrun: function() {
-      this.$message({
-        type: 'error',
-        message: '上传文件个数超出限制!最多上传5张图片!'
-      })
-    },
-    // 上传商品画廊
-    handleGalleryUrl(response, file, fileList) {
-      if (response.code === 200) {
-        this.commentFrom.picUrls.push(response.data)
-      }
-    },
-    // 移除商品画廊
-    handleRemove: function(file, fileList) {
-      for (let i = 0; i < this.commentFrom.picUrls.length; i++) {
-        // 这里存在两种情况
-        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
-        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
-        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
-        let url
-        if (file.response === undefined) {
-          url = file.url
-        } else {
-          url = file.response.data
-        }
-
-        if (this.commentFrom.picUrls[i] === url) {
-          this.commentFrom.picUrls.splice(i, 1)
-        }
-      }
-    },
-    handleAdd() {
-      this.addCommentOpen = true
-    },
-    addCommentClose() {
-      this.addCommentOpen = false
-      this.commentFrom = {}
-      this.$refs['commentFrom'].resetFields()
-    },
-    addCommentForm() {
-      if (this.commentFrom.picUrls.length > 0) this.commentFrom.hasPicture = true
-      console.log(this.commentFrom)
-      this.$refs['commentFrom'].validate((valid) => {
-        if (valid) {
-          addComment(this.commentFrom).then(response => {
-            this.$message.success('添加成功')
-            this.addCommentOpen = false
-            this.commentFrom = {}
-            this.$refs['commentFrom'].resetFields()
-            this.getList()
-          })
-        }
-      })
+  })
+}
+function uploadPicUrl(response) {
+  commentFrom.value.avatar = response.data
+}
+function checkFileSize(file) {
+  if (file.size > 1048576) {
+    instance.proxy.$message.error(`${file.name}文件大于1024KB，请选择小于1024KB大小的图片`)
+    return false
+  }
+  return true
+}
+function uploadOverrun() {
+  instance.proxy.$message({
+    type: 'error',
+    message: '上传文件个数超出限制!最多上传5张图片!'
+  })
+}
+function handleGalleryUrl(response, file, fileList) {
+  if (response.code === 200) {
+    commentFrom.value.picUrls.push(response.data)
+  }
+}
+function handleRemove(file, fileList) {
+  for (let i = 0; i < commentFrom.value.picUrls.length; i++) {
+    // 这里存在两种情况
+    // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
+    //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
+    // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
+    let url
+    if (file.response === undefined) {
+      url = file.url
+    } else {
+      url = file.response.data
+    }
+    if (commentFrom.value.picUrls[i] === url) {
+      commentFrom.value.picUrls.splice(i, 1)
     }
   }
 }
+function handleAdd() {
+  addCommentOpen.value = true
+}
+function addCommentClose() {
+  addCommentOpen.value = false
+  commentFrom.value = {}
+  templateRefs.commentFromRef.resetFields()
+}
+function addCommentForm() {
+  if (commentFrom.value.picUrls.length > 0) commentFrom.value.hasPicture = true
+  console.log(commentFrom.value)
+  templateRefs.commentFromRef.validate(valid => {
+    if (valid) {
+      addComment(commentFrom.value).then(response => {
+        instance.proxy.$message.success('添加成功')
+        addCommentOpen.value = false
+        commentFrom.value = {}
+        templateRefs.commentFromRef.resetFields()
+        getList()
+      })
+    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
+  }
+}
+(() => {
+  getList()
+  instance.proxy.getDicts('commentType').then(response => {
+    const {
+      data
+    } = response
+    commentTypeOptions.value = data
+  })
+  instance.proxy.getDicts('starLevel').then(response => {
+    const {
+      data
+    } = response
+    starLevelOptions.value = data
+  })
+})()
+defineExpose({
+  addCommentClose,
+  addCommentForm,
+  addCommentOpen,
+  checkFileSize,
+  commentFrom,
+  commentList,
+  commentTypeOptions,
+  dateRange,
+  getList,
+  handleAdd,
+  handleDelete,
+  handleGalleryUrl,
+  handleQuery,
+  handleRemove,
+  handleReply,
+  handleSelectionChange,
+  headers,
+  ids,
+  loading,
+  multiple,
+  open,
+  queryForm,
+  replyDialogHandleClose,
+  replyForm,
+  reset,
+  resetQuery,
+  rules,
+  rulesCommentFrom,
+  single,
+  starLevelOptions,
+  statusFormat,
+  submitForm,
+  title,
+  total,
+  uploadOverrun,
+  uploadPath,
+  uploadPicUrl
+})
 </script>
 <style lang="scss" scoped>
 </style>

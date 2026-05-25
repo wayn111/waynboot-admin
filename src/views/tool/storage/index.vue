@@ -9,27 +9,32 @@
   </el-tabs>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
 import QiNiu from './qiniu/index'
 import Local from './local/index'
-export default {
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   name: 'Storage',
-  components: { QiNiu, Local },
-  data() {
-    return {
-      activeName: 'first'
-    }
-  },
-  methods: {
-    tabClick(name) {
-      if (this.activeName === 'first') {
-        // this.$refs.local.list
-      } else {
-        this.$refs.qiNiu.getList()
-      }
-    }
+  components: {
+    QiNiu,
+    Local
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const activeName = ref('first')
+function tabClick(name) {
+  if (activeName.value === 'first') {
+    // this.$refs.local.list
+  } else {
+    templateRefs.qiNiu.getList()
   }
 }
+defineExpose({
+  activeName,
+  tabClick
+})
 </script>
 
 <style scoped>

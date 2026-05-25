@@ -1,126 +1,135 @@
-## waynboot-mall项目
+# waynboot-admin
 
-waynboot-mall是一套全部开源的微商城项目，包含一个运营后台、h5商城和后台接口。
-实现了一个商城所需的首页展示、商品分类、商品详情、sku详情、商品搜索、加入购物车、结算下单、订单状态流转、商品评论等一系列功能。
-技术上基于Springboot2.0，整合了Redis、RabbitMQ、ElasticSearch等常用中间件，
-贴近生产环境实际经验开发而来不断完善、优化、改进中。
+Waynboot Mall 后台管理端，已升级到 Vue 3、Vite 6 和 Element Plus。项目面向商城运营后台，包含动态路由菜单、权限控制、商品管理、订单管理、会员管理、运营配置、系统管理、富文本编辑和消息通知等后台功能。
 
-- [h5商城项目](https://github.com/wayn111/waynboot-mobile)
-- [运营后台项目](https://github.com/wayn111/waynboot-admin)  
-- [后台接口项目](https://github.com/wayn111/waynboot-mall)
+## 相关仓库
 
-## waynboot-admin
+- H5 商城端：https://github.com/wayn111/waynboot-mobile
+- 后台管理端：https://github.com/wayn111/waynboot-admin
+- 后台接口服务：https://github.com/wayn111/waynboot-mall
 
-* 基于vue-admin-template基础模板脚手架
-* 前端采用Vue、Element UI。
-* 后端采用Spring Boot、Spring Security、Redis & Jwt。
-* 支持动态路由，权限验证。
+## 技术栈
 
-> 如果有任何使用问题，欢迎提交Issue或加wx告知，方便互相交流反馈～ 💘。最后，喜欢的话麻烦给我个star
+- Vue 3.5
+- Vue Router 4
+- Vuex 4
+- Vite 6
+- Element Plus 2
+- Axios
+- ECharts
+- TinyMCE 8 + `@tinymce/tinymce-vue`
+- Vitest + Vue Test Utils
+- ESLint
 
-关注我的公众号：程序员wayn，专注技术干货输出、分享开源项目。回复关键字：
+## 环境要求
 
-- **加群**：加群交流，探讨技术问题。
-- **演示账号**：获得 waynboot-mall 商城后台演示账号。
-- **开源项目**：获取我写的三个开源项目，包含PC、H5商城、后台权限管理系统等。
-- **wayn商城资料**：获取wayhboot-mall项目配套资料以及商城图片压缩包下载地址。
-- **加微信**：联系我。
+- Node.js >= 20.19.0
+- npm >= 10.0.0
 
-<img src="images/wx-mp-code.png" width = "100" />
+## 快速开始
 
----
-
-## 内置功能
-
-```
-- 登录 / 注销
-
-- 权限验证
-  - 页面权限
-  - 指令权限
-  - 权限配置
-
-- 全局功能
-  - 动态侧边栏（支持多级路由嵌套）
-  - 动态面包屑
-  - 快捷导航(标签页)
-  - Svg Sprite 图标
-  - Screenfull全屏
-  - 自适应收缩侧边栏
-
-- 菜单导航
-  - 首页
-  - 用户管理
-    - 会员管理
-    - 地址管理
-    - 评论管理
-  - 商城管理
-    - 添加商品
-    - 商品管理
-    - banner管理
-    - 订单管理
-    - 分类管理
-  - 运营管理
-    - 金刚区管理
-    - 栏目管理
-    - 关键字管理
-  - 系统管理
-    - 用户管理
-    - 角色管理
-    - 菜单管理
-    - 部门管理
-    - 字典管理
-  - 系统监控
-    - 数据管理
-  - 系统工具
-    - 存储管理
-    - 邮件管理
-    - 系统接口
-```
-## 本地开发
-```
-# 前置准备
-下载 nodejs v16.20.1 版本
-
-# 克隆项目
-git clone git@github.com:wayn111/waynboot-admin.git
-
-# 进入项目目录
-cd waynboot-admin
-
-// 清空缓存
-npm cache clean --force
-
-// 切换新淘宝源
-npm config set registry https://registry.npmmirror.com
-
-# 安装依赖
+```bash
 npm install
-
-# 启动服务
 npm run dev
-
-# 管理员账号/密码
-admin/123456
 ```
 
-## 在线体验
+默认开发服务端口为 `9528`，Vite 会按 `.env.development` 中的配置代理 `/dev-api` 和 `/upload`。
 
-演示地址以及账号：关注我的公众号【程序员wayn】，发送 演示账号
+管理员账号密码由后端服务提供，常用演示账号为：
 
-## 演示gif
+```text
+admin / 123456
+```
 
-![Alt text](images/admin.gif)
+## 常用命令
 
-## waynboot-mall交流群
+```bash
+npm run dev
+npm run build:prod
+npm run preview
+npm run lint
+npm run test:unit
+npm run test:ci
+npm run svgo
+```
 
-关注我的公众号【程序员wayn】，发送 加群，拉你进我的技术交流群
+命令说明：
 
-## 感谢
+- `dev`：启动 Vite 开发服务。
+- `build:prod`：生产构建，输出到 `dist/`。
+- `preview`：本地预览生产构建产物。
+- `lint`：检查 `src` 下的 JavaScript 和 Vue 文件。
+- `test:unit`：运行 Vitest 单元测试。
+- `test:ci`：依次运行 lint 和单元测试。
+- `svgo`：压缩 `src/icons/svg` 图标。
 
-- [vue-admin-template](https://github.com/PanJiaChen/vue-admin-template)
-- [litemall](https://github.com/linlinjava/litemall)
+## 目录结构
 
-# 捐助
+```text
+.
+├── public/                 # 静态资源，包含 favicon 和本地 TinyMCE 语言包/资源
+├── src/
+│   ├── api/                # 后台接口封装
+│   ├── assets/             # 项目图片等静态资源
+│   ├── components/         # 通用组件
+│   ├── directive/          # 权限等自定义指令
+│   ├── icons/              # SVG 图标与注册逻辑
+│   ├── layout/             # 后台基础布局、导航栏、侧边栏
+│   ├── plugins/            # Element Plus 等插件初始化
+│   ├── router/             # 常量路由与动态路由入口
+│   ├── store/              # Vuex 模块
+│   ├── styles/             # 全局样式、Element Plus 样式覆盖
+│   ├── utils/              # 请求、加密、TinyMCE、环境变量等工具
+│   └── views/              # 页面模块
+├── tests/unit/             # 单元测试与架构约束测试
+├── index.html              # Vite 入口 HTML
+└── vite.config.js          # Vite 构建配置
+```
 
-<img src="./images/捐助.jpg" width="260" alt="如果这个项目对你有所帮助，不如请作者喝杯咖啡吧">
+## 功能模块
+
+- 登录、注销和用户信息加载。
+- 动态路由菜单，支持后端 `getRouters` 返回父子目录层级。
+- 侧边栏、面包屑和导航栏状态联动。
+- 商品、订单、分类、库存、预警、会员、地址、评论等商城模块。
+- 栏目、金刚区、关键字、优惠券、客服配置等运营模块。
+- 用户、角色、菜单、部门、字典、系统日志等系统模块。
+- 邮件、存储、接口文档等工具模块。
+- TinyMCE 使用本地开源包和 GPL license，不依赖 TinyMCE Cloud。
+- 消息通知页使用前端静态数据，因为后台当前未提供 `/msg/msgTask/list` 接口。
+
+## 环境变量
+
+开发环境配置位于 `.env.development`：
+
+```env
+VITE_APP_BASE_API='/dev-api'
+VITE_APP_BASE_URL='http://localhost:81/'
+```
+
+生产环境配置位于 `.env.production`：
+
+```env
+VITE_APP_BASE_API='/admin-api'
+VITE_APP_BASE_URL='http://localhost:81'
+```
+
+`VITE_APP_BASE_API` 用于前端请求前缀，`VITE_APP_BASE_URL` 用于 Vite 开发服务器代理目标。
+
+## 构建与部署
+
+项目构建基于 Vite，生产构建命令为：
+
+```bash
+npm run build:prod
+```
+
+构建产物输出到 `dist/`。当前 `vite.config.js` 中的 `base` 为 `/admin/`，部署到其他路径时需要同步调整该配置和后端静态资源访问路径。
+
+## 迁移说明
+
+当前项目已经从 Vue 2 / Vue CLI / Element UI 迁移到 Vue 3 / Vite 6 / Element Plus。旧的 Vue CLI、Babel、Jest、Travis 和 Element UI 入口配置已移除，测试体系改为 Vitest。
+
+## License
+
+MIT

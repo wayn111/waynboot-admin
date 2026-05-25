@@ -1,6 +1,7 @@
 import axios from 'axios'
+import { baseApi } from '@/utils/env'
 
-axios.defaults.baseURL = process.env.BASE_API
+axios.defaults.baseURL = baseApi
 
 const service = axios.create({
   timeout: 40000,

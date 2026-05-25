@@ -12,7 +12,7 @@
         <components
           :is="componentType"
           v-if="componentType"
-          ref="instance"
+          ref="instanceRef"
           :captcha-type="captchaType"
           :type="verifyType"
           :figure="figure"
@@ -29,180 +29,170 @@
     </div>
   </div>
 </template>
-<script type="text/babel">
+<script setup>
+import { computed, getCurrentInstance, onMounted, ref, watch } from 'vue'
 /**
      * Verify 验证码组件
      * @description 分发验证码使用
      * */
 import VerifySlide from './Verify/VerifySlide'
 import VerifyPoints from './Verify/VerifyPoints'
-
-export default {
+import defaultImage from '@/assets/image/default.jpg'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   name: 'Vue2Verify',
   components: {
     VerifySlide,
     VerifyPoints
-  },
-  props: {
-    // 双语化
-    locale: {
-      require: false,
-      type: String,
-      default() {
-        // 默认语言不输入为浏览器语言
-        let language
-        if (navigator.language) {
-          language = navigator.language
-        } else {
-          language = navigator.browserLanguage
-        }
-        return language
-      }
-    },
-    captchaType: {
-      type: String,
-      required: true
-    },
-    figure: {
-      type: Number,
-      default: 0
-    },
-    arith: {
-      type: Number,
-      default: 0
-    },
-    mode: {
-      type: String,
-      default: 'pop'
-    },
-    vSpace: {
-      type: Number,
-      default: 0
-    },
-    explain: {
-      type: String,
-      default: ''
-    },
-    imgSize: {
-      type: Object,
-      default() {
-        return {
-          width: '310px',
-          height: '155px'
-        }
-      }
-    },
-    blockSize: {
-      type: Object,
-      default: () => {}
-    },
-    barSize: {
-      type: Object,
-      default: () => {}
-    }
-  },
-  data() {
-    return {
-      // showBox:true,
-      clickShow: false,
-      // 内部类型
-      verifyType: undefined,
-      // 所用组件类型
-      componentType: undefined,
-      // 默认图片
-      defaultImg: require('@/assets/image/default.jpg')
-    }
-  },
-  computed: {
-    instance() {
-      return this.$refs.instance || {}
-    },
-    showBox() {
-      if (this.mode === 'pop') {
-        return this.clickShow
+  }
+})
+const props = defineProps({
+  // 双语化
+  locale: {
+    require: false,
+    type: String,
+    default() {
+      // 默认语言不输入为浏览器语言
+      let language
+      if (navigator.language) {
+        language = navigator.language
       } else {
-        return true
+        language = navigator.browserLanguage
+      }
+      return language
+    }
+  },
+  captchaType: {
+    type: String,
+    required: true
+  },
+  figure: {
+    type: Number,
+    default: 0
+  },
+  arith: {
+    type: Number,
+    default: 0
+  },
+  mode: {
+    type: String,
+    default: 'pop'
+  },
+  vSpace: {
+    type: Number,
+    default: 0
+  },
+  explain: {
+    type: String,
+    default: ''
+  },
+  imgSize: {
+    type: Object,
+    default() {
+      return {
+        width: '310px',
+        height: '155px'
       }
     }
   },
-  watch: {
-    captchaType: {
-      immediate: true,
-      handler(captchaType) {
-        switch (captchaType.toString()) {
-          case 'blockPuzzle':
-            this.verifyType = '2'
-            this.componentType = 'VerifySlide'
-            break
-          case 'clickWord':
-            this.verifyType = ''
-            this.componentType = 'VerifyPoints'
-            break
-        }
-      }
-    }
+  blockSize: {
+    type: Object,
+    default: () => {}
   },
-  mounted() {
-    this.uuid()
-  },
-  methods: {
-    // 生成 uuid
-    uuid() {
-      var s = []
-      var hexDigits = '0123456789abcdef'
-      for (var i = 0; i < 36; i++) {
-        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
-      }
-      s[14] = '4' // bits 12-15 of the time_hi_and_version field to 0010
-      s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1) // bits 6-7 of the clock_seq_hi_and_reserved to 01
-      s[8] = s[13] = s[18] = s[23] = '-'
-
-      var slider = 'slider' + '-' + s.join('')
-      var point = 'point' + '-' + s.join('')
-      // 判断下是否存在 slider
-      console.log(localStorage.getItem('slider'))
-      if (!localStorage.getItem('slider')) {
-        localStorage.setItem('slider', slider)
-      }
-      if (!localStorage.getItem('point')) {
-        localStorage.setItem('point', point)
-      }
-    },
-    /**
-             * i18n
-             * @description 兼容vue-i18n 调用$t来转换ok
-             * @param {String} text-被转换的目标
-             * @return {String} i18n的结果
-             * */
-    i18n(text) {
-      if (this.$t) {
-        return this.$t(text)
-      } else {
-        // 兼容不存在的语言
-        const i18n = this.$options.i18n.messages[this.locale] || this.$options.i18n.messages['en-US']
-        return i18n[text]
-      }
-    },
-    /**
-             * refresh
-             * @description 刷新
-             * */
-    refresh() {
-      if (this.instance.refresh) {
-        this.instance.refresh()
-      }
-    },
-    closeBox() {
-      this.clickShow = false
-      this.refresh()
-    },
-    show() {
-      if (this.mode === 'pop') {
-        this.clickShow = true
-      }
-    }
+  barSize: {
+    type: Object,
+    default: () => {}
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const clickShow = ref(false)
+const verifyType = ref(undefined)
+const componentType = ref(undefined)
+const defaultImg = ref(defaultImage)
+const verifyInstance = computed(() => {
+  return templateRefs.instanceRef || {}
+})
+const showBox = computed(() => {
+  if (props.mode === 'pop') {
+    return clickShow.value
+  } else {
+    return true
+  }
+})
+function uuid() {
+  var s = []
+  var hexDigits = '0123456789abcdef'
+  for (var i = 0; i < 36; i++) {
+    s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1)
+  }
+  s[14] = '4' // bits 12-15 of the time_hi_and_version field to 0010
+  s[19] = hexDigits.substr(s[19] & 0x3 | 0x8, 1) // bits 6-7 of the clock_seq_hi_and_reserved to 01
+  s[8] = s[13] = s[18] = s[23] = '-'
+  var slider = 'slider' + '-' + s.join('')
+  var point = 'point' + '-' + s.join('')
+  // 判断下是否存在 slider
+  console.log(localStorage.getItem('slider'))
+  if (!localStorage.getItem('slider')) {
+    localStorage.setItem('slider', slider)
+  }
+  if (!localStorage.getItem('point')) {
+    localStorage.setItem('point', point)
   }
 }
+function i18n(text) {
+  if (instance.proxy.$t) {
+    return instance.proxy.$t(text)
+  } else {
+    // 兼容不存在的语言
+    const i18n = instance.proxy.$options.i18n.messages[props.locale] || instance.proxy.$options.i18n.messages['en-US']
+    return i18n[text]
+  }
+}
+function refresh() {
+  if (verifyInstance.value.refresh) {
+    instance.value.refresh()
+  }
+}
+function closeBox() {
+  clickShow.value = false
+  refresh()
+}
+function show() {
+  if (props.mode === 'pop') {
+    clickShow.value = true
+  }
+}
+watch(() => props.captchaType, captchaType => {
+  switch (captchaType.toString()) {
+    case 'blockPuzzle':
+      verifyType.value = '2'
+      componentType.value = 'VerifySlide'
+      break
+    case 'clickWord':
+      verifyType.value = ''
+      componentType.value = 'VerifyPoints'
+      break
+  }
+}, {
+  immediate: true
+})
+onMounted(() => {
+  uuid()
+})
+defineExpose({
+  clickShow,
+  closeBox,
+  componentType,
+  defaultImg,
+  i18n,
+  verifyInstance,
+  refresh,
+  show,
+  showBox,
+  uuid,
+  verifyType
+})
 </script>
 <style>
     .verifybox{
@@ -311,14 +301,14 @@ export default {
     }
 
     .verify-change-code {
-        color: #337AB7;
+        color: #0066cc;
         cursor: pointer;
     }
 
     .verify-btn {
         width: 200px;
         height: 30px;
-        background-color: #337AB7;
+        background-color: #0066cc;
         color: #FFFFFF;
         border: none;
         margin-top: 10px;
@@ -350,7 +340,7 @@ export default {
     }
 
     .verify-bar-area .verify-move-block:hover {
-        background-color: #337ab7;
+        background-color: #0066cc;
         color: #FFFFFF;
     }
 

@@ -1,4 +1,2 @@
-build/*.js
-src/assets
-public
 dist
+public/tinymce

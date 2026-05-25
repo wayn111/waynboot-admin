@@ -9,70 +9,80 @@
   </el-breadcrumb>
 </template>
 
-<script>
-import pathToRegexp from 'path-to-regexp'
-
-export default {
-  data() {
-    return {
-      levelList: null
-    }
-  },
-  watch: {
-    $route() {
-      this.getBreadcrumb()
-    }
-  },
-  created() {
-    this.getBreadcrumb()
-  },
-  methods: {
-    getBreadcrumb() {
-      // only show routes with meta.title
-      let matched = this.$route.matched.filter(item => item.meta && item.meta.title)
-      const first = matched[0]
-
-      if (!this.isDashboard(first)) {
-        matched = [{ path: '/dashboard', meta: { title: '首页' }}].concat(matched)
+<script setup>
+import { getCurrentInstance, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { compile } from 'path-to-regexp'
+const instance = getCurrentInstance()
+const router = instance.appContext.config.globalProperties.$router || useRouter()
+const route = instance.appContext.config.globalProperties.$route || useRoute() || { matched: [], params: {}}
+const levelList = ref(null)
+function getBreadcrumb() {
+  // only show routes with meta.title
+  let matched = route.matched.filter(item => item.meta && item.meta.title)
+  const first = matched[0]
+  if (!isDashboard(first)) {
+    matched = [{
+      path: '/dashboard',
+      meta: {
+        title: '首页'
       }
-
-      this.levelList = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
-    },
-    isDashboard(route) {
-      const name = route && route.name
-      if (!name) {
-        return false
-      }
-      return name.trim().toLocaleLowerCase() === '首页'.toLocaleLowerCase()
-    },
-    pathCompile(path) {
-      // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561
-      const { params } = this.$route
-      const toPath = pathToRegexp.compile(path)
-      return toPath(params)
-    },
-    handleLink(item) {
-      const { redirect, path } = item
-      if (redirect) {
-        this.$router.push(redirect)
-        return
-      }
-      this.$router.push(this.pathCompile(path))
-    }
+    }].concat(matched)
   }
+  levelList.value = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false)
 }
+function isDashboard(route) {
+  const name = route && route.name
+  if (!name) {
+    return false
+  }
+  return name.trim().toLocaleLowerCase() === '首页'.toLocaleLowerCase()
+}
+function pathCompile(path) {
+  // To solve this problem https://github.com/PanJiaChen/vue-element-admin/issues/561
+  const {
+    params
+  } = route
+  const toPath = compile(path)
+  return toPath(params)
+}
+function handleLink(item) {
+  const {
+    redirect,
+    path
+  } = item
+  if (redirect) {
+    router.push(redirect)
+    return
+  }
+  router.push(pathCompile(path))
+}
+watch(() => route.matched, () => {
+  getBreadcrumb()
+})
+;(() => {
+  getBreadcrumb()
+})()
+defineExpose({
+  getBreadcrumb,
+  handleLink,
+  isDashboard,
+  levelList,
+  pathCompile
+})
 </script>
 
 <style lang="scss" scoped>
 .app-breadcrumb.el-breadcrumb {
   display: inline-block;
-  font-size: 14px;
-  line-height: 50px;
-  margin-left: 8px;
+  font-size: 13px;
+  line-height: 58px;
+  margin-left: 4px;
 
   .no-redirect {
-    color: #97a8be;
+    color: #7a7a7a;
     cursor: text;
+    font-weight: 400;
   }
 }
 </style>

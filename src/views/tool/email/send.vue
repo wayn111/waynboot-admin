@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-form
-      ref="form"
+      ref="formRef"
       :model="form"
       :rules="rules"
       style="margin-top: 6px"
@@ -17,20 +17,20 @@
         :label="'收件邮箱' + (index === 0 ? '' : index)"
       >
         <el-input v-model="domain.value" style="width: 550px" />
-        <el-button icon="el-icon-plus" @click="addDomain" />
+        <el-button icon="Plus" @click="addDomain" />
         <el-button
           style="margin-left: 0"
-          icon="el-icon-minus"
+          icon="Minus"
           @click.prevent="removeDomain(domain)"
         />
       </el-form-item>
       <el-form-item label="发送内容">
-        <editor v-model="form.content" :init="editorInit" />
+        <editor v-model="form.content" :init="editorInit" :license-key="tinymceLicenseKey" />
       </el-form-item>
       <el-button
         :loading="loading"
         style="margin-left: 1.6%"
-        size="medium"
+        size="default"
         type="primary"
         @click="doSubmit"
       >发送邮件</el-button>
@@ -38,119 +38,114 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { getCurrentInstance, onMounted, ref } from 'vue'
 import { send } from '@/api/tool/email'
-import Editor from '@tinymce/tinymce-vue'
+import Editor from '@/utils/tinymce-editor'
 import { validEmail } from '@/utils/validate'
 import { fileUpload } from '@/api/upload'
-export default {
+import { createTinymceImageUploadHandler, createTinymceInit, tinymceLicenseKey as tinyMceGplLicenseKey } from '@/utils/tinymce'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   name: 'Index',
-  components: { Editor },
-  data() {
-    return {
-      loading: false,
-      form: { subject: '', tos: [], content: '' },
-      // 初始化富文本编辑器
-      editorInit: {
-        language: 'zh_CN',
-        height: 500,
-        convert_urls: false,
-        plugins: [
-          'advlist anchor autolink autosave code codesample  directionality emoticons fullscreen hr image imagetools importcss insertdatetime link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus table template textpattern visualblocks visualchars wordcount'
-        ],
-        toolbar: [
-          'searchreplace bold italic underline strikethrough alignleft aligncenter alignright outdent indent  blockquote undo redo removeformat subscript superscript code codesample',
-          'hr bullist numlist link image charmap preview anchor pagebreak insertdatetime media table emoticons forecolor backcolor fullscreen'
-        ],
-        images_upload_handler: function(blobInfo, success, failure) {
-          const formData = new FormData()
-          formData.append('file', blobInfo.blob())
-          fileUpload(formData)
-            .then((res) => {
-              success(res.url)
-            })
-            .catch(() => {
-              failure('上传失败，请重新上传')
-            })
-        }
-      },
-      tos: [
-        {
-          value: ''
-        }
-      ],
-      rules: {
-        subject: [{ required: true, message: '标题不能为空', trigger: 'blur' }]
-      }
-    }
-  },
-  mounted() {
-  },
-  methods: {
-    removeDomain(item) {
-      var index = this.tos.indexOf(item)
-      if (index !== -1 && this.tos.length !== 1) {
-        this.tos.splice(index, 1)
-      } else {
-        this.$message({
-          message: '请至少保留一位联系人',
-          type: 'warning'
-        })
-      }
-    },
-    addDomain() {
-      this.tos.push({
-        value: '',
-        key: Date.now()
-      })
-    },
-    doSubmit() {
-      const _this = this
-      this.$refs['form'].validate((valid) => {
-        this.form.tos = []
-        if (valid) {
-          let sub = false
-          this.tos.forEach(function(data, index) {
-            if (data.value === '') {
-              _this.$message({
-                message: '收件邮箱不能为空',
-                type: 'warning'
-              })
-              sub = true
-            } else if (validEmail(data.value)) {
-              _this.form.tos.push(data.value)
-            } else {
-              _this.$message({
-                message: '收件邮箱格式错误',
-                type: 'warning'
-              })
-              sub = true
-            }
-          })
-          if (sub) {
-            return false
-          }
-          this.loading = true
-          send(this.form)
-            .then((res) => {
-              this.$notify({
-                title: '发送成功',
-                type: 'success',
-                duration: 2500
-              })
-              this.loading = false
-            })
-            .catch((err) => {
-              this.loading = false
-              console.log(err.response.data.message)
-            })
-        } else {
-          return false
-        }
-      })
-    }
+  components: {
+    Editor
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(false)
+const tinymceLicenseKey = ref(tinyMceGplLicenseKey)
+const form = ref({
+  subject: '',
+  tos: [],
+  content: ''
+})
+const editorInit = ref(createTinymceInit({
+  images_upload_handler: createTinymceImageUploadHandler(fileUpload, res => res.url)
+}))
+const tos = ref([{
+  value: ''
+}])
+const rules = ref({
+  subject: [{
+    required: true,
+    message: '标题不能为空',
+    trigger: 'blur'
+  }]
+})
+function removeDomain(item) {
+  var index = tos.value.indexOf(item)
+  if (index !== -1 && tos.value.length !== 1) {
+    tos.value.splice(index, 1)
+  } else {
+    instance.proxy.$message({
+      message: '请至少保留一位联系人',
+      type: 'warning'
+    })
   }
 }
+function addDomain() {
+  tos.value.push({
+    value: '',
+    key: Date.now()
+  })
+}
+function doSubmit() {
+  const _this = this
+  templateRefs.formRef.validate(valid => {
+    form.value.tos = []
+    if (valid) {
+      let sub = false
+      tos.value.forEach(function(data, index) {
+        if (data.value === '') {
+          _this.$message({
+            message: '收件邮箱不能为空',
+            type: 'warning'
+          })
+          sub = true
+        } else if (validEmail(data.value)) {
+          _this.form.tos.push(data.value)
+        } else {
+          _this.$message({
+            message: '收件邮箱格式错误',
+            type: 'warning'
+          })
+          sub = true
+        }
+      })
+      if (sub) {
+        return false
+      }
+      loading.value = true
+      send(form.value).then(res => {
+        instance.proxy.$notify({
+          title: '发送成功',
+          type: 'success',
+          duration: 2500
+        })
+        loading.value = false
+      }).catch(err => {
+        loading.value = false
+        console.log(err.response.data.message)
+      })
+    } else {
+      return false
+    }
+  })
+}
+onMounted(() => {})
+defineExpose({
+  addDomain,
+  doSubmit,
+  editorInit,
+  form,
+  loading,
+  removeDomain,
+  rules,
+  tinymceLicenseKey,
+  tos
+})
 </script>
 
 <style scoped>
@@ -159,7 +154,7 @@ export default {
   margin: 20px;
   width: 730px;
 }
-::v-deep .w-e-text-container {
+:deep(.w-e-text-container) {
   height: 360px !important;
 }
 </style>

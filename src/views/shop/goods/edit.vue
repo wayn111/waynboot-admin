@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-card class="box-card">
       <h3>商品介绍</h3>
-      <el-form ref="goods" :rules="rules" :model="goods" label-width="150px">
+      <el-form ref="goodsFormRef" :rules="rules" :model="goods" label-width="150px">
         <el-form-item label="商品ID" prop="id">
           <el-input v-model="goods.id" disabled />
         </el-form-item>
@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item label="市场售价" prop="counterPrice">
           <el-input v-model="goods.counterPrice" placeholder="0.00">
-            <template slot="append">元</template>
+            <template #append>元</template>
           </el-input>
         </el-form-item>
         <!-- <el-form-item label="是否新品" prop="isNew">
@@ -46,8 +46,8 @@
             accept=".jpg, .jpeg, .png, .gif"
           >
             <img v-if="goods.picUrl" :src="goods.picUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div></template>
           </el-upload>
         </el-form-item>
 
@@ -64,8 +64,8 @@
             accept=".jpg, .jpeg, .png, .gif"
             list-type="picture-card"
           >
-            <i class="el-icon-plus" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div>
+            <el-icon><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 800</div></template>
           </el-upload>
         </el-form-item>
 
@@ -77,7 +77,7 @@
           <el-input
             v-model="goods.virtualSales"
             placeholder=""
-          ><template slot="append">{{ goods.unit }}</template>
+          ><template #append>{{ goods.unit }}</template>
           </el-input>
         </el-form-item>
 
@@ -94,7 +94,7 @@
             ref="newKeywordInput"
             v-model="newKeyword"
             class="input-new-keyword"
-            @keyup.enter.native="handleInputConfirm"
+            @keyup.enter="handleInputConfirm"
             @blur="handleInputConfirm"
           />
           <el-button
@@ -127,7 +127,13 @@
         </el-form-item>
 
         <el-form-item label="商品详细介绍">
-          <editor v-model="goods.detail" :init="editorInit" />
+          <editor
+            v-if="goodsLoaded"
+            :key="goods.id || 'goods-detail-editor'"
+            v-model="goods.detail"
+            :init="editorInit"
+            :license-key="tinymceLicenseKey"
+          />
         </el-form-item>
       </el-form>
     </el-card>
@@ -137,12 +143,12 @@
       <el-table border :data="specifications">
         <el-table-column property="specification" label="规格名" />
         <el-table-column property="value" label="规格值">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-tag type="primary">{{ scope.row.value }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column property="picUrl" label="规格图片">
-          <template slot-scope="scope">
+          <template #default="scope">
             <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="40">
           </template>
         </el-table-column>
@@ -152,19 +158,19 @@
           width="200"
           class-name="small-padding fixed-width"
         >
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-button
               type="primary"
-              size="mini"
+              size="small"
               @click="handleSpecificationShow(scope.row)"
             >设置</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="specVisiable" title="设置规格">
+      <el-dialog v-model="specVisiable" title="设置规格">
         <el-form
-          ref="specForm"
+          ref="specFormRef"
           :rules="rules"
           :model="specForm"
           status-icon
@@ -176,7 +182,7 @@
             <el-input v-model="specForm.specification" disabled />
           </el-form-item>
           <el-form-item label="规格值" prop="value">
-            <el-input v-model="specForm.value" disabled />
+            <el-input v-model="specForm" disabled />
           </el-form-item>
           <el-form-item label="规格图片" prop="picUrl">
             <el-upload
@@ -192,18 +198,18 @@
                 :src="specForm.picUrl"
                 class="avatar"
               >
-              <i v-else class="el-icon-plus avatar-uploader-icon" />
-              <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，200 x 200</div>
+              <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+              <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，200 x 200</div></template>
             </el-upload>
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button @click="specVisiable = false">取消</el-button>
           <el-button
             type="primary"
             @click="handleSpecificationEdit"
           >确定</el-button>
-        </div>
+        </div></template>
       </el-dialog>
     </el-card>
 
@@ -211,7 +217,7 @@
       <h3>商品库存</h3>
       <el-table border :data="products">
         <el-table-column property="value" label="货品规格">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-tag v-for="tag in scope.row.specifications" :key="tag">{{
               tag
             }}</el-tag>
@@ -220,7 +226,7 @@
         <el-table-column property="price" label="货品售价" />
         <el-table-column property="number" label="货品数量" />
         <el-table-column property="defaultSelected" label="默认选中">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-switch
               v-model="scope.row.defaultSelected"
               :active-value="true"
@@ -236,19 +242,19 @@
           width="200"
           class-name="small-padding fixed-width"
         >
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-button
               type="primary"
-              size="mini"
+              size="small"
               @click="handleProductShow(scope.row)"
             >设置</el-button>
           </template>
         </el-table-column>
       </el-table>
 
-      <el-dialog :visible.sync="productVisiable" title="编辑货品">
+      <el-dialog v-model="productVisiable" title="编辑货品">
         <el-form
-          ref="productForm"
+          ref="productFormRef"
           :model="productForm"
           status-icon
           label-position="left"
@@ -267,10 +273,10 @@
             <el-input v-model="productForm.number" />
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button @click="productVisiable = false">取消</el-button>
           <el-button type="primary" @click="handleProductEdit">确定</el-button>
-        </div>
+        </div></template>
       </el-dialog>
     </el-card>
 
@@ -286,15 +292,15 @@
           width="200"
           class-name="small-padding fixed-width"
         >
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-button
               type="primary"
-              size="mini"
+              size="small"
               @click="handleAttributeShow(scope.row)"
             >设置</el-button>
             <el-button
               type="danger"
-              size="mini"
+              size="small"
               @click="handleAttributeDelete(scope.row)"
             >删除</el-button>
           </template>
@@ -302,11 +308,11 @@
       </el-table>
 
       <el-dialog
-        :visible.sync="attributeVisiable"
+        v-model="attributeVisiable"
         :title="attributeAdd ? '添加商品参数' : '编辑商品参数'"
       >
         <el-form
-          ref="attributeForm"
+          ref="attributeFormRef"
           :model="attributeForm"
           status-icon
           label-position="left"
@@ -317,10 +323,10 @@
             <el-input v-model="attributeForm.attribute" />
           </el-form-item>
           <el-form-item label="商品参数值" prop="value">
-            <el-input v-model="attributeForm.value" />
+            <el-input v-model="attributeForm" />
           </el-form-item>
         </el-form>
-        <div slot="footer" class="dialog-footer">
+        <template #footer><div class="dialog-footer">
           <el-button @click="attributeVisiable = false">取消</el-button>
           <el-button
             v-if="attributeAdd"
@@ -332,7 +338,7 @@
             type="primary"
             @click="handleAttributeEdit"
           >确定</el-button>
-        </div>
+        </div></template>
       </el-dialog>
     </el-card>
 
@@ -342,325 +348,396 @@
     </div>
   </div>
 </template>
-<script>
+<script setup>
+import { computed, getCurrentInstance, nextTick, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getGoods, updateGoods } from '@/api/shop/goods'
 import { listCategory } from '@/api/shop/category'
-import Editor from '@tinymce/tinymce-vue'
+import Editor from '@/utils/tinymce-editor'
 import { getToken } from '@/utils/auth'
-import { uploadPath, fileUpload } from '@/api/upload'
-
-export default {
+import { uploadPath as uploadApiPath, fileUpload } from '@/api/upload'
+import { createTinymceImageUploadHandler, createTinymceInit, tinymceLicenseKey as tinyMceGplLicenseKey } from '@/utils/tinymce'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const router = instance.appContext.config.globalProperties.$router || useRouter()
+const route = instance.appContext.config.globalProperties.$route || useRoute() || { query: {}}
+defineOptions({
   name: 'GoodsEdit',
-  components: { Editor },
-  data() {
-    return {
-      newKeywordVisible: false,
-      newKeyword: '',
-      keywords: [],
-      galleryFileList: [],
-      categoryList: [],
-      props: { label: 'name', value: 'id', expandTrigger: 'hover' },
-      // brandList: [],
-      categoryIds: [],
-      goods: { gallery: [] },
-      specVisiable: false,
-      specForm: { specification: '', value: '', picUrl: '' },
-      specifications: [
-        {
-          specification: '规格',
-          value: '标准',
-          picUrl: ''
-        }
-      ],
-      productVisiable: false,
-      productForm: {
-        id: 0,
-        specifications: [],
-        price: 0.0,
-        number: 0,
-        url: ''
-      },
-      products: [
-        {
-          id: 0,
-          specifications: ['标准'],
-          price: 0.0,
-          defaultSelected: true,
-          number: 0,
-          url: ''
-        }
-      ],
-      attributeVisiable: false,
-      attributeAdd: true,
-      attributeForm: { attribute: '', value: '' },
-      attributes: [],
-      rules: {
-        name: [
-          { required: true, message: '商品名称不能为空', trigger: 'blur' }
-        ],
-        unit: [
-          { required: true, message: '商品单位不能为空', trigger: 'blur' }
-        ]
-      },
-      editorInit: {
-        language: 'zh_CN',
-        height: '400px',
-        convert_urls: false,
-        plugins: [
-          'advlist anchor autolink autosave code codesample colorpicker colorpicker contextmenu directionality emoticons fullscreen hr image imagetools importcss insertdatetime link lists media nonbreaking noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus table template textcolor textpattern visualblocks visualchars wordcount'
-        ],
-        toolbar: [
-          'searchreplace bold italic underline strikethrough alignleft aligncenter alignright outdent indent  blockquote undo redo removeformat subscript superscript code codesample',
-          'hr bullist numlist link image charmap preview anchor pagebreak insertdatetime media table emoticons forecolor backcolor fullscreen'
-        ],
-        images_upload_handler: function(blobInfo, success, failure) {
-          const formData = new FormData()
-          formData.append('file', blobInfo.blob())
-          fileUpload(formData)
-            .then((res) => {
-              success(res.data)
-            })
-            .catch(() => {
-              failure('上传失败，请重新上传')
-            })
-        }
-      },
-      // 上传文件路径
-      uploadPath,
-      // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() }
+  components: {
+    Editor
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const newKeywordVisible = ref(false)
+const newKeyword = ref('')
+const keywords = ref([])
+const galleryFileList = ref([])
+const categoryList = ref([])
+const props = ref({
+  label: 'name',
+  value: 'id',
+  expandTrigger: 'hover'
+})
+const categoryIds = ref([])
+const goodsLoaded = ref(false)
+const goods = reactive({
+  gallery: [],
+  detail: ''
+})
+const specVisiable = ref(false)
+const specForm = ref({
+  specification: '',
+  value: '',
+  picUrl: ''
+})
+const specifications = ref([{
+  specification: '规格',
+  value: '标准',
+  picUrl: ''
+}])
+const productVisiable = ref(false)
+const productForm = ref({
+  id: 0,
+  specifications: [],
+  price: 0.0,
+  number: 0,
+  url: ''
+})
+const products = ref([{
+  id: 0,
+  specifications: ['标准'],
+  price: 0.0,
+  defaultSelected: true,
+  number: 0,
+  url: ''
+}])
+const attributeVisiable = ref(false)
+const attributeAdd = ref(true)
+const attributeForm = ref({
+  attribute: '',
+  value: ''
+})
+const attributes = ref([])
+const tinymceLicenseKey = ref(tinyMceGplLicenseKey)
+const rules = ref({
+  name: [{
+    required: true,
+    message: '商品名称不能为空',
+    trigger: 'blur'
+  }],
+  unit: [{
+    required: true,
+    message: '商品单位不能为空',
+    trigger: 'blur'
+  }]
+})
+const editorInit = ref(createTinymceInit({
+  height: '400px',
+  images_upload_handler: createTinymceImageUploadHandler(fileUpload, res => res.data)
+}))
+const uploadPath = ref(uploadApiPath)
+const headers = ref({
+  Authorization: 'Bearer ' + getToken()
+})
+const attributesData = computed(() => {
+  var attributesData = []
+  for (var i = 0; i < attributes.value.length; i++) {
+    if (attributes.value[i].deleted) {
+      continue
     }
-  },
-  computed: {
-    attributesData() {
-      var attributesData = []
-      for (var i = 0; i < this.attributes.length; i++) {
-        if (this.attributes[i].deleted) {
-          continue
-        }
-        attributesData.push(this.attributes[i])
-      }
-      return attributesData
+    attributesData.push(attributes.value[i])
+  }
+  return attributesData
+})
+function init() {
+  if (route.query.id == null) {
+    return
+  }
+  goodsLoaded.value = false
+  const goodsId = route.query.id
+  getGoods(goodsId).then(response => {
+    const data = response.data
+    const loadedGoods = {
+      gallery: [],
+      detail: '',
+      ...data.goods
     }
-  },
-  created() {
-    this.init()
-  },
-  methods: {
-    init: function() {
-      if (this.$route.query.id == null) {
-        return
-      }
-      const goodsId = this.$route.query.id
-      getGoods(goodsId).then((response) => {
-        this.goods = response.data.goods
-        // 稍微调整一下前后端不一致
-        // if (this.goods.brandId === 0) {
-        //   this.goods.brandId = null
-        // }
-        if (this.goods.keywords === '') {
-          this.goods.keywords = null
-        }
-        this.specifications = response.data.specifications
-        this.products = response.data.products
-        this.attributes = response.data.attributes
-        this.categoryIds = response.data.categoryIds
-        this.galleryFileList = []
-        for (var i = 0; i < this.goods.gallery.length; i++) {
-          this.galleryFileList.push({
-            url: this.goods.gallery[i]
-          })
-        }
-        const keywords = this.goods.keywords
-        if (keywords !== null) {
-          this.keywords = keywords.split(',')
-        }
+    loadedGoods.gallery = loadedGoods.gallery || []
+    loadedGoods.detail = loadedGoods.detail || ''
+    Object.keys(goods).forEach(key => {
+      delete goods[key]
+    })
+    Object.assign(goods, loadedGoods)
+    // 稍微调整一下前后端不一致
+    // if (this.goods.brandId === 0) {
+    //   this.goods.brandId = null
+    // }
+    if (goods.keywords === '') {
+      goods.keywords = null
+    }
+    specifications.value = data.specifications
+    products.value = data.products
+    attributes.value = data.attributes
+    categoryIds.value = data.categoryIds
+    galleryFileList.value = []
+    for (var i = 0; i < goods.gallery.length; i++) {
+      galleryFileList.value.push({
+        url: goods.gallery[i]
       })
-      this.getCategoryList()
-    },
-    async getCategoryList() {
-      const {
-        data
-      } = await listCategory()
-      this.categoryList = this.buildTree(data, 'id', 'pid')
-    },
-    handleCategoryChange(value) {
-      this.goods.categoryId = value[value.length - 1]
-    },
-    handleCancel: function() {
-      this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
-    },
-    handleEdit: function() {
-      const finalGoods = {
-        goods: this.goods,
-        specifications: this.specifications,
-        products: this.products,
-        attributes: this.attributes
-      }
-      this.$refs['goods'].validate((valid, field) => {
-        if (valid) {
-          updateGoods(finalGoods)
-            .then((response) => {
-              this.$message.success({
-                title: '成功',
-                message: '编辑成功'
-              })
-              this.$router.push({ path: '/shop/goods', query: { pageNum: this.$route.query.pageNum }})
-            })
-            .catch(function(e) {})
-        } else {
-          this.showErrorfocus()
-        }
-      })
-    },
-    handleClose(tag) {
-      this.keywords.splice(this.keywords.indexOf(tag), 1)
-      this.goods.keywords = this.keywords.toString()
-    },
-    showInput() {
-      this.newKeywordVisible = true
-      this.$nextTick((_) => {
-        this.$refs.newKeywordInput.$refs.input.focus()
-      })
-    },
-    handleInputConfirm() {
-      const newKeyword = this.newKeyword
-      if (newKeyword) {
-        this.keywords.push(newKeyword)
-        this.goods.keywords = this.keywords.toString()
-      }
-      this.newKeywordVisible = false
-      this.newKeyword = ''
-    },
-    uploadPicUrl: function(response) {
-      if (response.code === 200) {
-        this.goods.picUrl = response.data
-      }
-    },
-    uploadOverrun: function() {
-      this.$message({
-        type: 'error',
-        message: '上传文件个数超出限制!最多上传5张图片!'
-      })
-    },
-    handleGalleryUrl(response, file, fileList) {
-      if (response.code === 200) {
-        this.goods.gallery.push(response.data)
-      }
-    },
-    handleRemove: function(file, fileList) {
-      for (var i = 0; i < this.goods.gallery.length; i++) {
-        // 这里存在两种情况
-        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
-        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
-        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
-        let url
-        if (file.response === undefined) {
-          url = file.url
-        } else {
-          url = file.response.data
-        }
-
-        if (this.goods.gallery[i] === url) {
-          this.goods.gallery.splice(i, 1)
-        }
-      }
-    },
-    specChanged: function(label) {
-      if (label === false) {
-        this.specifications = [
-          {
-            specification: '规格',
-            value: '标准',
-            picUrl: ''
+    }
+    const loadedKeywords = goods.keywords
+    if (loadedKeywords != null && loadedKeywords !== '') {
+      keywords.value = loadedKeywords.split(',')
+    }
+    goodsLoaded.value = true
+  })
+  getCategoryList()
+}
+watch(
+  () => route.query.id,
+  (id, oldId) => {
+    if (id && id !== oldId) {
+      init()
+    }
+  }
+)
+async function getCategoryList() {
+  const {
+    data
+  } = await listCategory()
+  categoryList.value = instance.proxy.buildTree(data, 'id', 'pid')
+}
+function handleCategoryChange(value) {
+  goods.categoryId = value[value.length - 1]
+}
+function handleCancel() {
+  router.push({
+    path: '/shop/goods',
+    query: {
+      pageNum: route.query.pageNum
+    }
+  })
+}
+function handleEdit() {
+  const finalGoods = {
+    goods,
+    specifications: specifications.value,
+    products: products.value,
+    attributes: attributes.value
+  }
+  templateRefs.goodsFormRef.validate((valid, field) => {
+    if (valid) {
+      updateGoods(finalGoods).then(response => {
+        instance.proxy.$message.success({
+          title: '成功',
+          message: '编辑成功'
+        })
+        router.push({
+          path: '/shop/goods',
+          query: {
+            pageNum: route.query.pageNum
           }
-        ]
-        this.products = [
-          {
-            id: 0,
-            specifications: ['标准'],
-            price: 0.0,
-            defaultSelected: true,
-            number: 0,
-            url: ''
-          }
-        ]
-      } else {
-        this.specifications = []
-        this.products = []
-      }
-    },
-    uploadSpecPicUrl: function(response) {
-      if (response.code === 200) {
-        this.specForm.picUrl = response.data
-      }
-    },
-    handleSpecificationShow(row) {
-      this.specForm = Object.assign({}, row)
-      this.specVisiable = true
-    },
-    handleSpecificationEdit() {
-      this.specForm.updateTime = ''
-      for (var i = 0; i < this.specifications.length; i++) {
-        const v = this.specifications[i]
-        if (v.id === this.specForm.id) {
-          this.specifications.splice(i, 1, this.specForm)
-          break
-        }
-      }
-      this.specVisiable = false
-    },
-    handleProductShow(row) {
-      this.productForm = Object.assign({}, row)
-      this.productVisiable = true
-    },
-    uploadProductUrl: function(response) {
-      if (response.code === 200) {
-        this.productForm.url = response.data
-      }
-    },
-    handleProductEdit() {
-      this.productForm.updateTime = ''
-      for (var i = 0; i < this.products.length; i++) {
-        const v = this.products[i]
-        if (v.id === this.productForm.id) {
-          this.products.splice(i, 1, this.productForm)
-          break
-        }
-      }
-      this.productVisiable = false
-    },
-    handleAttributeShow(row) {
-      if (row.id) {
-        this.attributeForm = Object.assign({}, row)
-        this.attributeAdd = false
-      } else {
-        this.attributeForm = {}
-        this.attributeAdd = true
-      }
-      this.attributeVisiable = true
-    },
-    handleAttributeAdd() {
-      this.attributes.unshift(this.attributeForm)
-      this.attributeVisiable = false
-    },
-    handleAttributeEdit() {
-      // 这是一个trick，设置updateTime的值为空，告诉后端这个记录已编辑需要更新。
-      this.attributeForm.updateTime = ''
-      for (var i = 0; i < this.attributes.length; i++) {
-        const v = this.attributes[i]
-        if (v.id === this.attributeForm.id) {
-          this.attributes.splice(i, 1, this.attributeForm)
-          break
-        }
-      }
-      this.attributeVisiable = false
-    },
-    handleAttributeDelete(row) {
-      row.deleted = true
+        })
+      }).catch(function(e) {})
+    } else {
+      instance.proxy.showErrorfocus()
+    }
+  })
+}
+function handleClose(tag) {
+  keywords.value.splice(keywords.value.indexOf(tag), 1)
+  goods.keywords = keywords.value.toString()
+}
+function showInput() {
+  newKeywordVisible.value = true
+  nextTick(_ => {
+    templateRefs.newKeywordInput.$refs.input.focus()
+  })
+}
+function handleInputConfirm() {
+  const keyword = newKeyword.value
+  if (keyword) {
+    keywords.value.push(keyword)
+    goods.keywords = keywords.value.toString()
+  }
+  newKeywordVisible.value = false
+  newKeyword.value = ''
+}
+function uploadPicUrl(response) {
+  if (response.code === 200) {
+    goods.picUrl = response.data
+  }
+}
+function uploadOverrun() {
+  instance.proxy.$message({
+    type: 'error',
+    message: '上传文件个数超出限制!最多上传5张图片!'
+  })
+}
+function handleGalleryUrl(response, file, fileList) {
+  if (response.code === 200) {
+    goods.gallery.push(response.data)
+  }
+}
+function handleRemove(file, fileList) {
+  for (var i = 0; i < goods.gallery.length; i++) {
+    // 这里存在两种情况
+    // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
+    //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
+    // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
+    let url
+    if (file.response === undefined) {
+      url = file.url
+    } else {
+      url = file.response.data
+    }
+    if (goods.gallery[i] === url) {
+      goods.gallery.splice(i, 1)
     }
   }
 }
+function specChanged(label) {
+  if (label === false) {
+    specifications.value = [{
+      specification: '规格',
+      value: '标准',
+      picUrl: ''
+    }]
+    products.value = [{
+      id: 0,
+      specifications: ['标准'],
+      price: 0.0,
+      defaultSelected: true,
+      number: 0,
+      url: ''
+    }]
+  } else {
+    specifications.value = []
+    products.value = []
+  }
+}
+function uploadSpecPicUrl(response) {
+  if (response.code === 200) {
+    specForm.value.picUrl = response.data
+  }
+}
+function handleSpecificationShow(row) {
+  specForm.value = Object.assign({}, row)
+  specVisiable.value = true
+}
+function handleSpecificationEdit() {
+  specForm.value.updateTime = ''
+  for (var i = 0; i < specifications.value.length; i++) {
+    const v = specifications.value[i]
+    if (v.id === specForm.value.id) {
+      specifications.value.splice(i, 1, specForm.value)
+      break
+    }
+  }
+  specVisiable.value = false
+}
+function handleProductShow(row) {
+  productForm.value = Object.assign({}, row)
+  productVisiable.value = true
+}
+function uploadProductUrl(response) {
+  if (response.code === 200) {
+    productForm.value.url = response.data
+  }
+}
+function handleProductEdit() {
+  productForm.value.updateTime = ''
+  for (var i = 0; i < products.value.length; i++) {
+    const v = products.value[i]
+    if (v.id === productForm.value.id) {
+      products.value.splice(i, 1, productForm.value)
+      break
+    }
+  }
+  productVisiable.value = false
+}
+function handleAttributeShow(row) {
+  if (row.id) {
+    attributeForm.value = Object.assign({}, row)
+    attributeAdd.value = false
+  } else {
+    attributeForm.value = {}
+    attributeAdd.value = true
+  }
+  attributeVisiable.value = true
+}
+function handleAttributeAdd() {
+  attributes.value.unshift(attributeForm.value)
+  attributeVisiable.value = false
+}
+function handleAttributeEdit() {
+  // 这是一个trick，设置updateTime的值为空，告诉后端这个记录已编辑需要更新。
+  attributeForm.value.updateTime = ''
+  for (var i = 0; i < attributes.value.length; i++) {
+    const v = attributes.value[i]
+    if (v.id === attributeForm.value.id) {
+      attributes.value.splice(i, 1, attributeForm.value)
+      break
+    }
+  }
+  attributeVisiable.value = false
+}
+function handleAttributeDelete(row) {
+  row.deleted = true
+}
+(() => {
+  init()
+})()
+defineExpose({
+  attributeAdd,
+  attributeForm,
+  attributeVisiable,
+  attributes,
+  attributesData,
+  categoryIds,
+  categoryList,
+  editorInit,
+  galleryFileList,
+  getCategoryList,
+  goods,
+  goodsLoaded,
+  handleAttributeAdd,
+  handleAttributeDelete,
+  handleAttributeEdit,
+  handleAttributeShow,
+  handleCancel,
+  handleCategoryChange,
+  handleClose,
+  handleEdit,
+  handleGalleryUrl,
+  handleInputConfirm,
+  handleProductEdit,
+  handleProductShow,
+  handleRemove,
+  handleSpecificationEdit,
+  handleSpecificationShow,
+  headers,
+  init,
+  keywords,
+  newKeyword,
+  newKeywordVisible,
+  productForm,
+  productVisiable,
+  products,
+  props,
+  rules,
+  showInput,
+  specChanged,
+  specForm,
+  specVisiable,
+  specifications,
+  tinymceLicenseKey,
+  uploadOverrun,
+  uploadPath,
+  uploadPicUrl,
+  uploadProductUrl,
+  uploadSpecPicUrl
+})
 </script>
 <style scoped>
 .el-card {

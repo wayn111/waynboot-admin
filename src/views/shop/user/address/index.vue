@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="会员ID" prop="memberId">
         <el-input
           v-model="queryForm.memberId"
           size="small"
           placeholder="请输入会员ID"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="会员名称" prop="name">
@@ -14,7 +14,7 @@
           v-model="queryForm.name"
           size="small"
           placeholder="请输入会员名称"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
 
@@ -23,7 +23,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -31,14 +31,14 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
-        <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
+        <el-button type="primary" icon="Search" size="small" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" size="small" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
     <!-- <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button type="primary" icon="el-icon-plus" size="mini" @click="handleAdd()">新增</el-button>
+        <el-button type="primary" icon="Plus" size="small" @click="handleAdd()">新增</el-button>
       </el-col>
     </el-row> -->
 
@@ -60,12 +60,12 @@
       <el-table-column label="邮编" prop="postalCode" />
       <el-table-column label="区县" prop="county" />
       <el-table-column label="是否默认">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ scope.row.isDefault? '是' : '否' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -74,57 +74,58 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
   </div>
 </template>
-<script>
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
 import { listAddress } from '@/api/shop/user/address'
-
-export default {
-  data() {
-    return {
-      loading: true,
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        id: undefined,
-        name: undefined
-      },
-      // 角色列表
-      addressList: []
-    }
-  },
-  created() {
-    this.getList()
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await listAddress(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.addressList = data
-      this.loading = false
-    }
-  }
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const total = ref(0)
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  id: undefined,
+  name: undefined
+})
+const addressList = ref([])
+function handleQuery() {
+  getList()
 }
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
+    }
+  } = await listAddress(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  addressList.value = data
+  loading.value = false
+}
+(() => {
+  getList()
+})()
+defineExpose({
+  addressList,
+  dateRange,
+  getList,
+  handleQuery,
+  loading,
+  queryForm,
+  resetQuery,
+  total
+})
 </script>

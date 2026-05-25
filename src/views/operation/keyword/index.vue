@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="关键字" prop="keyword">
         <el-input
           v-model="queryForm.keyword"
           size="small"
           placeholder="请输入关键字"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="是否默认" prop="isDefault">
@@ -38,7 +38,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -48,13 +48,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -64,16 +64,16 @@
       <el-col :span="1.5">
         <el-button
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           type="success"
-          icon="el-icon-edit"
-          size="mini"
+          icon="Edit"
+          size="small"
           :disabled="single"
           @click="handleUpdate"
         >修改</el-button>
@@ -81,8 +81,8 @@
       <el-col :span="1.5">
         <el-button
           type="danger"
-          icon="el-icon-delete"
-          size="mini"
+          icon="Delete"
+          size="small"
           :disabled="multiple"
           @click="handleDelete"
         >删除</el-button>
@@ -100,20 +100,20 @@
       <el-table-column label="ID" prop="id" width="50" />
       <el-table-column label="关键字" prop="keyword" width="200" />
       <el-table-column label="默认关键字" prop="isDefault">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag v-if="scope.row.isDefault" type="success">是</el-tag>
           <el-tag v-else type="danger">否</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="热门关键字" prop="isHot">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag v-if="scope.row.isHot" type="success">是</el-tag>
           <el-tag v-else type="danger">否</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="排序" prop="sort" />
       <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -122,17 +122,17 @@
         align="center"
         class-name="small-padding fixed-width"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -142,20 +142,20 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
 
     <!-- 添加或修改栏目对话框 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+      v-model="open"
       width="600px"
       :close-on-click-modal="false"
       :before-close="channelDialogHandleClose"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="24">
             <el-form-item label="关键字" prop="keyword">
@@ -199,181 +199,171 @@
           </el-col>
         </el-row>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="channelDialogHandleClose">取 消</el-button>
-      </div>
+      </div></template>
     </el-dialog>
   </div>
 </template>
-<script>
-import {
-  listKeyword,
-  getKeyword,
-  addKeyword,
-  updateKeyword,
-  delKeyword
-} from '@/api/shop/keyword'
-
-export default {
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        keyword: undefined,
-        isDefault: undefined,
-        isHot: undefined
-      },
-      // 角色列表
-      keywordList: [],
-      // 是否显示弹出层
-      open: false,
-      // 表单参数
-      form: {
-        keyword: undefined,
-        isHot: undefined,
-        isDefault: undefined,
-        sort: 0
-      },
-      // 表单校验
-      rules: {
-        keyword: [
-          { required: true, message: '栏目名称不能为空', trigger: 'blur' }
-        ],
-        isHot: [
-          { required: true, message: '请选择是否热门', trigger: 'blur' }
-        ],
-        isDefault: [
-          { required: true, message: '请选择是否默认', trigger: 'blur' }
-        ]
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listKeyword, getKeyword, addKeyword, updateKeyword, delKeyword } from '@/api/shop/keyword'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const total = ref(0)
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  keyword: undefined,
+  isDefault: undefined,
+  isHot: undefined
+})
+const keywordList = ref([])
+const open = ref(false)
+const form = ref({
+  keyword: undefined,
+  isHot: undefined,
+  isDefault: undefined,
+  sort: 0
+})
+const rules = ref({
+  keyword: [{
+    required: true,
+    message: '栏目名称不能为空',
+    trigger: 'blur'
+  }],
+  isHot: [{
+    required: true,
+    message: '请选择是否热门',
+    trigger: 'blur'
+  }],
+  isDefault: [{
+    required: true,
+    message: '请选择是否默认',
+    trigger: 'blur'
+  }]
+})
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
+    }
+  } = await listKeyword(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  keywordList.value = data
+  loading.value = false
+}
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+function handleAdd(row) {
+  title.value = '添加栏目'
+  open.value = true
+}
+async function handleUpdate(row) {
+  const keywordId = row.id || ids.value
+  const {
+    data
+  } = await getKeyword(keywordId)
+  form.value = data
+  title.value = '修改栏目'
+  open.value = true
+}
+async function handleDelete(row) {
+  const keywordId = row.id || ids.value
+  instance.proxy.$confirm('是否确认删除ID为 [' + keywordId + '] 的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delKeyword(keywordId)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function(e) {})
+}
+function reset() {
+  form.value = {
+    keyword: undefined,
+    isHot: undefined,
+    isDefault: undefined,
+    sort: 0
+  }
+  templateRefs.formRef.resetFields()
+}
+function channelDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function submitForm() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      if (form.value.id !== undefined) {
+        updateKeyword(form.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
+      } else {
+        addKeyword(form.value).then(response => {
+          handleSubmitResponse(response, '新增成功')
+        })
       }
     }
-  },
-  created() {
-    this.getList()
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await listKeyword(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.keywordList = data
-      this.loading = false
-    },
-    /**
-     * 当选择项发生变化时会触发该事件
-     */
-    handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /**
-     * 添加按钮
-     */
-    handleAdd(row) {
-      this.title = '添加栏目'
-      this.open = true
-    },
-    /**
-     * 修改按钮
-     */
-    async handleUpdate(row) {
-      const keywordId = row.id || this.ids
-      const {
-        data
-      } = await getKeyword(keywordId)
-      this.form = data
-      this.title = '修改栏目'
-      this.open = true
-    }, /**
-     * 删除按钮
-     */
-    async handleDelete(row) {
-      const keywordId = row.id || this.ids
-      this.$confirm(
-        '是否确认删除ID为 [' + keywordId + '] 的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delKeyword(keywordId)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function(e) {})
-    },
-    /**
-     * 表单重置
-     */
-    reset() {
-      this.form = {
-        keyword: undefined,
-        isHot: undefined,
-        isDefault: undefined,
-        sort: 0
-      }
-      this.$refs['form'].resetFields()
-    },
-    /**
-     * 栏目对话框关闭
-     */
-    channelDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    /**
-     * 提交栏目表单
-     */
-    submitForm() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          if (this.form.id !== undefined) {
-            updateKeyword(this.form).then((response) => {
-              this.updateHandle(response, this)
-            })
-          } else {
-            addKeyword(this.form).then((response) => {
-              this.saveHandle(response, this)
-            })
-          }
-        }
-      })
-    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
   }
 }
+(() => {
+  getList()
+})()
+defineExpose({
+  channelDialogHandleClose,
+  dateRange,
+  form,
+  getList,
+  handleAdd,
+  handleDelete,
+  handleQuery,
+  handleSelectionChange,
+  handleUpdate,
+  ids,
+  keywordList,
+  loading,
+  multiple,
+  open,
+  queryForm,
+  reset,
+  resetQuery,
+  rules,
+  single,
+  submitForm,
+  title,
+  total
+})
 </script>

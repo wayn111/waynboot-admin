@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="金刚位名称" prop="name">
         <el-input
           v-model="queryForm.name"
           size="small"
           placeholder="请输入金刚位名称"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="创建时间">
@@ -14,7 +14,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -24,13 +24,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -40,16 +40,16 @@
       <el-col :span="1.5">
         <el-button
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="handleAdd"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           type="success"
-          icon="el-icon-edit"
-          size="mini"
+          icon="Edit"
+          size="small"
           :disabled="single"
           @click="handleUpdate"
         >修改</el-button>
@@ -57,8 +57,8 @@
       <el-col :span="1.5">
         <el-button
           type="danger"
-          icon="el-icon-delete"
-          size="mini"
+          icon="Delete"
+          size="small"
           :disabled="multiple"
           @click="handleDelete"
         >删除</el-button>
@@ -77,17 +77,17 @@
       <el-table-column label="编号" prop="id" width="100" />
       <el-table-column label="金刚位名称" prop="name" />
       <el-table-column label="图标" prop="iconUrl">
-        <template slot-scope="scope">
+        <template #default="scope">
           <img v-if="scope.row.iconUrl" :src="scope.row.iconUrl" width="50">
         </template>
       </el-table-column>
       <el-table-column label="图片" prop="picUrl">
-        <template slot-scope="scope">
+        <template #default="scope">
           <img v-if="scope.row.picUrl" :src="scope.row.picUrl" width="50">
         </template>
       </el-table-column>
       <el-table-column label="跳转类型" prop="jumpType">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag v-if="scope.row.jumpType == 0">栏目</el-tag>
           <el-tag
             v-else-if="scope.row.jumpType == 1"
@@ -111,7 +111,7 @@
         prop="createTime"
         sortable="custom"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -120,17 +120,17 @@
         align="center"
         class-name="small-padding fixed-width"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-edit"
+            icon="Edit"
             @click="handleUpdate(scope.row)"
           >修改</el-button>
           <el-button
-            size="mini"
+            size="small"
             type="text"
-            icon="el-icon-delete"
+            icon="Delete"
             @click="handleDelete(scope.row)"
           >删除</el-button>
         </template>
@@ -140,20 +140,20 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
 
     <!-- 金刚位添加/修改单窗 -->
     <el-dialog
       :title="title"
-      :visible.sync="open"
+      v-model="open"
       width="34%"
       :close-on-click-modal="false"
       :before-close="columnDialogHandleClose"
     >
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入金刚位名称" />
         </el-form-item>
@@ -177,7 +177,7 @@
           <el-col :span="12">
             <el-form-item v-if="jumpColumn" label="选择栏目" prop="valueId">
               <el-select
-                v-model="form.valueId"
+                v-model="formId"
                 placeholder="请选择栏目"
                 :loading="loading"
               >
@@ -195,7 +195,7 @@
               prop="valueId"
             >
               <el-cascader
-                v-model="form.valueId"
+                v-model="formId"
                 :options="categoryList"
                 :props="props"
                 clearable
@@ -203,7 +203,7 @@
               />
             </el-form-item>
             <el-form-item v-if="jumpUrl" label="链接地址" prop="valueUrl">
-              <el-input v-model="form.valueUrl" placeholder="请输入链接地址" />
+              <el-input v-model="formUrl" placeholder="请输入链接地址" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -218,8 +218,8 @@
             accept=".jpg, .jpeg, .png"
           >
             <img v-if="form.iconUrl" :src="form.iconUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png文件，120 x 120</div>
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png文件，120 x 120</div></template>
           </el-upload>
         </el-form-item>
         <el-form-item label="图片" prop="picUrl">
@@ -233,8 +233,8 @@
             accept=".jpg, .jpeg, .png, .gif"
           >
             <img v-if="form.picUrl" :src="form.picUrl" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon" />
-            <div slot="tip" class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 340</div>
+            <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+            <template #tip><div class="el-upload__tip">只能上传jpg、jpeg、png、gif文件，800 x 340</div></template>
           </el-upload>
         </el-form-item>
         <el-form-item label="顺序" prop="sort">
@@ -254,290 +254,302 @@
           </el-radio-group>
         </el-form-item>
       </el-form>
-      <span slot="footer" class="dialog-footer">
+      <template #footer><span class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
         <el-button @click="columnDialogHandleClose">取 消</el-button>
-      </span>
+      </span></template>
     </el-dialog>
 
     <!-- 商品配置弹窗 -->
     <el-dialog
       title="商品配置"
       :close-on-click-modal="false"
-      :visible.sync="goodsOpen"
+      v-model="goodsOpen"
       top="1vh"
       width="70%"
     >
-      <span slot="footer" class="dialog-footer">
+      <template #footer><span class="dialog-footer">
         <el-button @click="goodsOpen = false">关 闭</el-button>
-      </span>
+      </span></template>
     </el-dialog>
   </div>
 </template>
-<script>
-import {
-  listDiamond,
-  getDiamond,
-  addDiamond,
-  updateDiamond,
-  delDiamond
-} from '@/api/shop/diamond'
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
+import { listDiamond, getDiamond, addDiamond, updateDiamond, delDiamond } from '@/api/shop/diamond'
 import { listAllColumn } from '@/api/shop/column'
 import { listCategory } from '@/api/shop/category'
 import { getToken } from '@/utils/auth'
-import { uploadPath } from '@/api/upload'
-
-export default {
-  data: function() {
-    return {
-      // 遮罩层
-      loading: true,
-      selectLoading: true,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined
-      },
-      // 金刚位列表
-      diamondList: [],
-      // 商品分类
-      categoryList: [],
-      // el-cascader’s props
-      props: { label: 'name', value: 'id', expandTrigger: 'hover', checkStrictly: true },
-      // 是否显示弹出层
-      open: false,
-      // 商品配置弹出层
-      goodsOpen: false,
-      // 状态数据字典
-      jumpTypeOptions: [],
-      statusOptions: [],
-      columnList: [],
-      // 表单参数
-      form: {
-        name: undefined,
-        iconUrl: '',
-        jumpType: undefined,
-        valueId: undefined,
-        valueUrl: undefined,
-        picUrl: '',
-        status: 0,
-        sort: 0
-      },
-      jumpColumn: false,
-      jumpCategory: false,
-      jumpUrl: false,
-      // 表单校验
-      rules: {
-        name: [{ required: true, message: '名称不能为空', trigger: 'blur' }],
-        jumpType: [
-          { required: true, message: '跳转类型不能为空', trigger: 'blur' }
-        ],
-        iconUrl: [{ required: true, message: '图标不能为空', trigger: 'blur' }],
-        picUrl: [{ required: true, message: '图片不能为空', trigger: 'blur' }],
-        sort: [{ required: true, message: '排序不能为空', trigger: 'blur' }]
-      },
-      // 上传文件路径
-      uploadPath,
-      // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() }
-    }
-  },
-  created() {
-    this.getList()
-    this.getDicts('diamondJumpType').then((response) => {
-      const {
-        data
-      } = response
-      this.jumpTypeOptions = data
-    })
-    this.getDicts('status').then((response) => {
-      const {
-        data
-      } = response
-      this.statusOptions = data
-    })
-    listAllColumn()
-      .then((res) => {
-        this.columnList = res.data
-      })
-      .catch((e) => {})
-    this.getCategoryList()
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    selectChange(val) {
-      this.jumpColumn = false
-      this.jumpCategory = false
-      this.jumpUrl = false
-      if (val === 0) {
-        this.jumpColumn = true
-      } else if (val === 1) {
-        this.jumpCategory = true
-      } else if (val === 3) {
-        //
-      } else if (val === 4) {
-        //
-      } else {
-        this.jumpUrl = true
-      }
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await listDiamond(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.diamondList = data
-      this.loading = false
-    },
-    // 获取商品分类
-    async getCategoryList() {
-      const {
-        data
-      } = await listCategory()
-      this.categoryList = this.buildTree(data, 'id', 'pid')
-      console.log(this.categoryList)
-    },
-    // 更改商品所属分类
-    handleCategoryChange(value) {
-      this.form.valueId = value[value.length - 1]
-    },
-    uploadIconUrl: function(response) {
-      this.form.iconUrl = response.data
-    },
-    uploadPicUrl: function(response) {
-      this.form.picUrl = response.data
-    },
-    checkFileSize: function(file) {
-      if (file.size > 1048576) {
-        this.$message.error(
-          `${file.name}文件大于1024KB，请选择小于1024KB大小的图片`
-        )
-        return false
-      }
-      return true
-    },
-    /**
-     * 后端排序
-     */
-    handleSortChange(sort) {
-      this.queryForm.sortName = sort.prop
-      this.queryForm.sortOrder = sort.order
-      this.getList()
-    },
-    /**
-     * 当选择项发生变化时会触发该事件
-     */
-    handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.id)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /**
-     * 添加按钮
-     */
-    handleAdd(row) {
-      this.title = '添加金刚位'
-      this.open = true
-    },
-    /**
-     * 修改按钮
-     */
-    async handleUpdate(row) {
-      const columnId = row.id || this.ids
-      const {
-        data
-      } = await getDiamond(columnId)
-      this.form = data
-      this.selectChange(data.jumpType)
-      this.title = '修改金刚位'
-      this.open = true
-    },
-    /**
-     * 删除按钮
-     */
-    async handleDelete(row) {
-      const columnIds = row.id || this.ids
-      this.$confirm(
-        '是否确认删除金刚位编号为 [' + columnIds + '] 的数据项?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delDiamond(columnIds)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function(e) {})
-    },
-    /**
-     * 角色对话框关闭
-     */
-    columnDialogHandleClose() {
-      this.reset()
-      this.open = false
-    },
-    /**
-     * 表单重置
-     */
-    reset() {
-      this.form = {
-        name: undefined,
-        sort: undefined,
-        code: undefined,
-        remark: undefined,
-        status: 0
-      }
-      this.$refs['form'].resetFields()
-    },
-    /**
-     * 提交banner表单
-     */
-    submitForm() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          if (this.form.id !== undefined) {
-            updateDiamond(this.form).then((response) => {
-              this.updateHandle(response, this)
-            })
-          } else {
-            addDiamond(this.form).then((response) => {
-              this.saveHandle(response, this)
-            })
-          }
-        }
-      })
-    }
+import { uploadPath as uploadApiPath } from '@/api/upload'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const selectLoading = ref(true)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const total = ref(0)
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  name: undefined
+})
+const diamondList = ref([])
+const categoryList = ref([])
+const props = ref({
+  label: 'name',
+  value: 'id',
+  expandTrigger: 'hover',
+  checkStrictly: true
+})
+const open = ref(false)
+const goodsOpen = ref(false)
+const jumpTypeOptions = ref([])
+const statusOptions = ref([])
+const columnList = ref([])
+const form = ref({
+  name: undefined,
+  iconUrl: '',
+  jumpType: undefined,
+  valueId: undefined,
+  valueUrl: undefined,
+  picUrl: '',
+  status: 0,
+  sort: 0
+})
+const jumpColumn = ref(false)
+const jumpCategory = ref(false)
+const jumpUrl = ref(false)
+const rules = ref({
+  name: [{
+    required: true,
+    message: '名称不能为空',
+    trigger: 'blur'
+  }],
+  jumpType: [{
+    required: true,
+    message: '跳转类型不能为空',
+    trigger: 'blur'
+  }],
+  iconUrl: [{
+    required: true,
+    message: '图标不能为空',
+    trigger: 'blur'
+  }],
+  picUrl: [{
+    required: true,
+    message: '图片不能为空',
+    trigger: 'blur'
+  }],
+  sort: [{
+    required: true,
+    message: '排序不能为空',
+    trigger: 'blur'
+  }]
+})
+const uploadPath = ref(uploadApiPath)
+const headers = ref({
+  Authorization: 'Bearer ' + getToken()
+})
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+function selectChange(val) {
+  jumpColumn.value = false
+  jumpCategory.value = false
+  jumpUrl.value = false
+  if (val === 0) {
+    jumpColumn.value = true
+  } else if (val === 1) {
+    jumpCategory.value = true
+  } else if (val === 3) {
+    //
+  } else if (val === 4) {
+    //
+  } else {
+    jumpUrl.value = true
   }
 }
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
+    }
+  } = await listDiamond(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  diamondList.value = data
+  loading.value = false
+}
+async function getCategoryList() {
+  const {
+    data
+  } = await listCategory()
+  categoryList.value = instance.proxy.buildTree(data, 'id', 'pid')
+  console.log(categoryList.value)
+}
+function handleCategoryChange(value) {
+  form.value.valueId = value[value.length - 1]
+}
+function uploadIconUrl(response) {
+  form.value.iconUrl = response.data
+}
+function uploadPicUrl(response) {
+  form.value.picUrl = response.data
+}
+function checkFileSize(file) {
+  if (file.size > 1048576) {
+    instance.proxy.$message.error(`${file.name}文件大于1024KB，请选择小于1024KB大小的图片`)
+    return false
+  }
+  return true
+}
+function handleSortChange(sort) {
+  queryForm.value.sortName = sort.prop
+  queryForm.value.sortOrder = sort.order
+  getList()
+}
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.id)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+function handleAdd(row) {
+  title.value = '添加金刚位'
+  open.value = true
+}
+async function handleUpdate(row) {
+  const columnId = row.id || ids.value
+  const {
+    data
+  } = await getDiamond(columnId)
+  form.value = data
+  selectChange(data.jumpType)
+  title.value = '修改金刚位'
+  open.value = true
+}
+async function handleDelete(row) {
+  const columnIds = row.id || ids.value
+  instance.proxy.$confirm('是否确认删除金刚位编号为 [' + columnIds + '] 的数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delDiamond(columnIds)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function(e) {})
+}
+function columnDialogHandleClose() {
+  reset()
+  open.value = false
+}
+function reset() {
+  form.value = {
+    name: undefined,
+    sort: undefined,
+    code: undefined,
+    remark: undefined,
+    status: 0
+  }
+  templateRefs.formRef.resetFields()
+}
+function submitForm() {
+  templateRefs.formRef.validate(valid => {
+    if (valid) {
+      if (form.value.id !== undefined) {
+        updateDiamond(form.value).then(response => {
+          handleSubmitResponse(response, '修改成功')
+        })
+      } else {
+        addDiamond(form.value).then(response => {
+          handleSubmitResponse(response, '新增成功')
+        })
+      }
+    }
+  })
+}
+function handleSubmitResponse(response, successMessage) {
+  if (response.code === 200) {
+    instance.proxy.$message.success(successMessage)
+    open.value = false
+    getList()
+    reset()
+  } else {
+    instance.proxy.$message.error(response.msg || '操作失败')
+  }
+}
+(() => {
+  getList()
+  instance.proxy.getDicts('diamondJumpType').then(response => {
+    const {
+      data
+    } = response
+    jumpTypeOptions.value = data
+  })
+  instance.proxy.getDicts('status').then(response => {
+    const {
+      data
+    } = response
+    statusOptions.value = data
+  })
+  listAllColumn().then(res => {
+    columnList.value = res.data
+  }).catch(e => {})
+  getCategoryList()
+})()
+defineExpose({
+  categoryList,
+  checkFileSize,
+  columnDialogHandleClose,
+  columnList,
+  dateRange,
+  diamondList,
+  form,
+  getCategoryList,
+  getList,
+  goodsOpen,
+  handleAdd,
+  handleCategoryChange,
+  handleDelete,
+  handleQuery,
+  handleSelectionChange,
+  handleSortChange,
+  handleUpdate,
+  headers,
+  ids,
+  jumpCategory,
+  jumpColumn,
+  jumpTypeOptions,
+  jumpUrl,
+  loading,
+  multiple,
+  open,
+  props,
+  queryForm,
+  reset,
+  resetQuery,
+  rules,
+  selectChange,
+  selectLoading,
+  single,
+  statusOptions,
+  submitForm,
+  title,
+  total,
+  uploadIconUrl,
+  uploadPath,
+  uploadPicUrl
+})
 </script>
 <style lang="scss" scoped>
 .avatar-uploader {

@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-
-Vue.use(Router)
+import { createRouter, createWebHashHistory } from 'vue-router'
 
 /* Layout */
 import Layout from '@/layout'
@@ -52,10 +49,11 @@ export const constantRoutes = [
     path: '/profile',
     component: Layout,
     children: [{
-      path: '/',
-      name: '个人中心',
+      path: '',
+      name: 'Profile',
       component: () => import('@/views/system/user/profile'),
-      hidden: true
+      hidden: true,
+      meta: { title: '个人中心', icon: 'user' }
     }]
   },
   {
@@ -65,10 +63,23 @@ export const constantRoutes = [
     children: [
       {
         path: 'type/data/:parentType(\\w+)',
-        component: (resolve) => require(['@/views/system/dict/data'], resolve),
+        component: () => import('@/views/system/dict/data.vue'),
         props: true,
         name: 'Data',
         meta: { title: '字典数据', icon: '' }
+      }
+    ]
+  },
+  {
+    path: '/shop/msgList',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'MsgList',
+        component: () => import('@/views/shop/msgList/index.vue'),
+        meta: { title: '消息通知', icon: 'message' }
       }
     ]
   },
@@ -79,18 +90,29 @@ export const constantRoutes = [
   }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
+const router = createRouter({
+  // history: createWebHistory('/admin/'), // require service support
+  history: createWebHashHistory('/admin/'),
+  scrollBehavior: () => ({ top: 0 }),
   routes: constantRoutes
 })
 
-const router = createRouter()
+const dynamicRouteNames = new Set()
 
-// Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
+export function addDynamicRoute(route) {
+  if (route.name) {
+    dynamicRouteNames.add(route.name)
+  }
+  router.addRoute(route)
+}
+
 export function resetRouter() {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher // reset router
+  dynamicRouteNames.forEach(name => {
+    if (router.hasRoute(name)) {
+      router.removeRoute(name)
+    }
+  })
+  dynamicRouteNames.clear()
 }
 
 export default router

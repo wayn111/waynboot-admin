@@ -3,15 +3,14 @@
     v-loading="syncLoading"
     class="app-container"
     element-loading-text="正在同步"
-    element-loading-spinner="el-icon-loading"
   >
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="文件名" prop="name">
         <el-input
           v-model="queryForm.name"
           size="small"
           placeholder="请输入文件名"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="上传时间">
@@ -19,7 +18,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -29,13 +28,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -45,35 +44,35 @@
       <el-col :span="1.5">
         <el-button
           type="primary"
-          icon="el-icon-plus"
-          size="mini"
+          icon="Plus"
+          size="small"
           @click="open = true"
         >上传</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           class="filter-item"
-          size="mini"
+          size="small"
           type="success"
-          icon="el-icon-s-tools"
+          icon="Tools"
           @click="doConfig"
         >配置</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           class="filter-item"
-          size="mini"
+          size="small"
           type="warning"
-          icon="el-icon-s-promotion"
+          icon="Promotion"
           @click="handleSync"
         >同步</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
           class="filter-item"
-          size="mini"
+          size="small"
           type="danger"
-          icon="el-icon-delete"
+          icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
         >删除</el-button>
@@ -82,7 +81,7 @@
 
     <!-- 文件上传 -->
     <el-dialog
-      :visible.sync="open"
+      v-model="open"
       :close-on-click-modal="false"
       append-to-body
       width="500px"
@@ -99,16 +98,16 @@
         multiple
       >
         <el-button size="small" type="primary">点击上传</el-button>
-        <div slot="tip" style="display: block" class="el-upload__tip">
+        <template #tip><div style="display: block" class="el-upload__tip">
           请勿上传违法文件，且文件不超过15M
-        </div>
+        </div></template>
       </el-upload>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button type="primary" @click="doSubmit">确认</el-button>
-      </div>
+      </div></template>
     </el-dialog>
     <!--表单组件-->
-    <eForm ref="form" />
+    <eForm ref="formRef" />
     <!--表格渲染-->
     <el-table
       ref="table"
@@ -126,7 +125,7 @@
         label="文件名"
         width="330"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <a
             href="JavaScript:"
             class="el-link el-link--primary"
@@ -146,7 +145,7 @@
       <el-table-column prop="size" align="center" label="文件大小" />
       <el-table-column prop="type" align="center" label="空间类型" />
       <el-table-column label="创建时间" align="center" prop="createTime">
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
@@ -155,191 +154,191 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
   </div>
 </template>
-<script>
-import { list, del, download, syncQiniu, upload } from '@/api/tool/qiniu'
+<script setup>
+import { getCurrentInstance, ref, watch } from 'vue'
+import { list, del, download as downloadFile, syncQiniu, upload } from '@/api/tool/qiniu'
 import { getToken } from '@/utils/auth'
 import eForm from './form'
-import { uploadPath } from '@/api/tool/qiniu'
-
-export default {
+import { uploadPath as uploadApiPath } from '@/api/tool/qiniu'
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   components: {
     eForm
-  },
-  data() {
-    return {
-      // 遮罩层
-      loading: true,
-      // 同步遮罩层
-      syncLoading: false,
-      // 选中数组
-      ids: [],
-      // 非单个禁用
-      single: true,
-      // 非多个禁用
-      multiple: true,
-      // 添加/修改对话框 title
-      title: '',
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        name: undefined
-      },
-      // 文件列表
-      fileList: [],
-      files: [],
-      // 是否显示弹出层
-      open: false,
-      // 表单参数
-      form: {
-        title: undefined,
-        status: 0,
-        sort: undefined,
-        imgUrl: undefined,
-        jumpUrl: undefined
-      },
-      // 上传文件路径
-      uploadPath,
-      // 上传路径header设置
-      headers: { Authorization: 'Bearer ' + getToken() },
-      // 下载链接
-      url: ''
+  }
+})
+const templateRefs = useTemplateRefs(instance)
+const loading = ref(true)
+const syncLoading = ref(false)
+const ids = ref([])
+const single = ref(true)
+const multiple = ref(true)
+const title = ref('')
+const total = ref(0)
+const dateRange = ref([])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  name: undefined
+})
+const fileList = ref([])
+const files = ref([])
+const open = ref(false)
+const form = ref({
+  title: undefined,
+  status: 0,
+  sort: undefined,
+  imgUrl: undefined,
+  jumpUrl: undefined
+})
+const uploadPath = ref(uploadApiPath)
+const headers = ref({
+  Authorization: 'Bearer ' + getToken()
+})
+const url = ref('')
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
     }
-  },
-  watch: {
-    url(newVal, oldVal) {
-      if (newVal && this.newWin) {
-        this.newWin.sessionStorage.clear()
-        this.newWin.location.href = newVal
-        // 重定向后把url和newWin重置
-        this.url = ''
-        this.newWin = null
-      }
-    }
-  },
-  created() {
-    // 点击tab切换时，进行初始化
-    // this.getList()
-  },
-  methods: {
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await list(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.fileList = data
-      this.loading = false
-    },
-    /**
-     * 当选择项发生变化时会触发该事件
-     */
-    handleSelectionChange(selection) {
-      this.ids = selection.map((item) => item.contentId)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    // 七牛云配置
-    doConfig() {
-      const _this = this.$refs['form']
-      _this.dialog = true
-      _this.init()
-    },
-    /**
-     * 删除按钮
-     */
-    async handleDelete(row) {
-      const contentIds = row.contentId || this.ids
-      this.$confirm('是否确认删除编号为 [' + contentIds + '] 的文件?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(function() {
-          return del(contentIds)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function(e) {})
-    },
-    handleSync() {
-      this.syncLoading = true
-      syncQiniu()
-        .then((res) => {
-          this.syncLoading = false
-          this.$message.success('同步完成')
-          this.getList()
-        })
-        .finally(() => {
-          this.syncLoading = false
-        })
-    },
-    // 自定义上传
-    uploadSectionFile(param) {
-      const fileObj = param.file
-      const form = new FormData()
-      // 文件对象
-      form.append('file', fileObj)
-      upload(form).then(res => {
-        param.onSuccess(res)
-      }).catch(({ err }) => {
-        param.onError(err)
-      })
-    },
-    handleSuccess(response, file, fileList) {
-      const id = response.id
-      const uid = file.uid
-      this.files.push({ uid, id })
-    },
-    // 监听上传失败
-    handleError(e, file, fileList) {
-    },
-    handleBeforeRemove(file, fileList) {
-      for (let i = 0; i < this.files.length; i++) {
-        if (this.files[i].uid === file.uid) {
-          del([this.files[i].id]).then((res) => {})
-          return true
-        }
-      }
-    },
-    // 下载文件
-    download(id) {
-      // 先打开一个空的新窗口，再请求
-      this.newWin = window.open()
-      download(id)
-        .then((res) => {
-          this.url = res.url
-        })
-        .catch((err) => {
-          console.log(err.response.data.message)
-        })
-    },
-    doSubmit() {
-      this.open = false
-      this.getList()
+  } = await list(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  fileList.value = data
+  loading.value = false
+}
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.contentId)
+  single.value = selection.length !== 1
+  multiple.value = !selection.length
+}
+function doConfig() {
+  const _this = templateRefs.formRef
+  _this.dialog = true
+  _this.init()
+}
+async function handleDelete(row) {
+  const contentIds = row.contentId || ids.value
+  instance.proxy.$confirm('是否确认删除编号为 [' + contentIds + '] 的文件?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return del(contentIds)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function(e) {})
+}
+function handleSync() {
+  syncLoading.value = true
+  syncQiniu().then(res => {
+    syncLoading.value = false
+    instance.proxy.$message.success('同步完成')
+    getList()
+  }).finally(() => {
+    syncLoading.value = false
+  })
+}
+function uploadSectionFile(param) {
+  const fileObj = param.file
+  const form = new FormData()
+  // 文件对象
+  form.append('file', fileObj)
+  upload(form).then(res => {
+    param.onSuccess(res)
+  }).catch(({
+    err
+  }) => {
+    param.onError(err)
+  })
+}
+function handleSuccess(response, file, fileList) {
+  const id = response.id
+  const uid = file.uid
+  files.value.push({
+    uid,
+    id
+  })
+}
+function handleError(e, file, fileList) {}
+function handleBeforeRemove(file, fileList) {
+  for (let i = 0; i < files.value.length; i++) {
+    if (files.value[i].uid === file.uid) {
+      del([files.value[i].id]).then(res => {})
+      return true
     }
   }
 }
+function download(id) {
+  // 先打开一个空的新窗口，再请求
+  instance.proxy.newWin = window.open()
+  downloadFile(id).then(res => {
+    url.value = res.url
+  }).catch(err => {
+    console.log(err.response.data.message)
+  })
+}
+function doSubmit() {
+  open.value = false
+  getList()
+}
+watch(url, (newVal, oldVal) => {
+  if (newVal && instance.proxy.newWin) {
+    instance.proxy.newWin.sessionStorage.clear()
+    instance.proxy.newWin.location.href = newVal
+    // 重定向后把url和newWin重置
+    url.value = ''
+    instance.proxy.newWin = null
+  }
+})
+;(() => {
+  // 点击tab切换时，进行初始化
+  // this.getList()
+})()
+defineExpose({
+  dateRange,
+  doConfig,
+  doSubmit,
+  download,
+  fileList,
+  files,
+  form,
+  getList,
+  handleBeforeRemove,
+  handleDelete,
+  handleError,
+  handleQuery,
+  handleSelectionChange,
+  handleSuccess,
+  handleSync,
+  headers,
+  ids,
+  loading,
+  multiple,
+  open,
+  queryForm,
+  resetQuery,
+  single,
+  syncLoading,
+  title,
+  total,
+  uploadPath,
+  uploadSectionFile,
+  url
+})
 </script>

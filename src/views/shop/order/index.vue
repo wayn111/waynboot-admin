@@ -1,12 +1,12 @@
 <template>
   <div class="app-container">
-    <el-form ref="queryForm" :inline="true" :model="queryForm">
+    <el-form ref="queryFormRef" :inline="true" :model="queryForm">
       <el-form-item label="订单编号" prop="orderSn">
         <el-input
           v-model="queryForm.orderSn"
           size="small"
           placeholder="请输入订单编号"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="会员ID" prop="userId">
@@ -14,7 +14,7 @@
           v-model="queryForm.userId"
           size="small"
           placeholder="请输入会员ID"
-          @keyup.enter.native="handleQuery"
+          @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="订单状态" prop="orderStatus">
@@ -54,7 +54,7 @@
           v-model="dateRange"
           size="small"
           style="width: 240px"
-          value-format="yyyy-MM-dd"
+          value-format="YYYY-MM-DD"
           type="daterange"
           range-separator="-"
           start-placeholder="开始日期"
@@ -64,13 +64,13 @@
       <el-form-item>
         <el-button
           type="primary"
-          icon="el-icon-search"
-          size="mini"
+          icon="Search"
+          size="small"
           @click="handleQuery"
         >搜索</el-button>
         <el-button
-          icon="el-icon-refresh"
-          size="mini"
+          icon="Refresh"
+          size="small"
           @click="resetQuery"
         >重置</el-button>
       </el-form-item>
@@ -81,8 +81,8 @@
         <el-button
           v-hasPermi="['system:order:list']"
           type="warning"
-          icon="el-icon-download"
-          size="mini"
+          icon="Download"
+          size="small"
           @click="handleExport"
         >导出</el-button>
       </el-col>
@@ -113,33 +113,33 @@
       <el-table-column align="center" label="用户ID" prop="userId" width="100" />
       <el-table-column align="center" label="手机号" prop="mobile" width="100" />
       <el-table-column align="center" label="订单状态">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag>{{ scope.row.orderStatusMsg }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="支付类型">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-tag>{{ scope.row.payTypeMsg }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="订单金额/元" prop="orderPrice" sortable="custom">
-        <template slot-scope="scope">{{
-          scope.row.orderPrice | yuan
+        <template #default="scope">{{
+          yuan(scope.row.orderPrice)
         }}</template>
       </el-table-column>
       <el-table-column align="center" label="实际金额/元" prop="actualPrice" sortable="custom">
-        <template slot-scope="scope">{{
-          scope.row.actualPrice | yuan
+        <template #default="scope">{{
+          yuan(scope.row.actualPrice)
         }}</template>
       </el-table-column>
       <el-table-column align="center" label="退款状态" prop="actualPrice" sortable="custom">
-        <template slot-scope="scope">{{
+        <template #default="scope">{{
           scope.row.refundStatusMsg
         }}</template>
       </el-table-column>
       <el-table-column align="center" label="退款金额/元" prop="actualPrice" sortable="custom">
-        <template slot-scope="scope">{{
-          scope.row.refundAmount | yuan
+        <template #default="scope">{{
+          yuan(scope.row.refundAmount)
         }}</template>
       </el-table-column>
       <el-table-column
@@ -156,15 +156,15 @@
         prop="createTime"
         sortable="custom"
       >
-        <template slot-scope="scope">
+        <template #default="scope">
           <span>{{ parseTime(scope.row.shipTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="250">
-        <template slot-scope="scope">
+        <template #default="scope">
           <el-button
             v-hasPermi="['system:order:info']"
-            size="mini"
+            size="small"
             @click="handleDetail(scope.row)"
           >详情</el-button>
           <el-popover
@@ -173,25 +173,25 @@
           >
             <el-button
               v-hasPermi="['system:order:delete']"
-              size="mini"
+              size="small"
               type="danger"
               @click="handleDelete(scope.row)"
             >删除</el-button>
             <el-button
               v-if="scope.row.orderStatus == 201"
               v-hasPermi="['system:order:ship']"
-              size="mini"
+              size="small"
               type="primary"
               @click="handleShip(scope.row)"
             >发货</el-button>
             <el-button
               v-if="scope.row.orderStatus == 202 || scope.row.orderStatus == 204"
               v-hasPermi="['system:order:refund']"
-              size="mini"
+              size="small"
               type="warning"
               @click="handleRefund(scope.row)"
             >退款</el-button>
-            <el-button slot="reference" class="more_btn" size="mini">更多</el-button>
+            <template #reference><el-button class="more_btn" size="small">更多</el-button></template>
           </el-popover>
         </template>
       </el-table-column>
@@ -200,13 +200,13 @@
     <pagination
       v-show="total"
       :total="total"
-      :page.sync="queryForm.pageNum"
-      :limit.sync="queryForm.pageSize"
+      v-model:page="queryForm.pageNum"
+      v-model:limit="queryForm.pageSize"
       @pagination="getList"
     />
     <!-- 订单详情对话框 -->
     <el-dialog
-      :visible.sync="orderDialogVisible"
+      v-model="orderDialogVisible"
       title="订单详情"
       :close-on-click-modal="false"
       width="800"
@@ -253,7 +253,7 @@
               <el-table-column align="center" label="货品价格" prop="price" />
               <el-table-column align="center" label="货品数量" prop="number" />
               <el-table-column align="center" label="货品图片" prop="picUrl">
-                <template slot-scope="scope">
+                <template #default="scope">
                   <img :src="scope.row.picUrl" width="40">
                 </template>
               </el-table-column>
@@ -289,16 +289,16 @@
           </el-form-item>
         </el-form>
       </section>
-      <span slot="footer" class="dialog-footer">
+      <template #footer><span class="dialog-footer">
         <el-button @click="orderDialogVisible = false">取 消</el-button>
         <el-button type="primary">打 印</el-button>
-      </span>
+      </span></template>
     </el-dialog>
 
     <!-- 退款对话框 -->
-    <el-dialog :visible.sync="refundDialogVisible" title="退款">
+    <el-dialog v-model="refundDialogVisible" title="退款">
       <el-form
-        ref="refundForm"
+        ref="refundFormRef"
         :model="refundForm"
         status-icon
         label-position="left"
@@ -315,16 +315,16 @@
           <el-input v-model="refundForm.refundReason" type="textarea" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="refundDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="clickRefund">确定</el-button>
-      </div>
+      </div></template>
     </el-dialog>
 
     <!-- 发货对话框 -->
-    <el-dialog :visible.sync="shipDialogVisible" title="发货">
+    <el-dialog v-model="shipDialogVisible" title="发货">
       <el-form
-        ref="shipForm"
+        ref="shipFormRef"
         :model="shipForm"
         status-icon
         label-position="left"
@@ -346,247 +346,269 @@
           <el-input v-model="shipForm.shipSn" />
         </el-form-item>
       </el-form>
-      <div slot="footer" class="dialog-footer">
+      <template #footer><div class="dialog-footer">
         <el-button @click="shipDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="clickShip">确定</el-button>
-      </div>
+      </div></template>
     </el-dialog>
-    <Progess :percentage="percentage" :progress-dialog-visible="progressDialogVisible" />
+    <Progess :percentage="percentage" v-model:progress-dialog-visible="progressDialogVisible" />
   </div>
 </template>
-<script>
+<script setup>
+import { getCurrentInstance, ref } from 'vue'
 import { streamDownload } from '@/utils/index'
-import {
-  listOrder,
-  delOrder,
-  getOrder,
-  refundOrder,
-  listChannel,
-  clickShip,
-  exportOrder
-} from '@/api/shop/order'
-import { yuan } from '@/utils'
+import { listOrder, delOrder, getOrder, refundOrder, listChannel, clickShip as shipOrder, exportOrder } from '@/api/shop/order'
+import { yuan as formatYuan } from '@/utils'
 import Progess from '@/components/Progress'
-export default {
+import { useTemplateRefs } from '@/utils/templateRefs'
+const instance = getCurrentInstance()
+defineOptions({
   components: {
     Progess
-  },
-  filters: {
-    yuan
-  },
-  data() {
-    return {
-      percentage: 0,
-      progressDialogVisible: false,
-      loading: true,
-      // 列表总数
-      total: 0,
-      // 日期范围
-      dateRange: [],
-      // 订单状态数据字典
-      orderStatusOptions: [],
-      payTypeOptions: [
-        { name: '微信', value: '1' },
-        { name: '支付宝', value: '2' },
-        { name: '测试', value: '3' }
-      ],
-      // 查询参数
-      queryForm: {
-        pageNum: 1,
-        pageSize: 10,
-        orderSn: undefined,
-        userId: undefined,
-        name: undefined
-      },
-      // 角色列表
-      orderList: [],
-      orderDialogVisible: false,
-      orderDetail: {
-        order: {},
-        user: {},
-        orderGoods: []
-      },
-      channels: [],
-      shipForm: {
-        orderId: undefined,
-        shipChannel: undefined,
-        shipSn: undefined
-      },
-      shipFormRules: {
-        shipChannel: [
-          { required: true, message: '发货渠道不能为空', trigger: 'blur' }
-        ],
-        shipSn: [
-          { required: true, message: '发货编号不能为空', trigger: 'blur' }
-        ]
-      },
-      shipDialogVisible: false,
-      refundDialogVisible: false,
-      refundForm: {
-        orderSn: undefined,
-        refundMoney: undefined,
-        refundReason: undefined
-      },
-      refundFormRules: {
-        refundMoney: [
-          { required: true, message: '退款金额不能为空', trigger: 'blur' }
-        ],
-        refundReason: [
-          { required: true, message: '退款原因不能为空', trigger: 'blur' }
-        ]
-      }
-    }
-  },
-  created() {
-    this.getList()
-    this.getChannel()
-    this.getDicts('orderStatus').then((response) => {
-      const {
-        data
-      } = response
-      this.orderStatusOptions = data
-    })
-  },
-  methods: {
-    getChannel() {
-      listChannel().then((response) => {
-        this.channels = response.data
-      })
-    },
-    handleQuery() {
-      this.getList()
-    },
-    /**
-     * 表单重置
-     */
-    resetQuery() {
-      this.$refs.queryForm.resetFields()
-      this.dateRange = []
-      this.handleQuery()
-    },
-    async getList() {
-      const {
-        data: { records: data, total }
-      } = await listOrder(this.addDateRange(this.queryForm, this.dateRange))
-      this.total = total
-      this.orderList = data
-      this.loading = false
-    },
-    /**
-     * 后端排序
-     */
-    handleSortChange(sort) {
-      this.queryForm.sortName = sort.prop
-      this.queryForm.sortOrder = sort.order
-      this.getList()
-    },
-    async handleDetail(row) {
-      const {
-        data
-      } = await getOrder(row.id)
-      this.orderDetail = data
-      this.orderDialogVisible = true
-    },
-    handleShip(row) {
-      this.shipForm = {
-        orderId: row.id,
-        shipChannel: undefined,
-        shipSn: undefined
-      }
-      this.shipDialogVisible = true
-    },
-    clickShip(row) {
-      this.$refs['shipForm'].validate(async(valid) => {
-        if (valid) {
-          const { code, msg } = await clickShip(this.shipForm)
-          if (code === 200) {
-            this.$message.success('发货成功')
-            this.shipDialogVisible = false
-            this.getList()
-          } else {
-            this.$message.error(msg)
-          }
-        }
-      })
-    },
-    handleRefund(row) {
-      this.refundForm.orderSn = row.orderSn
-      this.refundForm.refundMoney = undefined
-      this.refundForm.refundReason = undefined
-      this.refundDialogVisible = true
-    },
-    clickRefund(row) {
-      this.$refs['refundForm'].validate(async(valid) => {
-        if (valid) {
-          const { code, msg } = await refundOrder(this.refundForm)
-          if (code === 200) {
-            this.$message.success('退款成功')
-            this.refundDialogVisible = false
-            this.getList()
-          } else {
-            this.$message.error(msg)
-          }
-        }
-      })
-    },
-    /**
-     * 删除按钮
-     */
-    async handleDelete(row) {
-      const orderId = row.id
-      this.$confirm(
-        '是否确认删除订单编号为 [' + row.orderSn + '] 的订单吗?',
-        '警告',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-        .then(function() {
-          return delOrder(orderId)
-        })
-        .then(() => {
-          this.getList()
-          this.$message.success('删除成功')
-        })
-        .catch(function(e) {})
-    },
-    /**
-     * 导出操作
-     */
-    handleExport() {
-      const that = this
-      this.queryForm.pageNum = 1
-      this.queryForm.pageSize = 100000
-      const queryForm = this.addDateRange(this.queryForm, this.dateRange)
-      this.$confirm('是否确认导出所有用户数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        that.progressDialogVisible = true
-        return exportOrder(queryForm, (progressEvent) => {
-          const process = (progressEvent.loaded / progressEvent.total * 100 | 0)
-          const progressText = `下载进度：${process}%`
-          console.log(progressText)
-          that.percentage = process
-        })
-      }).then(res => {
-        streamDownload(res)
-      }).catch(function(e) {
-        console.log(e)
-      }).finally(() => {
-        setTimeout(() => {
-          that.progressDialogVisible = false
-        }, 1500)
-      })
-    }
   }
+})
+const templateRefs = useTemplateRefs(instance)
+const percentage = ref(0)
+const progressDialogVisible = ref(false)
+const loading = ref(true)
+const total = ref(0)
+const dateRange = ref([])
+const orderStatusOptions = ref([])
+const payTypeOptions = ref([{
+  name: '微信',
+  value: '1'
+}, {
+  name: '支付宝',
+  value: '2'
+}, {
+  name: '测试',
+  value: '3'
+}])
+const queryForm = ref({
+  pageNum: 1,
+  pageSize: 10,
+  orderSn: undefined,
+  userId: undefined,
+  name: undefined
+})
+const orderList = ref([])
+const orderDialogVisible = ref(false)
+const orderDetail = ref({
+  order: {},
+  user: {},
+  orderGoods: []
+})
+const channels = ref([])
+const shipForm = ref({
+  orderId: undefined,
+  shipChannel: undefined,
+  shipSn: undefined
+})
+const shipFormRules = ref({
+  shipChannel: [{
+    required: true,
+    message: '发货渠道不能为空',
+    trigger: 'blur'
+  }],
+  shipSn: [{
+    required: true,
+    message: '发货编号不能为空',
+    trigger: 'blur'
+  }]
+})
+const shipDialogVisible = ref(false)
+const refundDialogVisible = ref(false)
+const refundForm = ref({
+  orderSn: undefined,
+  refundMoney: undefined,
+  refundReason: undefined
+})
+const refundFormRules = ref({
+  refundMoney: [{
+    required: true,
+    message: '退款金额不能为空',
+    trigger: 'blur'
+  }],
+  refundReason: [{
+    required: true,
+    message: '退款原因不能为空',
+    trigger: 'blur'
+  }]
+})
+function yuan(value) {
+  return formatYuan(value)
 }
+function getChannel() {
+  listChannel().then(response => {
+    channels.value = response.data
+  })
+}
+function handleQuery() {
+  getList()
+}
+function resetQuery() {
+  templateRefs.queryFormRef.resetFields()
+  dateRange.value = []
+  handleQuery()
+}
+async function getList() {
+  const {
+    data: {
+      records: data,
+      total: pageTotal
+    }
+  } = await listOrder(instance.proxy.addDateRange(queryForm.value, dateRange.value))
+  total.value = pageTotal
+  orderList.value = data
+  loading.value = false
+}
+function handleSortChange(sort) {
+  queryForm.value.sortName = sort.prop
+  queryForm.value.sortOrder = sort.order
+  getList()
+}
+async function handleDetail(row) {
+  const {
+    data
+  } = await getOrder(row.id)
+  orderDetail.value = data
+  orderDialogVisible.value = true
+}
+function handleShip(row) {
+  shipForm.value = {
+    orderId: row.id,
+    shipChannel: undefined,
+    shipSn: undefined
+  }
+  shipDialogVisible.value = true
+}
+function clickShip(row) {
+  templateRefs.shipFormRef.validate(async valid => {
+    if (valid) {
+      const {
+        code,
+        msg
+      } = await shipOrder(shipForm.value)
+      if (code === 200) {
+        instance.proxy.$message.success('发货成功')
+        shipDialogVisible.value = false
+        getList()
+      } else {
+        instance.proxy.$message.error(msg)
+      }
+    }
+  })
+}
+function handleRefund(row) {
+  refundForm.value.orderSn = row.orderSn
+  refundForm.value.refundMoney = undefined
+  refundForm.value.refundReason = undefined
+  refundDialogVisible.value = true
+}
+function clickRefund(row) {
+  templateRefs.refundFormRef.validate(async valid => {
+    if (valid) {
+      const {
+        code,
+        msg
+      } = await refundOrder(refundForm.value)
+      if (code === 200) {
+        instance.proxy.$message.success('退款成功')
+        refundDialogVisible.value = false
+        getList()
+      } else {
+        instance.proxy.$message.error(msg)
+      }
+    }
+  })
+}
+async function handleDelete(row) {
+  const orderId = row.id
+  instance.proxy.$confirm('是否确认删除订单编号为 [' + row.orderSn + '] 的订单吗?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    return delOrder(orderId)
+  }).then(() => {
+    getList()
+    instance.proxy.$message.success('删除成功')
+  }).catch(function(e) {})
+}
+function handleExport() {
+  const that = this
+  queryForm.value.pageNum = 1
+  queryForm.value.pageSize = 100000
+  const queryForm = instance.proxy.addDateRange(queryForm.value, dateRange.value)
+  instance.proxy.$confirm('是否确认导出所有用户数据项?', '警告', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(function() {
+    that.progressDialogVisible = true
+    return exportOrder(queryForm, progressEvent => {
+      const process = progressEvent.loaded / progressEvent.total * 100 | 0
+      const progressText = `下载进度：${process}%`
+      console.log(progressText)
+      that.percentage = process
+    })
+  }).then(res => {
+    streamDownload(res)
+  }).catch(function(e) {
+    console.log(e)
+  }).finally(() => {
+    setTimeout(() => {
+      that.progressDialogVisible = false
+    }, 1500)
+  })
+}
+(() => {
+  getList()
+  getChannel()
+  instance.proxy.getDicts('orderStatus').then(response => {
+    const {
+      data
+    } = response
+    orderStatusOptions.value = data
+  })
+})()
+defineExpose({
+  channels,
+  clickRefund,
+  clickShip,
+  dateRange,
+  getChannel,
+  getList,
+  handleDelete,
+  handleDetail,
+  handleExport,
+  handleQuery,
+  handleRefund,
+  handleShip,
+  handleSortChange,
+  loading,
+  orderDetail,
+  orderDialogVisible,
+  orderList,
+  orderStatusOptions,
+  payTypeOptions,
+  percentage,
+  progressDialogVisible,
+  queryForm,
+  refundDialogVisible,
+  refundForm,
+  refundFormRules,
+  resetQuery,
+  shipDialogVisible,
+  shipForm,
+  shipFormRules,
+  total,
+  yuan
+})
 </script>
 <style lang="scss" scoped>
 .more_btn{
   margin-left: 10px;
 }
 </style>
+

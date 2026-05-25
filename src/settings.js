@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 
   title: 'waynboot-mall后管',
 

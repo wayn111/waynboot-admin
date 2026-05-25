@@ -18,43 +18,52 @@
   </div>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
+<script setup>
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
-import variables from '@/styles/variables.scss'
-
-export default {
-  components: { SidebarItem, Logo },
-  computed: {
-    ...mapGetters([
-      'sidebar', 'permission_routes'
-    ]),
-    routes() {
-      return this.permission_routes
-    },
-    activeMenu() {
-      const route = this.$route
-      const { meta, path } = route
-      // if set path, the sidebar will highlight the path you set
-      if (meta.activeMenu) {
-        return meta.activeMenu
-      }
-      // 针对字典类型子数据，高亮左侧字典管理菜单
-      if (path.indexOf('/dict/type/data') >= 0) {
-        return '/system/dict/type'
-      }
-      return path
-    },
-    showLogo() {
-      return this.$store.state.settings.sidebarLogo
-    },
-    variables() {
-      return variables
-    },
-    isCollapse() {
-      return !this.sidebar.opened
-    }
+import sidebarVariables from '@/styles/variables.module.scss'
+const store = useStore()
+const route = useRoute()
+defineOptions({
+  components: {
+    SidebarItem,
+    Logo
   }
-}
+})
+const routes = computed(() => {
+  return store.getters.permission_routes
+})
+const activeMenu = computed(() => {
+  const currentRoute = route
+  const {
+    meta,
+    path
+  } = currentRoute
+  // if set path, the sidebar will highlight the path you set
+  if (meta.activeMenu) {
+    return meta.activeMenu
+  }
+  // 针对字典类型子数据，高亮左侧字典管理菜单
+  if (path.indexOf('/dict/type/data') >= 0) {
+    return '/system/dict/type'
+  }
+  return path
+})
+const showLogo = computed(() => {
+  return store.state.settings.sidebarLogo
+})
+const variables = computed(() => sidebarVariables)
+const isCollapse = computed(() => {
+  return !store.state.app.sidebar.opened
+})
+defineExpose({
+  activeMenu,
+  isCollapse,
+  routes,
+  showLogo,
+  variables
+})
 </script>

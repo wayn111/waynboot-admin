@@ -1,5 +1,7 @@
 import request from '@/utils/request'
-const uploadPath = process.env.VUE_APP_BASE_API + '/tool/qiniu/upload'
+import { baseApi } from '@/utils/env'
+
+const uploadPath = baseApi + '/tool/qiniu/upload'
 export { uploadPath }
 
 export function upload(data) {

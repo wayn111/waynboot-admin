@@ -1,168 +1,95 @@
 <template>
-  <el-row :gutter="40" class="panel-group">
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+  <el-row :gutter="16" style="margin-bottom:20px">
+    <el-col :span="4" v-for="card in cards" :key="card.label">
+      <div class="kpi-card">
+        <div class="kpi-icon" :style="{ background: card.bg }">
+          <span class="kpi-emoji">{{ card.icon }}</span>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            已注册会员数
+        <div class="kpi-body">
+          <div class="kpi-label">{{ card.label }}</div>
+          <div class="kpi-value">{{ card.prefix }}{{ card.value }}</div>
+          <div class="kpi-badge" :class="card.growth >= 0 ? 'up' : 'down'">
+            {{ card.growth >= 0 ? '↑' : '↓' }} {{ Math.abs(card.growth).toFixed(1) }}%
           </div>
-          <count-to :start-val="0" :end-val="0" :duration="2600" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
-        <div class="card-panel-icon-wrapper icon-money">
-          <svg-icon icon-class="money" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            总下单金额
-          </div>
-          <count-to :start-val="0" :end-val="0" :duration="3200" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            总下单数量
-          </div>
-          <count-to :start-val="0" :end-val="0" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
   </el-row>
 </template>
 
-<script>
-import CountTo from 'vue-count-to'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { getDashboardStats, getDashboardPeriod } from '@/api/shop/dashboard'
+import { emptyDashboardPeriod, emptyDashboardStats, normalizePeriod, normalizeStats } from './dashboardData.js'
 
-export default {
-  components: {
-    CountTo
-  },
-  methods: {
-    handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData', type)
-    }
-  }
-}
+const stats = ref({ ...emptyDashboardStats })
+const period = ref({ ...emptyDashboardPeriod })
+
+onMounted(async() => {
+  const [s, p] = await Promise.all([getDashboardStats(), getDashboardPeriod()])
+  if (s.code === 200) stats.value = normalizeStats(s.data)
+  if (p.code === 200) period.value = normalizePeriod(p.data)
+})
+
+const convRate = computed(() => {
+  return Number(stats.value.conversionRate || 0).toFixed(1)
+})
+
+const cards = computed(() => [
+  { label: '今日销售额', value: Number(stats.value.todaySales || 0).toLocaleString(), prefix: '¥', growth: period.value.today?.salesGrowth ?? 0, icon: '💰', bg: '#e8f4ff' },
+  { label: '今日订单', value: stats.value.todayOrderCount, prefix: '', growth: period.value.today?.orderGrowth ?? 0, icon: '📦', bg: '#fff3e0' },
+  { label: '支付转化率', value: convRate.value + '%', prefix: '', growth: 0, icon: '📈', bg: '#e8f5e9' },
+  { label: '新增用户', value: stats.value.todayMemberCount, prefix: '', growth: 0, icon: '👤', bg: '#f3e5f5' },
+  { label: '待发货', value: stats.value.pendingShipCount, prefix: '', growth: 0, icon: '🚚', bg: '#fff8e1' },
+  { label: '低库存', value: stats.value.lowStockCount, prefix: '', growth: 0, icon: '⚠️', bg: '#fce4ec' }
+])
 </script>
 
 <style lang="scss" scoped>
-.panel-group {
-  margin-top: 18px;
-
-  .card-panel-col {
-    margin-bottom: 32px;
-  }
-
-  .card-panel {
-    height: 108px;
-    cursor: pointer;
-    font-size: 12px;
-    position: relative;
-    overflow: hidden;
-    color: #666;
-    background: #fff;
-    box-shadow: 4px 4px 40px rgba(0, 0, 0, .05);
-    border-color: rgba(0, 0, 0, .05);
-
-    &:hover {
-      .card-panel-icon-wrapper {
-        color: #fff;
-      }
-
-      .icon-people {
-        background: #40c9c6;
-      }
-
-      .icon-message {
-        background: #36a3f7;
-      }
-
-      .icon-money {
-        background: #f4516c;
-      }
-
-      .icon-shopping {
-        background: #34bfa3
-      }
-    }
-
-    .icon-people {
-      color: #40c9c6;
-    }
-
-    .icon-message {
-      color: #36a3f7;
-    }
-
-    .icon-money {
-      color: #f4516c;
-    }
-
-    .icon-shopping {
-      color: #34bfa3
-    }
-
-    .card-panel-icon-wrapper {
-      float: left;
-      margin: 14px 0 0 14px;
-      padding: 16px;
-      transition: all 0.38s ease-out;
-      border-radius: 6px;
-    }
-
-    .card-panel-icon {
-      float: left;
-      font-size: 48px;
-    }
-
-    .card-panel-description {
-      float: right;
-      font-weight: bold;
-      margin: 26px;
-      margin-left: 0px;
-
-      .card-panel-text {
-        line-height: 18px;
-        color: rgba(0, 0, 0, 0.45);
-        font-size: 16px;
-        margin-bottom: 12px;
-      }
-
-      .card-panel-num {
-        font-size: 20px;
-      }
-    }
-  }
+.kpi-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
 }
-
-@media (max-width:550px) {
-  .card-panel-description {
-    display: none;
-  }
-
-  .card-panel-icon-wrapper {
-    float: none !important;
-    width: 100%;
-    height: 100%;
-    margin: 0 !important;
-
-    .svg-icon {
-      display: block;
-      margin: 14px auto !important;
-      float: none !important;
-    }
-  }
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.kpi-emoji { font-size: 22px; }
+.kpi-body { min-width: 0; }
+.kpi-label {
+  font-size: 13px;
+  color: #6e6e73;
+  letter-spacing: -0.224px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1d1d1f;
+  letter-spacing: -0.374px;
+  line-height: 1.2;
+  margin: 2px 0;
+}
+.kpi-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  &.up { background: #e8f5e9; color: #2e7d32; }
+  &.down { background: #fce4ec; color: #c62828; }
 }
 </style>
