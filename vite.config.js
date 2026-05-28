@@ -2,12 +2,12 @@ import { fileURLToPath, URL } from 'node:url'
 import path from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
+import { createSvgIconsPlugin } from './vite/plugins/svg-icons.js'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const baseUrl = env.VITE_APP_BASE_URL
-  const port = Number(env.PORT || process.env.npm_config_port || 9528)
+  const port = Number(env.PORT || process.env.npm_config_port || 9530)
 
   return {
     base: '/admin/',

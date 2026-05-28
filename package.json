@@ -4,7 +4,7 @@
   "description": "Waynboot Mall admin console built with Vue 3, Vite 6 and Element Plus",
   "author": "wayn111",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 9528",
+    "dev": "vite --host 0.0.0.0 --port 9530",
     "build:prod": "vite build",
     "preview": "vite preview --host 0.0.0.0 --port 9529",
     "svgo": "svgo -f src/icons/svg --config=src/icons/svgo.yml",
@@ -44,7 +44,6 @@
     "sass": "^1.100.0",
     "svgo": "^4.0.1",
     "vite": "^6.4.2",
-    "vite-plugin-svg-icons": "^2.0.1",
     "vitest": "^4.1.7",
     "vue-eslint-parser": "^9.4.3"
   },
